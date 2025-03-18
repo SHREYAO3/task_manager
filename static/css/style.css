@@ -1,0 +1,259 @@
+/* Reset and base styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f9f9f9;
+}
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+header {
+    background-color: #fff;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+h1 {
+    color: #2c3e50;
+    margin-right: 1rem;
+}
+
+/* Buttons */
+.btn {
+    display: inline-block;
+    background-color: #3498db;
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border-radius: 4px;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.2s;
+}
+
+.btn:hover {
+    background-color: #2980b9;
+}
+
+.btn.add-btn {
+    background-color: #2ecc71;
+}
+
+.btn.add-btn:hover {
+    background-color: #27ae60;
+}
+
+.btn.small {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.8rem;
+}
+
+.btn.danger {
+    background-color: #e74c3c;
+}
+
+.btn.danger:hover {
+    background-color: #c0392b;
+}
+
+/* Task list */
+.task-list {
+    background-color: #fff;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+th, td {
+    padding: 0.8rem;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #f2f2f2;
+    font-weight: 600;
+}
+
+/* Priority indicators */
+.priority-indicator {
+    background-color: #3498db;
+    color: white;
+    font-weight: bold;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    display: inline-block;
+    min-width: 2.5rem;
+    text-align: center;
+}
+
+/* Priority colors */
+.priority-10 .priority-indicator, 
+.priority-9 .priority-indicator {
+    background-color: #e74c3c;
+}
+
+.priority-8 .priority-indicator, 
+.priority-7 .priority-indicator {
+    background-color: #f39c12;
+}
+
+.priority-6 .priority-indicator, 
+.priority-5 .priority-indicator {
+    background-color: #3498db;
+}
+
+.priority-4 .priority-indicator, 
+.priority-3 .priority-indicator {
+    background-color: #27ae60;
+}
+
+.priority-2 .priority-indicator, 
+.priority-1 .priority-indicator {
+    background-color: #7f8c8d;
+}
+
+/* Task description */
+.description {
+    color: #666;
+    font-size: 0.9rem;
+    margin-top: 0.3rem;
+}
+
+/* Form styles */
+.task-form {
+    background-color: #fff;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+    margin-bottom: 1.2rem;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 0.7rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 1rem;
+}
+
+input[type="range"] {
+    width: calc(100% - 3rem);
+    vertical-align: middle;
+}
+
+output {
+    display: inline-block;
+    width: 2rem;
+    text-align: center;
+    font-weight: bold;
+}
+
+.submit-btn {
+    margin-top: 1rem;
+    font-size: 1.1rem;
+    padding: 0.7rem 1.5rem;
+}
+
+/* Empty state */
+.empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+}
+
+/* Footer */
+footer {
+    margin-top: 2rem;
+    text-align: center;
+    color: #888;
+    font-size: 0.9rem;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .btn.add-btn {
+        margin-top: 1rem;
+    }
+    
+    table, thead, tbody, th, td, tr {
+        display: block;
+    }
+    
+    thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
+    
+    tr {
+        border: 1px solid #ddd;
+        margin-bottom: 1rem;
+        padding: 0.5rem;
+    }
+    
+    td {
+        border: none;
+        border-bottom: 1px solid #eee;
+        position: relative;
+        padding-left: 50%;
+    }
+    
+    td:before {
+        position: absolute;
+        top: 0.8rem;
+        left: 0.8rem;
+        width: 45%;
+        padding-right: 10px;
+        white-space: nowrap;
+        font-weight: bold;
+    }
+    
+    td:nth-of-type(1):before { content: "Priority"; }
+    td:nth-of-type(2):before { content: "Title"; }
+    td:nth-of-type(3):before { content: "Category"; }
+    td:nth-of-type(4):before { content: "Type"; }
+    td:nth-of-type(5):before { content: "Deadline"; }
+    td:nth-of-type(6):before { content: "Urgency"; }
+    td:nth-of-type(7):before { content: "Effort"; }
+    td:nth-of-type(8):before { content: "Actions"; }
+}

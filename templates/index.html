@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ML Task Manager</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>ML Task Manager</h1>
+            <p>Your tasks, intelligently prioritized</p>
+            <a href="{{ url_for('add_task') }}" class="btn add-btn">Add New Task</a>
+        </header>
+        
+        <main>
+            <div class="task-list">
+                <h2>Your Tasks</h2>
+                {% if tasks %}
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Priority</th>
+                                <th>Title</th>
+                                <th>Category</th>
+                                <th>Type</th>
+                                <th>Deadline</th>
+                                <th>Urgency</th>
+                                <th>Effort</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for task in tasks %}
+                                <tr class="priority-{{ task.priority|int }}">
+                                    <td>
+                                        <div class="priority-indicator">{{ "%.1f"|format(task.priority) }}</div>
+                                    </td>
+                                    <td>
+                                        <h3>{{ task.title }}</h3>
+                                        <p class="description">{{ task.description }}</p>
+                                    </td>
+                                    <td>{{ task.category }}</td>
+                                    <td>{{ task.type }}</td>
+                                    <td>{{ task.deadline_days }} days</td>
+                                    <td>{{ task.urgency }}/10</td>
+                                    <td>{{ task.effort }}h</td>
+                                    <td class="actions">
+                                        <a href="{{ url_for('complete_task', task_id=task.id) }}" class="btn small">Complete</a>
+                                        <a href="{{ url_for('delete_task', task_id=task.id) }}" class="btn small danger">Delete</a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <div class="empty-state">
+                        <p>No tasks added yet. Click "Add New Task" to get started!</p>
+                    </div>
+                {% endif %}
+            </div>
+        </main>
+        
+        <footer>
+            <p>ML Task Manager &copy; 2025</p>
+        </footer>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
