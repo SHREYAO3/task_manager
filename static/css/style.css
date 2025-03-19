@@ -112,27 +112,27 @@ th {
 }
 
 /* Priority colors */
-.priority-10 .priority-indicator, 
+.priority-10 .priority-indicator,
 .priority-9 .priority-indicator {
     background-color: #e74c3c;
 }
 
-.priority-8 .priority-indicator, 
+.priority-8 .priority-indicator,
 .priority-7 .priority-indicator {
     background-color: #f39c12;
 }
 
-.priority-6 .priority-indicator, 
+.priority-6 .priority-indicator,
 .priority-5 .priority-indicator {
     background-color: #3498db;
 }
 
-.priority-4 .priority-indicator, 
+.priority-4 .priority-indicator,
 .priority-3 .priority-indicator {
     background-color: #27ae60;
 }
 
-.priority-2 .priority-indicator, 
+.priority-2 .priority-indicator,
 .priority-1 .priority-indicator {
     background-color: #7f8c8d;
 }
@@ -210,34 +210,34 @@ footer {
         flex-direction: column;
         align-items: flex-start;
     }
-    
+   
     .btn.add-btn {
         margin-top: 1rem;
     }
-    
+   
     table, thead, tbody, th, td, tr {
         display: block;
     }
-    
+   
     thead tr {
         position: absolute;
         top: -9999px;
         left: -9999px;
     }
-    
+   
     tr {
         border: 1px solid #ddd;
         margin-bottom: 1rem;
         padding: 0.5rem;
     }
-    
+   
     td {
         border: none;
         border-bottom: 1px solid #eee;
         position: relative;
         padding-left: 50%;
     }
-    
+   
     td:before {
         position: absolute;
         top: 0.8rem;
@@ -247,7 +247,54 @@ footer {
         white-space: nowrap;
         font-weight: bold;
     }
-    
+    /* Add this to the existing style.css file */
+
+/* Date picker styling */
+.flatpickr-calendar {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+}
+
+.flatpickr-day.selected {
+    background-color: #3498db;
+    border-color: #3498db;
+}
+
+.flatpickr-day.selected:hover {
+    background-color: #2980b9;
+    border-color: #2980b9;
+}
+
+#deadline_days {
+    background-color: #f9f9f9;
+    cursor: not-allowed;
+}
+
+.form-text {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: #666;
+}
+
+/* Responsive improvements for date picker */
+@media (max-width: 768px) {
+    .flatpickr-calendar {
+        width: 100%;
+        max-width: 350px;
+    }
+}
+
+/* Update the existing styles for empty state */
+.empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    margin-top: 1rem;
+}
+   
     td:nth-of-type(1):before { content: "Priority"; }
     td:nth-of-type(2):before { content: "Title"; }
     td:nth-of-type(3):before { content: "Category"; }

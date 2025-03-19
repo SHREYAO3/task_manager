@@ -2,16 +2,15 @@ import os
 import sys
 import subprocess
 
-
 class ApplicationSetup:
     """Class responsible for setting up the ML Task Manager application."""
-    
+   
     def __init__(self):
         """Initialize the application setup."""
         self.required_packages = ['flask', 'pandas', 'numpy', 'scikit-learn', 'joblib']
         self.directories = ['templates', 'static/css', 'static/js', 'data', 'ml', 'models']
         self.model_path = os.path.join('ml', 'random_forest_task_priority.pkl')
-    
+   
     def check_requirements(self):
         """Check if all required packages are installed."""
         for package in self.required_packages:
@@ -23,7 +22,7 @@ class ApplicationSetup:
                 subprocess.check_call([sys.executable, "-m", "pip", "install", package])
                 print(f"✓ {package} has been installed")
         return True
-    
+   
     def setup_directories(self):
         """Create necessary directories if they don't exist."""
         for directory in self.directories:
@@ -31,7 +30,7 @@ class ApplicationSetup:
                 os.makedirs(directory)
                 print(f"Created directory: {directory}")
         return True
-    
+   
     def prepare_ml_models(self):
         """Create ML models if they don't exist."""
         if not os.path.exists(self.model_path):
@@ -45,14 +44,13 @@ class ApplicationSetup:
                 print("Running the app without ML models (will use fallback prioritization)")
         return True
 
-
 class ApplicationRunner:
     """Class responsible for running the Flask application."""
-    
-    def _init_(self):
+   
+    def __init__(self):
         """Initialize the application runner."""
         self.app = None
-    
+   
     def run(self):
         """Run the Flask application."""
         try:
@@ -65,21 +63,19 @@ class ApplicationRunner:
         except Exception as e:
             print(f"Error running the application: {e}")
 
-
 def main():
     """Main function to set up and run the application."""
     print("Setting up ML Task Manager...")
-    
+   
     # Setup application
     setup = ApplicationSetup()
     setup.check_requirements()
     setup.setup_directories()
     setup.prepare_ml_models()
-    
+   
     # Run application
     runner = ApplicationRunner()
     runner.run()
-
 
 if __name__ == "__main__":
     main()
