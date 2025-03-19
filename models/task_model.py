@@ -1,25 +1,28 @@
-import sqlite3
+import pyodbc
 import os
 import json
 from datetime import datetime
 
+
 class TaskDatabase:
-    def __init__(self, db_path):
-        self.db_path = db_path
+    def __init__(self, connection_string=None):
+        # Default connection string - update with your SQL Server details
+        self.connection_string = connection_string or (
+            "DRIVER={SQL Server};"
+            "SERVER=YOUR_SERVER_NAME;"  # Replace with your server name
+            "DATABASE=TaskManager;"     # Replace with your database name
+            "Trusted_Connection=yes;"   # For Windows authentication
+        )
         self.conn = None
         self.cursor = None
         self.initialize_db()
        
     def connect(self):
         try:
-            # Make sure the directory exists
-            os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
-            
-            self.conn = sqlite3.connect(self.db_path)
-            self.conn.row_factory = sqlite3.Row  # This enables column access by name
+            self.conn = pyodbc.connect(self.connection_string)
             self.cursor = self.conn.cursor()
             return True
-        except sqlite3.Error as e:
+        except pyodbc.Error as e:
             print(f"Database connection error: {e}")
             return False
            
@@ -30,37 +33,43 @@ class TaskDatabase:
             self.cursor = None
            
     def initialize_db(self):
-        # Ensure the data directory exists
-        os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
-       
         if self.connect():
-            self.cursor.execute('''
-            CREATE TABLE IF NOT EXISTS TASKS (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                title TEXT NOT NULL,
-                description TEXT,
-                category TEXT NOT NULL,
-                type TEXT NOT NULL,
-                deadline_datetime TEXT NOT NULL,
-                deadline_days INTEGER NOT NULL,
-                urgency INTEGER NOT NULL,
-                effort REAL NOT NULL,
-                priority REAL NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                completed BOOLEAN DEFAULT 0
-            )
-            ''')
-            self.conn.commit()
-            self.disconnect()
+            try:
+                # Check if the table exists
+                self.cursor.execute("""
+                IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'TASKS')
+                BEGIN
+                    CREATE TABLE TASKS (
+                        id INT IDENTITY(1,1) PRIMARY KEY,
+                        title NVARCHAR(255) NOT NULL,
+                        description NVARCHAR(MAX),
+                        category NVARCHAR(100) NOT NULL,
+                        type NVARCHAR(100) NOT NULL,
+                        deadline_datetime NVARCHAR(50) NOT NULL,
+                        deadline_days INT NOT NULL,
+                        urgency INT NOT NULL,
+                        effort FLOAT NOT NULL,
+                        priority FLOAT NOT NULL,
+                        created_at DATETIME DEFAULT GETDATE(),
+                        completed BIT DEFAULT 0
+                    )
+                END
+                """)
+                self.conn.commit()
+            except pyodbc.Error as e:
+                print(f"Error creating table: {e}")
+            finally:
+                self.disconnect()
    
     def add_task(self, task_data, priority):
         if self.connect():
             try:
-                self.cursor.execute('''
+                query = """
                 INSERT INTO TASKS (title, description, category, type, deadline_datetime, deadline_days,
-                                   urgency, effort, priority)
+                                urgency, effort, priority)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                ''', (
+                """
+                self.cursor.execute(query, (
                     task_data['title'],
                     task_data['description'],
                     task_data['category'],
@@ -72,9 +81,13 @@ class TaskDatabase:
                     priority
                 ))
                 self.conn.commit()
-                print(f"Task inserted with ID: {self.cursor.lastrowid}")
+                
+                # Get the last insert ID (different from SQLite)
+                self.cursor.execute("SELECT @@IDENTITY AS ID")
+                last_id = self.cursor.fetchone()[0]
+                print(f"Task inserted with ID: {last_id}")
                 return True
-            except sqlite3.Error as e:
+            except pyodbc.Error as e:
                 print(f"Error adding task: {e}")
                 return False
             finally:
@@ -87,13 +100,14 @@ class TaskDatabase:
                 direction = "DESC" if descending else "ASC"
                 query = f"SELECT * FROM TASKS WHERE completed = 0 ORDER BY {order_by} {direction}"
                 self.cursor.execute(query)
-                tasks = [dict(row) for row in self.cursor.fetchall()]
                 
-                # Debug task retrieval
-                print(f"Retrieved {len(tasks)} tasks from database with query: {query}")
-                
-                # Update days left for each task
-                for task in tasks:
+                # Convert rows to dictionaries
+                columns = [column[0] for column in self.cursor.description]
+                tasks = []
+                for row in self.cursor.fetchall():
+                    task = dict(zip(columns, row))
+                    
+                    # Update days left for each task
                     if 'deadline_datetime' in task:
                         deadline = datetime.strptime(task['deadline_datetime'], '%Y-%m-%d %H:%M')
                         current = datetime.now()
@@ -104,9 +118,12 @@ class TaskDatabase:
                             days_left += 1
                        
                         task['deadline_days'] = max(0, days_left)
+                    
+                    tasks.append(task)
                
+                print(f"Retrieved {len(tasks)} tasks from database with query: {query}")
                 return tasks
-            except sqlite3.Error as e:
+            except pyodbc.Error as e:
                 print(f"Error retrieving tasks: {e}")
                 return []
             finally:
@@ -116,12 +133,12 @@ class TaskDatabase:
     def mark_task_completed(self, task_id):
         if self.connect():
             try:
-                self.cursor.execute('''
+                self.cursor.execute("""
                 UPDATE TASKS SET completed = 1 WHERE id = ?
-                ''', (task_id,))
+                """, (task_id,))
                 self.conn.commit()
                 return True
-            except sqlite3.Error as e:
+            except pyodbc.Error as e:
                 print(f"Error completing task: {e}")
                 return False
             finally:
@@ -131,12 +148,12 @@ class TaskDatabase:
     def delete_task(self, task_id):
         if self.connect():
             try:
-                self.cursor.execute('''
+                self.cursor.execute("""
                 DELETE FROM TASKS WHERE id = ?
-                ''', (task_id,))
+                """, (task_id,))
                 self.conn.commit()
                 return True
-            except sqlite3.Error as e:
+            except pyodbc.Error as e:
                 print(f"Error deleting task: {e}")
                 return False
             finally:

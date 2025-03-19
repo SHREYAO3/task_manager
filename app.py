@@ -12,13 +12,23 @@ class TaskManagerApp:
         self.app = Flask(__name__)
        
         # Initialize database and ML model
-        self.db_path = os.path.join('data', 'task_data.db')
-        self.task_db = TaskDatabase(self.db_path)
+        # Define your SQL Server connection string
+        DRIVER_NAME = 'SQL SERVER'
+        SERVER_NAME = r'ANURADHA\SQLEXPRESS01'
+        DATABASE_NAME = 'TaskManager'
+        self.connection_string = f"""
+        DRIVER={{SQL Server}};
+        SERVER={SERVER_NAME};
+        DATABASE={DATABASE_NAME};
+        Trusted_Connection=yes;
+        """
+        self.task_db = TaskDatabase(self.connection_string)
         self.task_prioritizer = TaskPrioritizer()
        
         # Register routes
         self._register_routes()
    
+    # The rest of the class remains the same
     def _register_routes(self):
         """Register all application routes."""
         self.app.add_url_rule('/', 'index', self.index)
@@ -116,10 +126,6 @@ class TaskManagerApp:
    
     def run(self, debug=True):
         """Run the Flask application."""
-        # Ensure directories exist
-        os.makedirs('data', exist_ok=True)
-        os.makedirs('ml', exist_ok=True)
-       
         self.app.run(debug=debug)
 
 # Create the application instance
