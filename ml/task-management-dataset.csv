@@ -1,0 +1,100 @@
+Task Title,Task Description,Task Category,Task Type,Deadline (Days Left),Urgency (1-10),Estimated Effort (hours),Priority (Target: 1-10)
+Quarterly Budget Meeting,Review Q1 financial performance with department heads,Work or Professional,Meetings,2,1,2.5,1
+Client Proposal Submission,Complete and submit proposal for Henderson project,Work or Professional,Project deadlines,1,1,4,1
+Tax Filing Deadline,Submit annual tax returns before deadline,Financial,Tax filing,3,1,3,1
+Medical Test Results Follow-up,Call doctor regarding recent blood test results,Health & Wellness,Medical appointments,1,1,0.5,1
+Critical Bug Fix,Fix service outage issue affecting main product,Work or Professional,Project deadlines,0,1,5,1
+Final Exam Preparation,Study for final accounting exam,Educational,Exam preparation,2,2,12,1
+Rent Payment,Transfer monthly rent payment to landlord,Financial,Bill payments,1,1,0.5,1
+Job Interview Preparation,Research company and prepare responses for tomorrow's interview,Work or Professional,Meetings,0,1,3,1
+Emergency Plumbing Repair,Schedule plumber to fix leaking pipe,Personal,Household chores,0,1,1,1
+Heart Medication Refill,Refill prescription before it runs out,Health & Wellness,Medication reminders,1,1,0.5,1
+Monthly Team Status Report,Compile team achievements and challenges for executive review,Work or Professional,Reports and documentation,2,2,3,2
+Mortgage Payment,Process monthly mortgage payment,Financial,Bill payments,3,2,0.5,2
+Project Timeline Review,Update project milestones and communicate to stakeholders,Work or Professional,Team collaboration,4,2,1.5,2
+College Application Essay,Complete personal statement for university application,Educational,Assignments and homework,7,3,6,2
+Car Insurance Renewal,Compare rates and renew auto insurance policy,Financial,Bill payments,5,2,2,2
+Dentist Appointment,Six-month dental checkup and cleaning,Health & Wellness,Medical appointments,6,3,1.5,2
+Weekly Sales Report,Analyze and document sales performance for the week,Work or Professional,Reports and documentation,1,2,2,2
+Web Server Maintenance,Update server software and perform security patches,Work or Professional,Project deadlines,3,2,4,2
+Child's School Registration,Complete enrollment forms for next semester,Personal,Family and social events,5,3,1,2
+Insulin Management,Check and record blood sugar levels daily,Health & Wellness,Medication reminders,0,1,0.25,2
+Investment Strategy Meeting,Review portfolio performance with financial advisor,Financial,Investment planning,10,4,1.5,3
+Grocery Shopping,Buy weekly groceries and household supplies,Errands,Grocery shopping,2,3,1.5,3
+Team Building Workshop,Prepare materials for department team-building exercise,Work or Professional,Team collaboration,8,4,3,3
+Landscaping Project,Plan and begin backyard renovation,Personal,Household chores,14,5,8,3
+Research Paper Draft,Complete first draft of research paper,Educational,Research projects,12,4,10,3
+Gym Session,Complete weekly strength training workout,Health & Wellness,Workout plans,1,3,1.5,3
+Credit Card Payment,Pay off monthly credit card balance,Financial,Bill payments,6,3,0.5,3
+Client Follow-up Call,Check in with Johnson Corp about their implementation,Work or Professional,Client follow-ups,5,3,1,3
+Vacation Accommodation Booking,Reserve hotel for summer family vacation,Travel & Leisure,Travel bookings,30,5,2,3
+Blog Post Creation,Write article about industry trends for company blog,Creative,Writing,7,4,4,3
+Database Optimization,Improve query performance for customer database,Work or Professional,Project deadlines,10,4,6,4
+Laundry and Ironing,Wash and iron clothes for the work week,Personal,Household chores,1,3,2,4
+Math Assignment,Complete calculus problem set,Educational,Assignments and homework,4,3,3,4
+Quarterly Budget Planning,Prepare department budget for next quarter,Financial,Budgeting and expense tracking,15,5,5,4
+Mental Health Check-in,Schedule and attend therapy session,Health & Wellness,Mental health check-ins,12,4,1,4
+Network Security Audit,Review access logs and security protocols,Work or Professional,Reports and documentation,20,5,8,4
+Birthday Party Planning,Organize weekend celebration for partner,Personal,Family and social events,11,4,3,4
+Meal Prep Sunday,Prepare meals for the upcoming work week,Personal,Household chores,2,3,3,4
+Marketing Content Review,Provide feedback on new campaign materials,Work or Professional,Team collaboration,8,4,1.5,4
+Car Oil Change,Schedule routine maintenance for vehicle,Errands,Car maintenance,14,5,1,5
+Online Course Assignment,Complete module exercises for Python programming course,Educational,Online courses,9,4,2.5,5
+Fitness Progress Tracking,Record measurements and update fitness plan,Health & Wellness,Workout plans,5,4,1,5
+Expense Report Submission,Submit travel expenses for recent business trip,Work or Professional,Reports and documentation,4,3,1,5
+Monthly Budget Review,Update spreadsheet with monthly expenses and income,Financial,Budgeting and expense tracking,8,4,1.5,5
+Networking Event,Attend industry mixer for professional connections,Social or Community,Networking events,15,5,3,5
+Bathroom Deep Clean,Thoroughly clean and organize bathroom,Personal,Household chores,7,4,2,5
+Create Presentation Slides,Design slides for next week's client presentation,Work or Professional,Project deadlines,6,4,4,5
+Neighborhood Association Meeting,Attend quarterly HOA meeting,Social or Community,Club or group activities,18,5,2,5
+Home Office Organization,Clean and reorganize workspace for better productivity,Personal,Household chores,10,4,3,5
+Social Media Content Calendar,Plan and schedule posts for company platforms,Work or Professional,Project deadlines,12,5,4,6
+Study Group Meeting,Coordinate with classmates for exam review session,Educational,Study sessions,16,5,2,6
+Bookshelf Assembly,Build new bookshelf for home office,Personal,Household chores,21,6,3,6
+Veterinarian Appointment,Take pet for annual checkup and vaccinations,Errands,Miscellaneous,25,6,1.5,6
+Resume Update,Refresh resume with recent accomplishments,Personal,Miscellaneous,30,6,2,6
+Family Photo Organization,Sort and back up digital photos from past year,Personal,Leisure and hobbies,45,7,4,6
+Package Return,Send back incorrect online purchase,Errands,Post office visits,5,4,1,6
+Email Inbox Clean-up,Sort and organize work email backlog,Work or Professional,Miscellaneous,15,5,2,6
+Charity Run Registration,Sign up for upcoming 5K fundraiser,Health & Wellness,Workout plans,40,7,0.5,6
+Water Bill Payment,Process quarterly water utility payment,Financial,Bill payments,20,5,0.5,6
+Website Content Update,Refresh company website with new information,Work or Professional,Project deadlines,18,5,6,7
+Book Club Meeting,Read assigned book and prepare discussion points,Social or Community,Club or group activities,12,5,5,7
+Gardening Session,Plant new seasonal vegetables in garden,Personal,Leisure and hobbies,18,6,3,7
+Investment Research,Research potential new stock investments,Financial,Investment planning,35,7,4,7
+Community Volunteer Day,Help at local food bank distribution event,Social or Community,Volunteering events,28,6,4,7
+Create Weekly Playlist,Compile new music for workout sessions,Creative,Art and music,14,5,1,7
+Window Cleaning,Clean all home windows inside and out,Personal,Household chores,25,6,4,7
+Update Portfolio Website,Add recent projects to professional portfolio site,Creative,Design projects,40,7,8,7
+Anniversary Gift Shopping,Find present for upcoming anniversary,Errands,Miscellaneous,22,6,2,7
+Language Practice,Complete daily Spanish lesson,Educational,Online courses,1,5,0.5,7
+Paint Guest Bedroom,Select color and paint guest room walls,Personal,Household chores,60,8,6,8
+Recipe Testing,Try new dinner recipes for meal rotation,Personal,Leisure and hobbies,25,7,2,8
+Car Wash,Clean vehicle interior and exterior,Errands,Car maintenance,15,6,1.5,8
+Travel Itinerary Planning,Research activities for upcoming vacation,Travel & Leisure,Vacation planning,45,7,4,8
+Video Editing Project,Edit footage for personal YouTube channel,Creative,Content creation,30,7,5,8
+Library Book Return,Return borrowed books before due date,Errands,Miscellaneous,8,5,0.5,8
+Wardrobe Seasonal Update,Sort clothes and prepare for season change,Personal,Household chores,20,6,3,8
+Digital Declutter,Clean up and organize computer files,Personal,Miscellaneous,35,7,2,8
+Cancel Unused Subscription,Review and cancel streaming service not being used,Financial,Budgeting and expense tracking,10,5,0.3,8
+Concert Ticket Purchase,Buy tickets to favorite band's upcoming show,Travel & Leisure,Leisure and hobbies,30,7,0.5,8
+Write Short Story,Complete draft for creative writing submission,Creative,Writing,45,8,10,9
+Update Emergency Contact List,Review and refresh family emergency information,Personal,Miscellaneous,50,8,1,9
+Learn New Cooking Technique,Practice making homemade pasta,Personal,Leisure and hobbies,35,7,3,9
+Phone Backup,Back up photos and contacts from smartphone,Personal,Miscellaneous,20,6,1,9
+Holiday Gift List Planning,Start compiling ideas for seasonal gifts,Personal,Family and social events,90,9,2,9
+Furniture Rearrangement,Redesign living room layout for better flow,Personal,Household chores,60,8,3,9
+Podcast Listening,Catch up on industry podcast episodes,Educational,Miscellaneous,15,6,2,9
+Bird Feeder Installation,Set up new bird feeder in backyard,Personal,Leisure and hobbies,40,8,1,9
+Explore New Park,Visit recently opened nature preserve,Travel & Leisure,Sightseeing plans,30,7,3,9
+Photo Album Creation,Organize vacation photos into digital album,Creative,Design projects,55,8,4,9
+Update Contact List,Review and refresh personal and professional contacts,Personal,Miscellaneous,70,9,2,10
+Organize Digital Bookmarks,Sort and categorize saved web articles,Personal,Miscellaneous,50,8,1.5,10
+Movie Watchlist Review,Update list of films to watch,Personal,Leisure and hobbies,60,9,1,10
+Social Media Detox Planning,Design schedule for reduced screen time,Personal,Mental health check-ins,45,8,1,10
+Reorganize Spice Rack,Sort and label kitchen spices,Personal,Household chores,40,8,1,10
+Future Vacation Research,Explore potential destinations for next year,Travel & Leisure,Vacation planning,120,10,3,10
+Fix Garden Pathway,Repair loose stones in garden walkway,Personal,Household chores,90,9,4,10
+Reading List Update,Compile books to read in coming months,Personal,Leisure and hobbies,80,9,1,10
+Try New Coffee Shop,Visit recently opened local cafe,Personal,Leisure and hobbies,35,8,1.5,10
+Frame Family Photos,Select and frame printed photographs,Personal,Family and social events,70,9,2,10

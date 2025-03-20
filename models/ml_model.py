@@ -24,7 +24,7 @@ class TaskPrioritizer:
         
         # Define category-type mapping
         self.category_type_mapping = {
-            "Work/Professional": [
+            "Work or Professional": [
                 "Meetings", "Project deadlines", "Reports and documentation", 
                 "Client follow-ups", "Team collaboration"
             ],
@@ -44,7 +44,7 @@ class TaskPrioritizer:
                 "Bill payments", "Budgeting and expense tracking", "Investment planning", 
                 "Tax filing"
             ],
-            "Social/Community": [
+            "Social or Community": [
                 "Social gatherings", "Volunteering events", "Networking events", 
                 "Club or group activities"
             ],
