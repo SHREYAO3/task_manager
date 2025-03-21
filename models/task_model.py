@@ -3,7 +3,6 @@ import os
 import json
 from datetime import datetime
 
-
 class TaskDatabase:
     def __init__(self, connection_string=None):
         # Default connection string - update with your SQL Server details
@@ -11,7 +10,7 @@ class TaskDatabase:
         SERVER_NAME = r'ANURADHA\SQLEXPRESS01'
         DATABASE_NAME = 'TaskManager'
         self.connection_string = f"""
-        DRIVER={{SQL Server}};
+        DRIVER={DRIVER_NAME};
         SERVER={SERVER_NAME};
         DATABASE={DATABASE_NAME};
         Trusted_Connection=yes;
@@ -84,7 +83,7 @@ class TaskDatabase:
                     priority
                 ))
                 self.conn.commit()
-                
+               
                 # Get the last insert ID (different from SQLite)
                 self.cursor.execute("SELECT @@IDENTITY AS ID")
                 last_id = self.cursor.fetchone()[0]
@@ -100,16 +99,30 @@ class TaskDatabase:
     def get_all_tasks(self, order_by='priority', descending=True):
         if self.connect():
             try:
+                # Map frontend sort options to database columns
+                sort_mapping = {
+                    'priority': 'priority',
+                    'deadline': 'deadline_datetime',
+                    'effort': 'effort'
+                }
+               
+                # Get the correct column name for sorting
+                sort_column = sort_mapping.get(order_by, 'priority')
                 direction = "DESC" if descending else "ASC"
-                query = f"SELECT * FROM TASKS WHERE completed = 0 ORDER BY {order_by} {direction}"
+               
+                # Adjust sort direction for deadline (ascending by default)
+                if order_by == 'deadline':
+                    direction = "ASC" if descending else "DESC"
+               
+                query = f"SELECT * FROM TASKS WHERE completed = 0 ORDER BY {sort_column} {direction}"
                 self.cursor.execute(query)
-                
+               
                 # Convert rows to dictionaries
                 columns = [column[0] for column in self.cursor.description]
                 tasks = []
                 for row in self.cursor.fetchall():
                     task = dict(zip(columns, row))
-                    
+                   
                     # Update days left for each task
                     if 'deadline_datetime' in task:
                         deadline = datetime.strptime(task['deadline_datetime'], '%Y-%m-%d %H:%M')
@@ -121,7 +134,7 @@ class TaskDatabase:
                             days_left += 1
                        
                         task['deadline_days'] = max(0, days_left)
-                    
+                   
                     tasks.append(task)
                
                 print(f"Retrieved {len(tasks)} tasks from database with query: {query}")

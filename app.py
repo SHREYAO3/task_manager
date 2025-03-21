@@ -5,19 +5,14 @@ from models.ml_model import TaskPrioritizer
 from datetime import datetime, timedelta
 
 class TaskManagerApp:
-    """Class responsible for the Flask application and routes."""
-   
     def __init__(self):
-        """Initialize the Flask application and its components."""
         self.app = Flask(__name__)
        
-        # Initialize database and ML model
-        # Define your SQL Server connection string
         DRIVER_NAME = 'SQL SERVER'
         SERVER_NAME = r'ANURADHA\SQLEXPRESS01'
         DATABASE_NAME = 'TaskManager'
         self.connection_string = f"""
-        DRIVER={{SQL Server}};
+        DRIVER={DRIVER_NAME};
         SERVER={SERVER_NAME};
         DATABASE={DATABASE_NAME};
         Trusted_Connection=yes;
@@ -28,28 +23,33 @@ class TaskManagerApp:
         # Register routes
         self._register_routes()
    
-    # The rest of the class remains the same
     def _register_routes(self):
-        """Register all application routes."""
         self.app.add_url_rule('/', 'index', self.index)
         self.app.add_url_rule('/add', 'add_task', self.add_task, methods=['GET', 'POST'])
         self.app.add_url_rule('/get_types/<category>', 'get_types', self.get_types)
         self.app.add_url_rule('/complete_task/<int:task_id>', 'complete_task', self.complete_task)
         self.app.add_url_rule('/delete_task/<int:task_id>', 'delete_task', self.delete_task)
+        self.app.add_url_rule('/filter_tasks', 'filter_tasks', self.filter_tasks)
    
     def index(self):
-        """Home page with task listing."""
         try:
             tasks = self.task_db.get_all_tasks()
-            # Debug task list
-            print(f"Retrieved {len(tasks)} tasks from database")
-            return render_template('index.html', tasks=tasks)
+            categories = self.task_prioritizer.get_all_categories()
+           
+            # Calculate stats
+            urgent_tasks = sum(1 for task in tasks if task['urgency'] > 6)  # Count tasks with urgency > 6
+            due_today = sum(1 for task in tasks if task['deadline_days'] <= 1)
+           
+            return render_template('index.html',
+                                tasks=tasks,
+                                categories=categories,
+                                urgent_tasks=urgent_tasks,
+                                due_today=due_today)
         except Exception as e:
             print(f"Error in index route: {e}")
             return render_template('index.html', tasks=[], error=str(e))
    
     def calculate_days_left(self, deadline_datetime_str):
-        """Calculate days left between current date and deadline."""
         deadline_datetime = datetime.strptime(deadline_datetime_str, '%Y-%m-%d %H:%M')
         current_datetime = datetime.now()
        
@@ -63,7 +63,6 @@ class TaskManagerApp:
         return max(0, days_left)  # Ensure we don't have negative days
    
     def add_task(self):
-        """Add a new task."""
         if request.method == 'POST':
             try:
                 # Extract form data
@@ -110,22 +109,45 @@ class TaskManagerApp:
         return render_template('add_task.html', categories=categories)
    
     def get_types(self, category):
-        """API to get task types for a given category."""
         types = self.task_prioritizer.get_types_for_category(category)
         return jsonify(types)
    
     def complete_task(self, task_id):
-        """Mark a task as completed."""
         self.task_db.mark_task_completed(task_id)
         return redirect(url_for('index'))
    
     def delete_task(self, task_id):
-        """Delete a task."""
         self.task_db.delete_task(task_id)
         return redirect(url_for('index'))
    
+    def filter_tasks(self):
+        try:
+            category = request.args.get('category', '')
+            sort_by = request.args.get('sort', 'priority')
+            filter_type = request.args.get('filter_type', '')
+           
+            # Get all tasks
+            tasks = self.task_db.get_all_tasks(order_by=sort_by)
+           
+            # Apply filters
+            if filter_type == 'urgent':
+                tasks = [task for task in tasks if task['urgency'] > 6]
+            elif filter_type == 'due-today':
+                tasks = [task for task in tasks if task['deadline_days'] <= 1]
+            elif category:  # Only apply category filter if no special filter is active
+                tasks = [task for task in tasks if task['category'] == category]
+           
+            # Convert datetime objects to strings for JSON serialization
+            for task in tasks:
+                if isinstance(task['created_at'], datetime):
+                    task['created_at'] = task['created_at'].strftime('%Y-%m-%d %H:%M:%S')
+           
+            return jsonify(tasks)
+        except Exception as e:
+            print(f"Error in filter_tasks route: {e}")
+            return jsonify({'error': str(e)}), 500
+   
     def run(self, debug=True):
-        """Run the Flask application."""
         self.app.run(debug=debug)
 
 # Create the application instance

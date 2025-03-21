@@ -4,80 +4,165 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Task - ML Task Manager</title>
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <!-- Add Flatpickr CSS for the datetime picker -->
+    <!-- Flatpickr -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Add New Task</h1>
-            <a href="{{ url_for('index') }}" class="btn">Back to Tasks</a>
+            <div class="header-content">
+                <div class="logo-area">
+                    <i class="fas fa-brain"></i>
+                    <div class="title-area">
+                        <h1>ML Task Manager</h1>
+                        <p class="subtitle">Create a new task</p>
+                    </div>
+                </div>
+                <a href="{{ url_for('index') }}" class="btn back-btn">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Tasks
+                </a>
+            </div>
         </header>
        
         <main>
-            <div class="task-form">
-                <form method="POST" action="{{ url_for('add_task') }}">
-                    <div class="form-group">
-                        <label for="title">Task Title:</label>
-                        <input type="text" id="title" name="title" required>
+            <div class="form-container">
+                <div class="form-header">
+                    <i class="fas fa-plus-circle"></i>
+                    <h2>Add New Task</h2>
+                </div>
+               
+                <form method="POST" action="{{ url_for('add_task') }}" class="task-form">
+                    <div class="form-section">
+                        <h3 class="form-section-title">Task Information</h3>
+                       
+                        <div class="form-group">
+                            <label for="title">
+                                <i class="fas fa-heading"></i>
+                                Task Title
+                            </label>
+                            <input type="text" id="title" name="title" required
+                                   placeholder="Enter task title">
+                        </div>
+                       
+                        <div class="form-group">
+                            <label for="description">
+                                <i class="fas fa-align-left"></i>
+                                Task Description
+                            </label>
+                            <textarea id="description" name="description" rows="4"
+                                      placeholder="Enter task description"></textarea>
+                        </div>
                     </div>
                    
-                    <div class="form-group">
-                        <label for="description">Task Description:</label>
-                        <textarea id="description" name="description" rows="4"></textarea>
+                    <div class="form-section">
+                        <h3 class="form-section-title">Task Classification</h3>
+                       
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="category">
+                                    <i class="fas fa-folder"></i>
+                                    Task Category
+                                </label>
+                                <select id="category" name="category" required>
+                                    <option value="">-- Select Category --</option>
+                                    {% for category in categories %}
+                                        <option value="{{ category }}">{{ category }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                           
+                            <div class="form-group">
+                                <label for="type">
+                                    <i class="fas fa-tag"></i>
+                                    Task Type
+                                </label>
+                                <select id="type" name="type" required disabled>
+                                    <option value="">-- Select Category First --</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                    
-                    <div class="form-group">
-                        <label for="category">Task Category:</label>
-                        <select id="category" name="category" required>
-                            <option value="">-- Select Category --</option>
-                            {% for category in categories %}
-                                <option value="{{ category }}">{{ category }}</option>
-                            {% endfor %}
-                        </select>
+                    <div class="form-section">
+                        <h3 class="form-section-title">Timeline & Effort</h3>
+                       
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="deadline_datetime">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    Deadline
+                                </label>
+                                <input type="text" id="deadline_datetime" name="deadline_datetime"
+                                       required placeholder="Select deadline">
+                            </div>
+                           
+                            <div class="form-group">
+                                <label for="deadline_days">
+                                    <i class="fas fa-hourglass-half"></i>
+                                    Days Left
+                                </label>
+                                <input type="number" id="deadline_days" name="deadline_days"
+                                       min="0" readonly>
+                                <small id="deadline_info" class="form-text"></small>
+                            </div>
+                        </div>
+                       
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="urgency">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    Urgency Level
+                                    <output id="urgency_value">5</output>
+                                </label>
+                                <input type="range" id="urgency" name="urgency"
+                                       min="1" max="10" value="5">
+                                <div class="range-labels">
+                                    <span>Low</span>
+                                    <span>Medium</span>
+                                    <span>High</span>
+                                </div>
+                            </div>
+                           
+                            <div class="form-group">
+                                <label for="effort">
+                                    <i class="fas fa-clock"></i>
+                                    Estimated Effort
+                                </label>
+                                <div class="input-with-unit">
+                                    <input type="number" id="effort" name="effort"
+                                           min="0.5" step="0.5" required value="1">
+                                    <span class="unit">hours</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                    
-                    <div class="form-group">
-                        <label for="type">Task Type:</label>
-                        <select id="type" name="type" required disabled>
-                            <option value="">-- Select Category First --</option>
-                        </select>
+                    <div class="form-actions">
+                        <a href="{{ url_for('index') }}" class="btn btn-cancel">
+                            <i class="fas fa-times"></i>
+                            Cancel
+                        </a>
+                        <button type="submit" class="btn submit-btn">
+                            <i class="fas fa-check"></i>
+                            Create Task
+                        </button>
                     </div>
-                   
-                    <div class="form-group">
-                        <label for="deadline_datetime">Deadline Date and Time:</label>
-                        <input type="text" id="deadline_datetime" name="deadline_datetime" required>
-                    </div>
-                   
-                    <div class="form-group">
-                        <label for="deadline_days">Days Left:</label>
-                        <input type="number" id="deadline_days" name="deadline_days" min="0" readonly>
-                        <small id="deadline_info" class="form-text"></small>
-                    </div>
-                   
-                    <div class="form-group">
-                        <label for="urgency">Urgency (1-10):</label>
-                        <input type="range" id="urgency" name="urgency" min="1" max="10" value="5">
-                        <output id="urgency_value">5</output>
-                    </div>
-                   
-                    <div class="form-group">
-                        <label for="effort">Estimated Effort (hours):</label>
-                        <input type="number" id="effort" name="effort" min="0.5" step="0.5" required>
-                    </div>
-                   
-                    <button type="submit" class="btn submit-btn">Add Task</button>
                 </form>
             </div>
         </main>
        
         <footer>
-            <p>ML Task Manager &copy; 2025</p>
+            <p>ML Task Manager &copy; 2025 | <i class="fas fa-brain"></i> AI-powered task prioritization</p>
         </footer>
     </div>
    
-    <!-- Add Flatpickr JS for the datetime picker -->
+    <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
     <script>
         // Initialize the date picker
@@ -94,31 +179,26 @@
         // Calculate days left between selected date and today
         function calculateDaysLeft(selectedDate) {
             const today = new Date();
-            today.setHours(0, 0, 0, 0); // Set to beginning of day for accurate day calculation
+            today.setHours(0, 0, 0, 0);
            
             const selectedDay = new Date(selectedDate);
-            selectedDay.setHours(0, 0, 0, 0); // Set to beginning of day for accurate day calculation
+            selectedDay.setHours(0, 0, 0, 0);
            
-            // Calculate the difference in milliseconds
             const diffTime = selectedDay - today;
-           
-            // Convert to days
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
            
-            // Update the days left input
             document.getElementById('deadline_days').value = diffDays;
            
-            // Show additional info
             const deadlineInfo = document.getElementById('deadline_info');
             if (diffDays <= 0) {
                 deadlineInfo.textContent = "Task is due today!";
-                deadlineInfo.style.color = "#e74c3c";
+                deadlineInfo.className = "form-text urgent";
             } else if (diffDays === 1) {
                 deadlineInfo.textContent = "Task is due tomorrow";
-                deadlineInfo.style.color = "#e67e22";
+                deadlineInfo.className = "form-text warning";
             } else {
                 deadlineInfo.textContent = `Task is due in ${diffDays} days`;
-                deadlineInfo.style.color = diffDays <= 3 ? "#f39c12" : "#2ecc71";
+                deadlineInfo.className = diffDays <= 3 ? "form-text warning" : "form-text success";
             }
         }
        
@@ -128,6 +208,18 @@
        
         urgencyInput.addEventListener('input', function() {
             urgencyOutput.textContent = this.value;
+           
+            // Update color based on urgency
+            const value = parseInt(this.value);
+            urgencyOutput.className = '';
+           
+            if (value >= 8) {
+                urgencyOutput.classList.add('urgency-high');
+            } else if (value >= 4) {
+                urgencyOutput.classList.add('urgency-medium');
+            } else {
+                urgencyOutput.classList.add('urgency-low');
+            }
         });
        
         // Update task types when category changes
@@ -138,32 +230,24 @@
             const category = this.value;
            
             if (category) {
-                // Enable the type select
                 typeSelect.disabled = false;
+                typeSelect.parentElement.classList.add('loading');
                
-                // Fetch the task types for the selected category
                 fetch(`/get_types/${category}`)
                     .then(response => response.json())
                     .then(types => {
-                        // Clear existing options
-                        typeSelect.innerHTML = '';
+                        typeSelect.innerHTML = '<option value="">-- Select Type --</option>';
                        
-                        // Add default option
-                        const defaultOption = document.createElement('option');
-                        defaultOption.value = '';
-                        defaultOption.textContent = '-- Select Type --';
-                        typeSelect.appendChild(defaultOption);
-                       
-                        // Add task types
                         types.forEach(type => {
                             const option = document.createElement('option');
                             option.value = type;
                             option.textContent = type;
                             typeSelect.appendChild(option);
                         });
+                       
+                        typeSelect.parentElement.classList.remove('loading');
                     });
             } else {
-                // Disable the type select
                 typeSelect.disabled = true;
                 typeSelect.innerHTML = '<option value="">-- Select Category First --</option>';
             }
