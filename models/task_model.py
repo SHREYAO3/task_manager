@@ -7,12 +7,15 @@ from datetime import datetime
 class TaskDatabase:
     def __init__(self, connection_string=None):
         # Default connection string - update with your SQL Server details
-        self.connection_string = connection_string or (
-            "DRIVER={SQL Server};"
-            "SERVER=YOUR_SERVER_NAME;"  # Replace with your server name
-            "DATABASE=TaskManager;"     # Replace with your database name
-            "Trusted_Connection=yes;"   # For Windows authentication
-        )
+        DRIVER_NAME = 'SQL SERVER'
+        SERVER_NAME = r'ANURADHA\SQLEXPRESS01'
+        DATABASE_NAME = 'TaskManager'
+        self.connection_string = f"""
+        DRIVER={{SQL Server}};
+        SERVER={SERVER_NAME};
+        DATABASE={DATABASE_NAME};
+        Trusted_Connection=yes;
+        """
         self.conn = None
         self.cursor = None
         self.initialize_db()
