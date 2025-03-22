@@ -4,7 +4,6 @@ import subprocess
 
 class ApplicationSetup:
     def __init__(self):
-        """Initialize the application setup."""
         self.required_packages = ['flask', 'pandas', 'numpy', 'scikit-learn', 'joblib', 'pyodbc']
         self.directories = ['templates', 'static/css', 'static/js', 'data', 'ml', 'models']
         self.model_path = os.path.join('ml', 'random_forest_task_priority.pkl')

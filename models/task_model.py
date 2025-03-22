@@ -5,7 +5,6 @@ from datetime import datetime
 
 class TaskDatabase:
     def __init__(self, connection_string=None):
-        # Default connection string - update with your SQL Server details
         DRIVER_NAME = 'SQL SERVER'
         SERVER_NAME = r'ANURADHA\SQLEXPRESS01'
         DATABASE_NAME = 'TaskManager'
@@ -37,7 +36,6 @@ class TaskDatabase:
     def initialize_db(self):
         if self.connect():
             try:
-                # Check if the table exists
                 self.cursor.execute("""
                 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'TASKS')
                 BEGIN
@@ -83,8 +81,6 @@ class TaskDatabase:
                     priority
                 ))
                 self.conn.commit()
-               
-                # Get the last insert ID (different from SQLite)
                 self.cursor.execute("SELECT @@IDENTITY AS ID")
                 last_id = self.cursor.fetchone()[0]
                 print(f"Task inserted with ID: {last_id}")
@@ -99,37 +95,28 @@ class TaskDatabase:
     def get_all_tasks(self, order_by='priority', descending=True):
         if self.connect():
             try:
-                # Map frontend sort options to database columns
                 sort_mapping = {
                     'priority': 'priority',
                     'deadline': 'deadline_datetime',
                     'effort': 'effort'
                 }
-               
-                # Get the correct column name for sorting
                 sort_column = sort_mapping.get(order_by, 'priority')
                 direction = "DESC" if descending else "ASC"
                
-                # Adjust sort direction for deadline (ascending by default)
                 if order_by == 'deadline':
                     direction = "ASC" if descending else "DESC"
                
                 query = f"SELECT * FROM TASKS WHERE completed = 0 ORDER BY {sort_column} {direction}"
                 self.cursor.execute(query)
                
-                # Convert rows to dictionaries
                 columns = [column[0] for column in self.cursor.description]
                 tasks = []
                 for row in self.cursor.fetchall():
                     task = dict(zip(columns, row))
-                   
-                    # Update days left for each task
                     if 'deadline_datetime' in task:
                         deadline = datetime.strptime(task['deadline_datetime'], '%Y-%m-%d %H:%M')
                         current = datetime.now()
                         days_left = (deadline - current).days
-                       
-                        # Add 1 if there are still hours left in the current day
                         if (deadline - current).seconds > 0 and days_left >= 0:
                             days_left += 1
                        
