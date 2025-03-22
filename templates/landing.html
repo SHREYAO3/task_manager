@@ -18,10 +18,33 @@
             <button class="theme-toggle" id="themeToggle">
                 <i class="fas fa-moon"></i>
             </button>
-            <a href="{{ url_for('login') }}" class="btn btn-outline">Sign In</a>
-            <a href="{{ url_for('signup') }}" class="btn btn-primary">Sign Up</a>
+            {% if logged_in %}
+                <div class="user-menu">
+                    <div class="user-info">
+                        <div class="user-avatar">
+                            {{ username[0].upper() }}
+                        </div>
+                        <span>{{ username }}</span>
+                    </div>
+                    <div class="dropdown">
+                        <a href="{{ url_for('index') }}" class="dropdown-item">
+                            <i class="fas fa-tasks"></i>
+                            Dashboard
+                        </a>
+                        <a href="{{ url_for('logout') }}" class="dropdown-item">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Logout
+                        </a>
+                    </div>
+                </div>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="btn btn-outline">Sign In</a>
+                <a href="{{ url_for('signup') }}" class="btn btn-primary">Sign Up</a>
+            {% endif %}
         </div>
     </nav>
+
+
 
 
     <!-- Hero Section -->
@@ -52,6 +75,8 @@
             </div>
         </div>
     </section>
+
+
 
 
     <!-- About Section -->
@@ -115,6 +140,8 @@
     </section>
 
 
+
+
     <!-- Contact Section -->
     <section id="contact" class="contact-section">
         <h2>Contact Us</h2>
@@ -161,6 +188,8 @@
     </section>
 
 
+
+
     <!-- Footer -->
     <footer class="landing-footer">
         <div class="footer-content">
@@ -186,6 +215,8 @@
     </footer>
 
 
+
+
     <script>
         // Dark mode toggle
         const themeToggle = document.getElementById('themeToggle');
@@ -196,6 +227,8 @@
         document.body.classList.toggle('dark-theme', savedTheme === 'dark');
         icon.classList.toggle('fa-moon', savedTheme === 'light');
         icon.classList.toggle('fa-sun', savedTheme === 'dark');
+
+
 
 
         themeToggle.addEventListener('click', () => {
@@ -217,6 +250,8 @@
         });
 
 
+
+
         // Smooth scrolling for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
@@ -226,6 +261,8 @@
                 });
             });
         });
+
+
 
 
         // Contact form submission

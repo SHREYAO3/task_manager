@@ -41,6 +41,7 @@ class TaskDatabase:
                 BEGIN
                     CREATE TABLE TASKS (
                         id INT IDENTITY(1,1) PRIMARY KEY,
+                        user_id INT NOT NULL,
                         title NVARCHAR(255) NOT NULL,
                         description NVARCHAR(MAX),
                         category NVARCHAR(100) NOT NULL,
@@ -51,7 +52,8 @@ class TaskDatabase:
                         effort FLOAT NOT NULL,
                         priority FLOAT NOT NULL,
                         created_at DATETIME DEFAULT GETDATE(),
-                        completed BIT DEFAULT 0
+                        completed BIT DEFAULT 0,
+                        FOREIGN KEY (user_id) REFERENCES USERS(id)
                     )
                 END
                 """)
@@ -61,15 +63,16 @@ class TaskDatabase:
             finally:
                 self.disconnect()
    
-    def add_task(self, task_data, priority):
+    def add_task(self, task_data, priority, user_id):
         if self.connect():
             try:
                 query = """
-                INSERT INTO TASKS (title, description, category, type, deadline_datetime, deadline_days,
+                INSERT INTO TASKS (user_id, title, description, category, type, deadline_datetime, deadline_days,
                                 urgency, effort, priority)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """
                 self.cursor.execute(query, (
+                    user_id,
                     task_data['title'],
                     task_data['description'],
                     task_data['category'],
@@ -92,7 +95,7 @@ class TaskDatabase:
                 self.disconnect()
         return False
    
-    def get_all_tasks(self, order_by='priority', descending=True):
+    def get_all_tasks(self, user_id, order_by='priority', descending=True):
         if self.connect():
             try:
                 sort_mapping = {
@@ -106,8 +109,8 @@ class TaskDatabase:
                 if order_by == 'deadline':
                     direction = "ASC" if descending else "DESC"
                
-                query = f"SELECT * FROM TASKS WHERE completed = 0 ORDER BY {sort_column} {direction}"
-                self.cursor.execute(query)
+                query = f"SELECT * FROM TASKS WHERE completed = 0 AND user_id = ? ORDER BY {sort_column} {direction}"
+                self.cursor.execute(query, (user_id,))
                
                 columns = [column[0] for column in self.cursor.description]
                 tasks = []
@@ -133,12 +136,12 @@ class TaskDatabase:
                 self.disconnect()
         return []
    
-    def mark_task_completed(self, task_id):
+    def mark_task_completed(self, task_id, user_id):
         if self.connect():
             try:
                 self.cursor.execute("""
-                UPDATE TASKS SET completed = 1 WHERE id = ?
-                """, (task_id,))
+                UPDATE TASKS SET completed = 1 WHERE id = ? AND user_id = ?
+                """, (task_id, user_id))
                 self.conn.commit()
                 return True
             except pyodbc.Error as e:
@@ -148,12 +151,12 @@ class TaskDatabase:
                 self.disconnect()
         return False
    
-    def delete_task(self, task_id):
+    def delete_task(self, task_id, user_id):
         if self.connect():
             try:
                 self.cursor.execute("""
-                DELETE FROM TASKS WHERE id = ?
-                """, (task_id,))
+                DELETE FROM TASKS WHERE id = ? AND user_id = ?
+                """, (task_id, user_id))
                 self.conn.commit()
                 return True
             except pyodbc.Error as e:
