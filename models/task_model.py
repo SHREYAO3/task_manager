@@ -165,3 +165,60 @@ class TaskDatabase:
             finally:
                 self.disconnect()
         return False
+
+    def get_task(self, task_id, user_id):
+        if self.connect():
+            try:
+                query = "SELECT * FROM TASKS WHERE id = ? AND user_id = ?"
+                self.cursor.execute(query, (task_id, user_id))
+                columns = [column[0] for column in self.cursor.description]
+                row = self.cursor.fetchone()
+                if row:
+                    task = dict(zip(columns, row))
+                    if 'deadline_datetime' in task:
+                        deadline = datetime.strptime(task['deadline_datetime'], '%Y-%m-%d %H:%M')
+                        current = datetime.now()
+                        days_left = (deadline - current).days
+                        if (deadline - current).seconds > 0 and days_left >= 0:
+                            days_left += 1
+                        task['deadline_days'] = max(0, days_left)
+                    return task
+                return None
+            except pyodbc.Error as e:
+                print(f"Error retrieving task: {e}")
+                return None
+            finally:
+                self.disconnect()
+        return None
+
+    def update_task(self, task_id, user_id, task_data, priority):
+        if self.connect():
+            try:
+                query = """
+                UPDATE TASKS
+                SET title = ?, description = ?, category = ?, type = ?,
+                    deadline_datetime = ?, deadline_days = ?, urgency = ?,
+                    effort = ?, priority = ?
+                WHERE id = ? AND user_id = ?
+                """
+                self.cursor.execute(query, (
+                    task_data['title'],
+                    task_data['description'],
+                    task_data['category'],
+                    task_data['type'],
+                    task_data['deadline_datetime'],
+                    task_data['deadline_days'],
+                    task_data['urgency'],
+                    task_data['effort'],
+                    priority,
+                    task_id,
+                    user_id
+                ))
+                self.conn.commit()
+                return True
+            except pyodbc.Error as e:
+                print(f"Error updating task: {e}")
+                return False
+            finally:
+                self.disconnect()
+        return False

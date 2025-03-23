@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Task - ML Task Manager</title>
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Flatpickr -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <div class="logo-area">
+                    <i class="fas fa-brain"></i>
+                    <div class="title-area">
+                        <h1>ML Task Manager</h1>
+                        <p class="subtitle">Edit task</p>
+                    </div>
+                </div>
+                <a href="{{ url_for('index') }}" class="btn back-btn">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Tasks
+                </a>
+            </div>
+        </header>
+       
+        <main>
+            <div class="form-container">
+                <div class="form-header">
+                    <i class="fas fa-edit"></i>
+                    <h2>Edit Task</h2>
+                </div>
+               
+                <form method="POST" action="{{ url_for('edit_task', task_id=task.id) }}" class="task-form">
+                    <div class="form-section">
+                        <h3 class="form-section-title">Task Information</h3>
+                       
+                        <div class="form-group">
+                            <label for="title">
+                                <i class="fas fa-heading"></i>
+                                Task Title
+                            </label>
+                            <input type="text" id="title" name="title" required
+                                   value="{{ task.title }}" placeholder="Enter task title">
+                        </div>
+                       
+                        <div class="form-group">
+                            <label for="description">
+                                <i class="fas fa-align-left"></i>
+                                Task Description
+                            </label>
+                            <textarea id="description" name="description" rows="4"
+                                      placeholder="Enter task description">{{ task.description }}</textarea>
+                        </div>
+                    </div>
+                   
+                    <div class="form-section">
+                        <h3 class="form-section-title">Task Classification</h3>
+                       
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="category">
+                                    <i class="fas fa-folder"></i>
+                                    Task Category
+                                </label>
+                                <select id="category" name="category" required>
+                                    <option value="">-- Select Category --</option>
+                                    {% for category in categories %}
+                                        <option value="{{ category }}" {% if category == task.category %}selected{% endif %}>
+                                            {{ category }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                           
+                            <div class="form-group">
+                                <label for="type">
+                                    <i class="fas fa-tag"></i>
+                                    Task Type
+                                </label>
+                                <select id="type" name="type" required>
+                                    <option value="">-- Select Type --</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                   
+                    <div class="form-section">
+                        <h3 class="form-section-title">Timeline & Effort</h3>
+                       
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="deadline_datetime">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    Deadline
+                                </label>
+                                <input type="text" id="deadline_datetime" name="deadline_datetime"
+                                       required value="{{ task.deadline_datetime }}" placeholder="Select deadline">
+                            </div>
+                           
+                            <div class="form-group">
+                                <label for="deadline_days">
+                                    <i class="fas fa-hourglass-half"></i>
+                                    Days Left
+                                </label>
+                                <input type="number" id="deadline_days" name="deadline_days"
+                                       min="0" readonly value="{{ task.deadline_days }}">
+                                <small id="deadline_info" class="form-text"></small>
+                            </div>
+                        </div>
+                       
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="urgency">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    Urgency Level
+                                    <output id="urgency_value">{{ task.urgency }}</output>
+                                </label>
+                                <input type="range" id="urgency" name="urgency"
+                                       min="1" max="10" value="{{ task.urgency }}">
+                                <div class="range-labels">
+                                    <span>Low</span>
+                                    <span>Medium</span>
+                                    <span>High</span>
+                                </div>
+                            </div>
+                           
+                            <div class="form-group">
+                                <label for="effort">
+                                    <i class="fas fa-clock"></i>
+                                    Estimated Effort
+                                </label>
+                                <div class="input-with-unit">
+                                    <input type="number" id="effort" name="effort"
+                                           min="0.5" step="0.5" required value="{{ task.effort }}">
+                                    <span class="unit">hours</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                   
+                    <div class="form-actions">
+                        <a href="{{ url_for('index') }}" class="btn btn-cancel">
+                            <i class="fas fa-times"></i>
+                            Cancel
+                        </a>
+                        <button type="submit" class="btn submit-btn">
+                            <i class="fas fa-save"></i>
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </main>
+       
+        <footer>
+            <p>ML Task Manager &copy; 2025 | <i class="fas fa-brain"></i> AI-powered task prioritization</p>
+        </footer>
+    </div>
+   
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
+    <script>
+        // Initialize the date picker
+        const deadlinePicker = flatpickr("#deadline_datetime", {
+            enableTime: true,
+            dateFormat: "Y-m-d H:i",
+            minDate: "today",
+            time_24hr: true,
+            onChange: function(selectedDates, dateStr, instance) {
+                calculateDaysLeft(selectedDates[0]);
+            }
+        });
+       
+        // Calculate days left between selected date and today
+        function calculateDaysLeft(selectedDate) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+           
+            const selectedDay = new Date(selectedDate);
+            selectedDay.setHours(0, 0, 0, 0);
+           
+            const diffTime = selectedDay - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+           
+            document.getElementById('deadline_days').value = diffDays;
+           
+            const deadlineInfo = document.getElementById('deadline_info');
+            if (diffDays <= 0) {
+                deadlineInfo.textContent = "Task is due today!";
+                deadlineInfo.className = "form-text urgent";
+            } else if (diffDays === 1) {
+                deadlineInfo.textContent = "Task is due tomorrow";
+                deadlineInfo.className = "form-text warning";
+            } else {
+                deadlineInfo.textContent = `Task is due in ${diffDays} days`;
+                deadlineInfo.className = diffDays <= 3 ? "form-text warning" : "form-text success";
+            }
+        }
+       
+        // Display urgency value
+        const urgencyInput = document.getElementById('urgency');
+        const urgencyOutput = document.getElementById('urgency_value');
+       
+        urgencyInput.addEventListener('input', function() {
+            urgencyOutput.textContent = this.value;
+           
+            // Update color based on urgency
+            const value = parseInt(this.value);
+            urgencyOutput.className = '';
+           
+            if (value >= 8) {
+                urgencyOutput.classList.add('urgency-high');
+            } else if (value >= 4) {
+                urgencyOutput.classList.add('urgency-medium');
+            } else {
+                urgencyOutput.classList.add('urgency-low');
+            }
+        });
+       
+        // Update task types when category changes
+        const categorySelect = document.getElementById('category');
+        const typeSelect = document.getElementById('type');
+       
+        categorySelect.addEventListener('change', function() {
+            const category = this.value;
+           
+            if (category) {
+                typeSelect.disabled = false;
+                typeSelect.parentElement.classList.add('loading');
+               
+                fetch(`/get_types/${category}`)
+                    .then(response => response.json())
+                    .then(types => {
+                        typeSelect.innerHTML = '<option value="">-- Select Type --</option>';
+                       
+                        types.forEach(type => {
+                            const option = document.createElement('option');
+                            option.value = type;
+                            option.textContent = type;
+                            typeSelect.appendChild(option);
+                        });
+                       
+                        typeSelect.parentElement.classList.remove('loading');
+                    });
+            } else {
+                typeSelect.disabled = true;
+                typeSelect.innerHTML = '<option value="">-- Select Category First --</option>';
+            }
+        });
+
+
+        // Set initial task type when page loads
+        if (categorySelect.value) {
+            typeSelect.disabled = false;
+            typeSelect.parentElement.classList.add('loading');
+            fetch(`/get_types/${categorySelect.value}`)
+                .then(response => response.json())
+                .then(types => {
+                    typeSelect.innerHTML = '<option value="">-- Select Type --</option>';
+                    types.forEach(type => {
+                        const option = document.createElement('option');
+                        option.value = type;
+                        option.textContent = type;
+                        if (type === "{{ task.type }}") {
+                            option.selected = true;
+                        }
+                        typeSelect.appendChild(option);
+                    });
+                    typeSelect.parentElement.classList.remove('loading');
+                });
+        }
+    </script>
+</body>
+</html>

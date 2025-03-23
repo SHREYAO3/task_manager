@@ -1,10 +1,11 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify, session
+from flask import Flask, render_template, request, redirect, url_for, jsonify, session, flash
 import os
 from models.task_model import TaskDatabase
 from models.user_model import UserDatabase
 from models.ml_model import TaskPrioritizer
 from datetime import datetime, timedelta
 from functools import wraps
+
 
 class TaskManagerApp:
     def __init__(self):
@@ -28,6 +29,7 @@ class TaskManagerApp:
         self._register_routes()
    
     def login_required(self, f):
+        """Decorator to require login for routes."""
         @wraps(f)
         def decorated_function(*args, **kwargs):
             if 'user_id' not in session:
@@ -36,29 +38,37 @@ class TaskManagerApp:
         return decorated_function
    
     def _register_routes(self):
+        """Register all application routes."""
+        # Auth routes
         self.app.add_url_rule('/login', 'login', self.login, methods=['GET', 'POST'])
         self.app.add_url_rule('/signup', 'signup', self.signup, methods=['GET', 'POST'])
         self.app.add_url_rule('/logout', 'logout', self.logout)
        
+        # Landing page route (default route)
         @self.app.route('/')
         def landing():
             if 'user_id' in session:
+                # If user is logged in, redirect to dashboard
                 return redirect(url_for('index'))
             return render_template('landing.html')
        
+        # Home page route (for logged-in users)
         @self.app.route('/home')
         def home():
             if 'user_id' not in session:
                 return redirect(url_for('login'))
             return render_template('landing.html', logged_in=True, username=session.get('username'))
        
+        # Dashboard route (protected)
         self.app.add_url_rule('/dashboard', 'index', self.login_required(self.index))
         self.app.add_url_rule('/add', 'add_task', self.login_required(self.add_task), methods=['GET', 'POST'])
         self.app.add_url_rule('/get_types/<category>', 'get_types', self.login_required(self.get_types))
         self.app.add_url_rule('/complete_task/<int:task_id>', 'complete_task', self.login_required(self.complete_task))
         self.app.add_url_rule('/delete_task/<int:task_id>', 'delete_task', self.login_required(self.delete_task))
         self.app.add_url_rule('/filter_tasks', 'filter_tasks', self.login_required(self.filter_tasks))
+        self.app.add_url_rule('/edit_task/<int:task_id>', 'edit_task', self.edit_task, methods=['GET', 'POST'])
        
+        # Dark mode toggle route
         @self.app.route('/toggle_theme', methods=['POST'])
         def toggle_theme():
             current_theme = session.get('theme', 'light')
@@ -66,15 +76,19 @@ class TaskManagerApp:
             session['theme'] = new_theme
             return jsonify({'theme': new_theme})
        
+        # Contact form submission route
         @self.app.route('/contact', methods=['POST'])
         def contact():
             name = request.form.get('name')
             email = request.form.get('email')
             message = request.form.get('message')
            
+            # Here you would typically handle the contact form submission
+            # For now, we'll just return a success message
             return jsonify({'status': 'success', 'message': 'Thank you for your message!'})
    
     def login(self):
+        """Handle user login."""
         if request.method == 'POST':
             username = request.form.get('username')
             password = request.form.get('password')
@@ -90,6 +104,7 @@ class TaskManagerApp:
         return render_template('login.html')
    
     def signup(self):
+        """Handle user registration."""
         if request.method == 'POST':
             username = request.form.get('username')
             email = request.form.get('email')
@@ -108,6 +123,7 @@ class TaskManagerApp:
         return render_template('signup.html')
    
     def logout(self):
+        """Handle user logout."""
         session.clear()
         return redirect(url_for('landing'))
    
@@ -116,6 +132,7 @@ class TaskManagerApp:
             tasks = self.task_db.get_all_tasks(session['user_id'])
             categories = self.task_prioritizer.get_all_categories()
            
+            # Calculate stats
             urgent_tasks = sum(1 for task in tasks if task['urgency'] > 6)  # Count tasks with urgency > 6
             due_today = sum(1 for task in tasks if task['deadline_days'] <= 1)
            
@@ -227,12 +244,61 @@ class TaskManagerApp:
             print(f"Error in filter_tasks route: {e}")
             return jsonify({'error': str(e)}), 500
    
+    def edit_task(self, task_id):
+        if 'user_id' not in session:
+            return redirect(url_for('login'))
+       
+        if request.method == 'GET':
+            # Get the task details
+            task = self.task_db.get_task(task_id, session['user_id'])
+            if not task:
+                flash('Task not found or you do not have permission to edit it.', 'error')
+                return redirect(url_for('index'))
+           
+            return render_template('edit_task.html', task=task, categories=self.task_prioritizer.get_all_categories())
+       
+        elif request.method == 'POST':
+            # Get form data
+            title = request.form.get('title')
+            description = request.form.get('description')
+            category = request.form.get('category')
+            type = request.form.get('type')
+            deadline = request.form.get('deadline_datetime')
+            urgency = int(request.form.get('urgency'))
+            effort = float(request.form.get('effort'))
+           
+            # Calculate days left
+            deadline_days = self.calculate_days_left(deadline)
+           
+            # Update the task
+            task_data = {
+                'title': title,
+                'description': description,
+                'category': category,
+                'type': type,
+                'deadline_datetime': deadline,
+                'deadline_days': deadline_days,
+                'urgency': urgency,
+                'effort': effort
+            }
+           
+            # Predict new priority
+            priority = self.task_prioritizer.predict_priority(task_data)
+           
+            # Update the task
+            self.task_db.update_task(task_id, session['user_id'], task_data, priority)
+           
+            flash('Task updated successfully!', 'success')
+            return redirect(url_for('index'))
+   
     def run(self, debug=True):
         self.app.run(debug=debug)
+
 
 # Create the application instance
 task_manager = TaskManagerApp()
 app = task_manager.app
+
 
 if __name__ == '__main__':
     task_manager.run(debug=True)

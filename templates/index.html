@@ -126,6 +126,9 @@
                                     </div>
                                 </div>
                                 <div class="task-card-actions">
+                                    <a href="{{ url_for('edit_task', task_id=task.id) }}" class="btn btn-edit">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
                                     <a href="{{ url_for('complete_task', task_id=task.id) }}" class="btn btn-complete">
                                         <i class="fas fa-check"></i> Complete
                                     </a>
