@@ -4,9 +4,6 @@ import numpy as np
 import pandas as pd
 from datetime import datetime
 
-
-
-
 class TaskPrioritizer:
     def __init__(self, model_dir='ml'):
         self.model_path = os.path.join(model_dir, 'random_forest_task_priority.pkl')
@@ -76,60 +73,52 @@ class TaskPrioritizer:
         return list(self.category_type_mapping.keys())
    
     def predict_priority(self, task_data):
-        """
-        Predict the priority of a task based on its features
-       
-        Args:
-            task_data: Dictionary with keys:
-                - category: Task category
-                - type: Task type
-                - deadline_days: Days left for deadline
-                - urgency: Urgency on scale 1-10
-                - effort: Estimated effort in hours
-       
-        Returns:
-            float: Priority score (1-10)
-        """
         if not self.is_model_loaded:
-            # Fallback formula if model isn't loaded
-            urgency = task_data['urgency']
-            deadline = max(1, task_data['deadline_days'])  # Avoid division by zero
-            effort = task_data['effort']
-           
-            # Simple prioritization formula
-            priority = (urgency * 0.5) + (10/deadline * 0.3) + (min(effort, 10)/10 * 0.2)
-            return min(10, max(1, priority))
+            raise Exception("ML model components not loaded. Please ensure model files exist in the ml directory.")
        
         try:
+            # Prepare input data with correct feature names
+            task_input = {
+                "Task Category": task_data['category'],
+                "Task Type": task_data['type'],
+                "Deadline (Days Left)": task_data['deadline_days'],
+                "Urgency (1-10)": task_data['urgency'],
+                "Estimated Effort (hours)": task_data['effort']
+            }
+           
             # Encode categorical features
-            category_encoded = self.category_encoder.transform([task_data['category']])[0]
-            task_type_encoded = self.type_encoder.transform([task_data['type']])[0]
+            if task_input["Task Category"] in self.category_encoder.classes_:
+                task_input["Task Category"] = self.category_encoder.transform([task_input["Task Category"]])[0]
+            else:
+                raise ValueError(f"Unknown task category: {task_input['Task Category']}")
+
+
+            if task_input["Task Type"] in self.type_encoder.classes_:
+                task_input["Task Type"] = self.type_encoder.transform([task_input["Task Type"]])[0]
+            else:
+                raise ValueError(f"Unknown task type: {task_input['Task Type']}")
            
             # Scale numerical features
-            numerical_features = np.array([
-                task_data['urgency'],
-                task_data['effort'],
-                task_data['deadline_days']
-            ]).reshape(1, -1)
+            numerical_features = pd.DataFrame({
+                "Urgency (1-10)": [task_input["Urgency (1-10)"]],
+                "Estimated Effort (hours)": [task_input["Estimated Effort (hours)"]],
+                "Deadline (Days Left)": [task_input["Deadline (Days Left)"]]
+            })
            
             scaled_numerical = self.scaler.transform(numerical_features)[0]
+            task_input["Urgency (1-10)"], task_input["Estimated Effort (hours)"], task_input["Deadline (Days Left)"] = scaled_numerical
            
-            # Create feature vector
-            X = np.array([
-                category_encoded,
-                task_type_encoded,
-                scaled_numerical[0],  # Urgency
-                scaled_numerical[1],  # Effort
-                scaled_numerical[2]   # Deadline
-            ]).reshape(1, -1)
+            # Create feature vector with proper feature names
+            X = pd.DataFrame([task_input])
            
-            # Predict priority
+            # Predict priority and round to 1 decimal place
+            # priority = round(self.model.predict(X)[0], 1)
             priority = self.model.predict(X)[0]
            
             # Ensure priority is within range
-            return min(10, max(1, priority))
+            # return min(10, max(1, priority))
+            return priority
            
         except Exception as e:
             print(f"Error predicting priority: {e}")
-            # Fallback method
-            return (task_data['urgency'] * 0.6) + ((10 / max(1, task_data['deadline_days'])) * 0.4)
+            raise Exception(f"Failed to predict priority: {str(e)}")

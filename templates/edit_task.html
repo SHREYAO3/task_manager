@@ -120,15 +120,13 @@
                                 <label for="urgency">
                                     <i class="fas fa-exclamation-circle"></i>
                                     Urgency Level
-                                    <output id="urgency_value">{{ task.urgency }}</output>
                                 </label>
-                                <input type="range" id="urgency" name="urgency"
-                                       min="1" max="10" value="{{ task.urgency }}">
-                                <div class="range-labels">
-                                    <span>Low</span>
-                                    <span>Medium</span>
-                                    <span>High</span>
+                                <div class="input-with-unit">
+                                    <input type="number" id="urgency" name="urgency"
+                                           min="1" max="10" value="{{ task.urgency }}" step="1" required>
+                                    <span class="unit">1=Highest, 10=Lowest</span>
                                 </div>
+                                <small id="urgency_info" class="form-text">Enter a number between 1 (highest urgency) and 10 (lowest urgency)</small>
                             </div>
                            
                             <div class="form-group">
@@ -204,23 +202,31 @@
             }
         }
        
-        // Display urgency value
+        // Display urgency value and update color
         const urgencyInput = document.getElementById('urgency');
-        const urgencyOutput = document.getElementById('urgency_value');
+        const urgencyInfo = document.getElementById('urgency_info');
        
         urgencyInput.addEventListener('input', function() {
-            urgencyOutput.textContent = this.value;
-           
-            // Update color based on urgency
             const value = parseInt(this.value);
-            urgencyOutput.className = '';
            
-            if (value >= 8) {
-                urgencyOutput.classList.add('urgency-high');
-            } else if (value >= 4) {
-                urgencyOutput.classList.add('urgency-medium');
+            // Validate input range
+            if (value < 1 || value > 10) {
+                urgencyInfo.textContent = "Please enter a number between 1 and 10";
+                urgencyInfo.className = "form-text urgent";
+                return;
+            }
+           
+            // Update info text and color based on urgency (1 is highest, 10 is lowest)
+            urgencyInfo.className = "form-text";
+            if (value <= 3) {
+                urgencyInfo.textContent = "High urgency task";
+                urgencyInfo.classList.add('urgent');
+            } else if (value <= 6) {
+                urgencyInfo.textContent = "Medium urgency task";
+                urgencyInfo.classList.add('warning');
             } else {
-                urgencyOutput.classList.add('urgency-low');
+                urgencyInfo.textContent = "Low urgency task";
+                urgencyInfo.classList.add('success');
             }
         });
        

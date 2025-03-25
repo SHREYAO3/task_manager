@@ -1,13 +1,10 @@
 // Task Manager frontend functionality
-
-
 document.addEventListener('DOMContentLoaded', function() {
     // Category filter functionality
     const categoryFilter = document.getElementById('category-filter');
     const sortOptions = document.getElementById('sort-options');
     const taskGrid = document.querySelector('.task-grid');
     const statCards = document.querySelectorAll('.stat-card');
-
 
     if (categoryFilter && sortOptions) {
         // Function to update tasks based on filters
@@ -54,7 +51,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     taskGrid.style.opacity = '1';
                 });
         }
-
 
         // Helper function to create task card HTML
         function createTaskCard(task) {
@@ -105,11 +101,9 @@ document.addEventListener('DOMContentLoaded', function() {
             return card;
         }
 
-
         // Add event listeners for filters
         categoryFilter.addEventListener('change', () => updateTasks());
         sortOptions.addEventListener('change', () => updateTasks());
-
 
         // Add event listeners for stat cards
         statCards.forEach(card => {
@@ -132,7 +126,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-
     // Add confirmation for delete actions
     document.addEventListener('click', function(e) {
         if (e.target.closest('.btn-delete')) {
@@ -142,9 +135,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
-
-
-
 
 // Update styling for task rows based on priority
 function updatePriorityStyles() {
@@ -162,9 +152,6 @@ function updatePriorityStyles() {
         row.classList.add(`priority-${Math.round(priority)}`);
     });
 }
-
-
-
 
 // Call this after any dynamic updates to task list
 document.addEventListener('DOMContentLoaded', updatePriorityStyles);

@@ -95,7 +95,7 @@ class TaskDatabase:
                 self.disconnect()
         return False
    
-    def get_all_tasks(self, user_id, order_by='priority', descending=True):
+    def get_all_tasks(self, user_id, order_by='priority', descending=False):
         if self.connect():
             try:
                 sort_mapping = {
