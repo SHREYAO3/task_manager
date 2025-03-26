@@ -106,9 +106,6 @@ class TaskDatabase:
                 sort_column = sort_mapping.get(order_by, 'priority')
                 direction = "DESC" if descending else "ASC"
                
-                if order_by == 'deadline':
-                    direction = "ASC" if descending else "DESC"
-               
                 query = f"SELECT * FROM TASKS WHERE completed = 0 AND user_id = ? ORDER BY {sort_column} {direction}"
                 self.cursor.execute(query, (user_id,))
                
