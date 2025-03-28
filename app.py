@@ -5,13 +5,132 @@ from models.user_model import UserDatabase
 from models.ml_model import TaskPrioritizer
 from datetime import datetime, timedelta
 from functools import wraps
+import smtplib
+from email.mime.text import MIMEText
+import random
+
+
+class EmailService:
+    def __init__(self, sender_email, sender_password):
+        self.sender_email = sender_email
+        self.sender_password = sender_password
+
+
+    def send_email(self, to_email, subject, body):
+        try:
+            msg = MIMEText(body)
+            msg['Subject'] = subject
+            msg['From'] = self.sender_email
+            msg['To'] = to_email
+
+
+            server = smtplib.SMTP('smtp.gmail.com', 587)
+            server.starttls()
+            server.login(self.sender_email, self.sender_password)
+            server.send_message(msg)
+            server.quit()
+            return True
+        except Exception as e:
+            print(f"Email send error: {e}")
+            return False
+
+
+class OTPManager:
+    def __init__(self):
+        self.storage = {}
+        self.expiry_minutes = 5
+
+
+    def generate_otp(self):
+        return str(random.randint(100000, 999999))
+
+
+    def store_otp(self, email, otp):
+        self.storage[email] = {
+            'otp': otp,
+            'expires': datetime.now() + timedelta(minutes=self.expiry_minutes)
+        }
+
+
+    def verify_otp(self, email, otp):
+        stored_data = self.storage.get(email)
+        if not stored_data or stored_data['expires'] < datetime.now():
+            return False, "OTP expired. Please resend."
+       
+        if otp != stored_data['otp']:
+            return False, "Invalid OTP"
+       
+        del self.storage[email]
+        return True, "OTP verified successfully"
+
+
+class AuthManager:
+    def __init__(self, user_db, email_service, otp_manager):
+        self.user_db = user_db
+        self.email_service = email_service
+        self.otp_manager = otp_manager
+
+
+    def handle_login(self, username, password):
+        success, user_id = self.user_db.verify_user(username, password)
+        if success:
+            session['user_id'] = user_id
+            session['username'] = username
+            return True, None
+        return False, "Invalid username or password"
+
+
+    def handle_signup(self, username, email, password, confirm_password):
+        if password != confirm_password:
+            return False, "Passwords do not match"
+
+
+        if email != session.get('verified_email'):
+            return False, "Please verify your email first"
+
+
+        success, message = self.user_db.create_user(username, email, password)
+        if success:
+            session.pop('verified_email', None)
+            return True, None
+        return False, message
+
+
+    def handle_send_otp(self, email):
+        if not email:
+            return False, "Email is required"
+
+
+        otp = self.otp_manager.generate_otp()
+        self.otp_manager.store_otp(email, otp)
+
+
+        subject = 'OTP for ML Task Manager Registration'
+        body = f'Your OTP is: {otp}. It will expire in {self.otp_manager.expiry_minutes} minutes.'
+
+
+        if self.email_service.send_email(email, subject, body):
+            return True, "OTP sent successfully"
+        return False, "Failed to send OTP"
+
+
+    def handle_verify_otp(self, email, otp):
+        if not email or not otp:
+            return False, "Email and OTP are required"
+
+
+        success, message = self.otp_manager.verify_otp(email, otp)
+        if success:
+            session['verified_email'] = email
+        return success, message
 
 
 class TaskManagerApp:
     def __init__(self):
         self.app = Flask(__name__)
-        self.app.secret_key = os.urandom(24)  # Required for session management
+        self.app.secret_key = os.urandom(24)
        
+        # Database configuration
         DRIVER_NAME = 'SQL SERVER'
         SERVER_NAME = r'ANURADHA\SQLEXPRESS01'
         DATABASE_NAME = 'TaskManager'
@@ -21,45 +140,50 @@ class TaskManagerApp:
         DATABASE={DATABASE_NAME};
         Trusted_Connection=yes;
         """
+       
+        # Initialize services
         self.task_db = TaskDatabase(self.connection_string)
         self.user_db = UserDatabase(self.connection_string)
         self.task_prioritizer = TaskPrioritizer()
+        self.email_service = EmailService('a.saha.study@gmail.com', 'ekcq kefw clqi kyxl')
+        self.otp_manager = OTPManager()
+        self.auth_manager = AuthManager(self.user_db, self.email_service, self.otp_manager)
        
         # Register routes
         self._register_routes()
-   
+
+
     def login_required(self, f):
-        """Decorator to require login for routes."""
         @wraps(f)
         def decorated_function(*args, **kwargs):
             if 'user_id' not in session:
                 return redirect(url_for('login'))
             return f(*args, **kwargs)
         return decorated_function
-   
+
+
     def _register_routes(self):
-        """Register all application routes."""
         # Auth routes
         self.app.add_url_rule('/login', 'login', self.login, methods=['GET', 'POST'])
         self.app.add_url_rule('/signup', 'signup', self.signup, methods=['GET', 'POST'])
         self.app.add_url_rule('/logout', 'logout', self.logout)
+        self.app.add_url_rule('/send_otp', 'send_otp', self.send_otp, methods=['POST'])
+        self.app.add_url_rule('/verify_otp', 'verify_otp', self.verify_otp, methods=['POST'])
        
-        # Landing page route (default route)
+        # Other routes
         @self.app.route('/')
         def landing():
             if 'user_id' in session:
-                # If user is logged in, redirect to dashboard
                 return redirect(url_for('index'))
             return render_template('landing.html')
        
-        # Home page route (for logged-in users)
         @self.app.route('/home')
         def home():
             if 'user_id' not in session:
                 return redirect(url_for('login'))
             return render_template('landing.html', logged_in=True, username=session.get('username'))
        
-        # Dashboard route (protected)
+        # Protected routes
         self.app.add_url_rule('/dashboard', 'index', self.login_required(self.index))
         self.app.add_url_rule('/add', 'add_task', self.login_required(self.add_task), methods=['GET', 'POST'])
         self.app.add_url_rule('/get_types/<category>', 'get_types', self.login_required(self.get_types))
@@ -68,65 +192,60 @@ class TaskManagerApp:
         self.app.add_url_rule('/filter_tasks', 'filter_tasks', self.login_required(self.filter_tasks))
         self.app.add_url_rule('/edit_task/<int:task_id>', 'edit_task', self.edit_task, methods=['GET', 'POST'])
        
-        # Dark mode toggle route
         @self.app.route('/toggle_theme', methods=['POST'])
         def toggle_theme():
             current_theme = session.get('theme', 'light')
             new_theme = 'dark' if current_theme == 'light' else 'light'
             session['theme'] = new_theme
             return jsonify({'theme': new_theme})
-       
-        # Contact form submission route
-        @self.app.route('/contact', methods=['POST'])
-        def contact():
-            name = request.form.get('name')
-            email = request.form.get('email')
-            message = request.form.get('message')
-           
-            # Here you would typically handle the contact form submission
-            # For now, we'll just return a success message
-            return jsonify({'status': 'success', 'message': 'Thank you for your message!'})
-   
+
+
     def login(self):
-        """Handle user login."""
         if request.method == 'POST':
             username = request.form.get('username')
             password = request.form.get('password')
            
-            success, user_id = self.user_db.verify_user(username, password)
+            success, error = self.auth_manager.handle_login(username, password)
             if success:
-                session['user_id'] = user_id
-                session['username'] = username
-                return redirect(url_for('index'))  # This will now redirect to /dashboard
-            else:
-                return render_template('login.html', error='Invalid username or password')
+                return redirect(url_for('index'))
+            return render_template('login.html', error=error)
        
         return render_template('login.html')
-   
+
+
     def signup(self):
-        """Handle user registration."""
         if request.method == 'POST':
             username = request.form.get('username')
             email = request.form.get('email')
             password = request.form.get('password')
             confirm_password = request.form.get('confirm_password')
            
-            if password != confirm_password:
-                return render_template('signup.html', error='Passwords do not match')
-           
-            success, message = self.user_db.create_user(username, email, password)
+            success, error = self.auth_manager.handle_signup(username, email, password, confirm_password)
             if success:
                 return redirect(url_for('login'))
-            else:
-                return render_template('signup.html', error=message)
+            return render_template('signup.html', error=error)
        
         return render_template('signup.html')
-   
+
+
     def logout(self):
-        """Handle user logout."""
         session.clear()
         return redirect(url_for('landing'))
-   
+
+
+    def send_otp(self):
+        email = request.form.get('email')
+        success, message = self.auth_manager.handle_send_otp(email)
+        return jsonify({"success": success, "message": message}), 200 if success else 400
+
+
+    def verify_otp(self):
+        email = request.form.get('email')
+        otp = request.form.get('otp')
+        success, message = self.auth_manager.handle_verify_otp(email, otp)
+        return jsonify({"success": success, "message": message}), 200 if success else 400
+
+
     def index(self):
         try:
             tasks = self.task_db.get_all_tasks(session['user_id'])
@@ -290,7 +409,8 @@ class TaskManagerApp:
            
             flash('Task updated successfully!', 'success')
             return redirect(url_for('index'))
-   
+
+
     def run(self, debug=True):
         self.app.run(debug=debug)
 

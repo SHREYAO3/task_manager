@@ -1184,18 +1184,33 @@ footer i {
 
 .auth-form input {
     width: 100%;
-    padding: 0.75rem;
-    border: 1px solid var(--input-border);
-    border-radius: var(--radius-md);
-    font-size: 0.9375rem;
-    transition: all var(--transition-fast);
+    padding: 12px;
+    border: 2px solid #ffffff;
+    border-radius: 8px;
+    background-color: #1a1a1a;
+    color: #ffffff;
+    font-size: 16px;
+    transition: all 0.3s ease;
 }
 
 
 .auth-form input:focus {
     outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(94, 114, 228, 0.1);
+    border-color: #4a90e2;
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+
+.dark-theme .auth-form input {
+    background-color: #2d2d2d;
+    border-color: #ffffff;
+    color: #ffffff;
+}
+
+
+.dark-theme .auth-form input:focus {
+    border-color: #4a90e2;
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
 }
 
 
@@ -1927,4 +1942,61 @@ footer i {
         height: 35px;
         font-size: 1rem;
     }
+}
+
+
+.email-input-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+
+.email-input-group input {
+    flex: 1;
+}
+
+
+.email-input-group .btn {
+    white-space: nowrap;
+    padding: 8px 16px;
+}
+
+
+.otp-group {
+    margin-top: 20px;
+}
+
+
+.otp-input-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+
+.otp-input-group input {
+    flex: 1;
+    letter-spacing: 4px;
+    text-align: center;
+    font-size: 18px;
+}
+
+
+.otp-input-group .btn {
+    white-space: nowrap;
+    padding: 8px 16px;
+}
+
+
+.otp-timer {
+    display: block;
+    margin-top: 8px;
+    color: #666;
+    font-size: 14px;
+}
+
+
+.dark-theme .otp-timer {
+    color: #999;
 }
