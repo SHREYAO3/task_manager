@@ -13,7 +13,7 @@ Monthly Team Status Report,Compile team achievements and challenges for executiv
 Mortgage Payment,Process monthly mortgage payment,Financial,Bill payments,3,2,0.5,2
 Project Timeline Review,Update project milestones and communicate to stakeholders,Work or Professional,Team collaboration,4,2,1.5,2
 College Application Essay,Complete personal statement for university application,Educational,Assignments and homework,7,3,6,2
-Car Insurance Renewal,Compare rates and renew auto insurance policy,Financial,Bill payments,5,2,2,2
+Car Insurance Renewal,Compare rates and renew auto insurance policy,Personal,Personal finance,5,2,2,2
 Dentist Appointment,Six-month dental checkup and cleaning,Health & Wellness,Medical appointments,6,3,1.5,2
 Weekly Sales Report,Analyze and document sales performance for the week,Work or Professional,Reports and documentation,1,2,2,2
 Web Server Maintenance,Update server software and perform security patches,Work or Professional,Project deadlines,3,2,4,2
@@ -24,7 +24,7 @@ Grocery Shopping,Buy weekly groceries and household supplies,Errands,Grocery sho
 Team Building Workshop,Prepare materials for department team-building exercise,Work or Professional,Team collaboration,8,4,3,3
 Landscaping Project,Plan and begin backyard renovation,Personal,Household chores,14,5,8,3
 Research Paper Draft,Complete first draft of research paper,Educational,Research projects,12,4,10,3
-Gym Session,Complete weekly strength training workout,Health & Wellness,Workout plans,1,3,1.5,3
+Gym Session,Complete weekly strength training workout,Personal,Fitness and health,1,3,1.5,3
 Credit Card Payment,Pay off monthly credit card balance,Financial,Bill payments,6,3,0.5,3
 Client Follow-up Call,Check in with Johnson Corp about their implementation,Work or Professional,Client follow-ups,5,3,1,3
 Vacation Accommodation Booking,Reserve hotel for summer family vacation,Travel & Leisure,Travel bookings,30,5,2,3
@@ -36,11 +36,11 @@ Quarterly Budget Planning,Prepare department budget for next quarter,Financial,B
 Mental Health Check-in,Schedule and attend therapy session,Health & Wellness,Mental health check-ins,12,4,1,4
 Network Security Audit,Review access logs and security protocols,Work or Professional,Reports and documentation,20,5,8,4
 Birthday Party Planning,Organize weekend celebration for partner,Personal,Family and social events,11,4,3,4
-Meal Prep Sunday,Prepare meals for the upcoming work week,Personal,Household chores,2,3,3,4
+Meal Prep Sunday,Prepare meals for the upcoming work week,Personal,Fitness and health,2,3,3,4
 Marketing Content Review,Provide feedback on new campaign materials,Work or Professional,Team collaboration,8,4,1.5,4
 Car Oil Change,Schedule routine maintenance for vehicle,Errands,Car maintenance,14,5,1,5
 Online Course Assignment,Complete module exercises for Python programming course,Educational,Online courses,9,4,2.5,5
-Fitness Progress Tracking,Record measurements and update fitness plan,Health & Wellness,Workout plans,5,4,1,5
+Fitness Progress Tracking,Record measurements and update fitness plan,Personal,Fitness and health,5,4,1,5
 Expense Report Submission,Submit travel expenses for recent business trip,Work or Professional,Reports and documentation,4,3,1,5
 Monthly Budget Review,Update spreadsheet with monthly expenses and income,Financial,Budgeting and expense tracking,8,4,1.5,5
 Networking Event,Attend industry mixer for professional connections,Social or Community,Networking events,15,5,3,5
@@ -51,12 +51,12 @@ Home Office Organization,Clean and reorganize workspace for better productivity,
 Social Media Content Calendar,Plan and schedule posts for company platforms,Work or Professional,Project deadlines,12,5,4,6
 Study Group Meeting,Coordinate with classmates for exam review session,Educational,Study sessions,16,5,2,6
 Bookshelf Assembly,Build new bookshelf for home office,Personal,Household chores,21,6,3,6
-Veterinarian Appointment,Take pet for annual checkup and vaccinations,Errands,Miscellaneous,25,6,1.5,6
-Resume Update,Refresh resume with recent accomplishments,Personal,Miscellaneous,30,6,2,6
+Online Banking Setup,Set up new bank account and transfer funds,Personal,Personal finance,25,6,1.5,6
+Resume Update,Refresh resume with recent accomplishments,Miscellaneous,Future plans,30,6,2,6
 Family Photo Organization,Sort and back up digital photos from past year,Personal,Leisure and hobbies,45,7,4,6
 Package Return,Send back incorrect online purchase,Errands,Post office visits,5,4,1,6
-Email Inbox Clean-up,Sort and organize work email backlog,Work or Professional,Miscellaneous,15,5,2,6
-Charity Run Registration,Sign up for upcoming 5K fundraiser,Health & Wellness,Workout plans,40,7,0.5,6
+Email Inbox Clean-up,Sort and organize work email backlog,Miscellaneous,To-do lists,15,5,2,6
+Charity Run Registration,Sign up for upcoming 5K fundraiser,Personal,Fitness and health,40,7,0.5,6
 Water Bill Payment,Process quarterly water utility payment,Financial,Bill payments,20,5,0.5,6
 Website Content Update,Refresh company website with new information,Work or Professional,Project deadlines,18,5,6,7
 Book Club Meeting,Read assigned book and prepare discussion points,Social or Community,Club or group activities,12,5,5,7
@@ -66,35 +66,143 @@ Community Volunteer Day,Help at local food bank distribution event,Social or Com
 Create Weekly Playlist,Compile new music for workout sessions,Creative,Art and music,14,5,1,7
 Window Cleaning,Clean all home windows inside and out,Personal,Household chores,25,6,4,7
 Update Portfolio Website,Add recent projects to professional portfolio site,Creative,Design projects,40,7,8,7
-Anniversary Gift Shopping,Find present for upcoming anniversary,Errands,Miscellaneous,22,6,2,7
+Anniversary Gift Shopping,Find present for upcoming anniversary,Miscellaneous,Random ideas,22,6,2,7
 Language Practice,Complete daily Spanish lesson,Educational,Online courses,1,5,0.5,7
 Paint Guest Bedroom,Select color and paint guest room walls,Personal,Household chores,60,8,6,8
-Recipe Testing,Try new dinner recipes for meal rotation,Personal,Leisure and hobbies,25,7,2,8
+Recipe Testing,Try new dinner recipes for meal rotation,Personal,Fitness and health,25,7,2,8
 Car Wash,Clean vehicle interior and exterior,Errands,Car maintenance,15,6,1.5,8
 Travel Itinerary Planning,Research activities for upcoming vacation,Travel & Leisure,Vacation planning,45,7,4,8
 Video Editing Project,Edit footage for personal YouTube channel,Creative,Content creation,30,7,5,8
-Library Book Return,Return borrowed books before due date,Errands,Miscellaneous,8,5,0.5,8
+Bank Account Reconciliation,Review and balance monthly bank statements,Personal,Personal finance,8,5,0.5,8
 Wardrobe Seasonal Update,Sort clothes and prepare for season change,Personal,Household chores,20,6,3,8
-Digital Declutter,Clean up and organize computer files,Personal,Miscellaneous,35,7,2,8
+Digital Declutter,Clean up and organize computer files,Miscellaneous,To-do lists,35,7,2,8
 Cancel Unused Subscription,Review and cancel streaming service not being used,Financial,Budgeting and expense tracking,10,5,0.3,8
 Concert Ticket Purchase,Buy tickets to favorite band's upcoming show,Travel & Leisure,Leisure and hobbies,30,7,0.5,8
 Write Short Story,Complete draft for creative writing submission,Creative,Writing,45,8,10,9
-Update Emergency Contact List,Review and refresh family emergency information,Personal,Miscellaneous,50,8,1,9
-Learn New Cooking Technique,Practice making homemade pasta,Personal,Leisure and hobbies,35,7,3,9
-Phone Backup,Back up photos and contacts from smartphone,Personal,Miscellaneous,20,6,1,9
+Update Emergency Contact List,Review and refresh family emergency information,Miscellaneous,Future plans,50,8,1,9
+Learn New Cooking Technique,Practice making homemade pasta,Personal,Fitness and health,35,7,3,9
+Smartphone Backup,Back up photos and contacts from smartphone,Miscellaneous,General reminders,20,6,1,9
 Holiday Gift List Planning,Start compiling ideas for seasonal gifts,Personal,Family and social events,90,9,2,9
 Furniture Rearrangement,Redesign living room layout for better flow,Personal,Household chores,60,8,3,9
-Podcast Listening,Catch up on industry podcast episodes,Educational,Miscellaneous,15,6,2,9
+Retirement Fund Review,Check and adjust retirement investment strategy,Personal,Personal finance,15,6,2,9
 Bird Feeder Installation,Set up new bird feeder in backyard,Personal,Leisure and hobbies,40,8,1,9
 Explore New Park,Visit recently opened nature preserve,Travel & Leisure,Sightseeing plans,30,7,3,9
 Photo Album Creation,Organize vacation photos into digital album,Creative,Design projects,55,8,4,9
-Update Contact List,Review and refresh personal and professional contacts,Personal,Miscellaneous,70,9,2,10
-Organize Digital Bookmarks,Sort and categorize saved web articles,Personal,Miscellaneous,50,8,1.5,10
+Update Contact List,Review and refresh personal and professional contacts,Miscellaneous,Random ideas,70,9,2,10
+Organize Digital Bookmarks,Sort and categorize saved web articles,Miscellaneous,To-do lists,50,8,1.5,10
 Movie Watchlist Review,Update list of films to watch,Personal,Leisure and hobbies,60,9,1,10
-Social Media Detox Planning,Design schedule for reduced screen time,Personal,Mental health check-ins,45,8,1,10
+Social Media Detox Planning,Design schedule for reduced screen time,Miscellaneous,General reminders,45,8,1,10
 Reorganize Spice Rack,Sort and label kitchen spices,Personal,Household chores,40,8,1,10
 Future Vacation Research,Explore potential destinations for next year,Travel & Leisure,Vacation planning,120,10,3,10
 Fix Garden Pathway,Repair loose stones in garden walkway,Personal,Household chores,90,9,4,10
 Reading List Update,Compile books to read in coming months,Personal,Leisure and hobbies,80,9,1,10
-Try New Coffee Shop,Visit recently opened local cafe,Personal,Leisure and hobbies,35,8,1.5,10
+Try New Fitness Class,Attend a new exercise class for physical wellness,Personal,Fitness and health,35,8,1.5,10
 Frame Family Photos,Select and frame printed photographs,Personal,Family and social events,70,9,2,10
+Yoga Class Registration,Sign up for weekly yoga classes,Health & Wellness,Workout plans,30,6,1,7
+Weekend Party Planning,Organize gathering for friend's birthday,Social or Community,Social gatherings,45,7,4,8
+Account Balance Check,Review checking and savings account status,Errands,Banking tasks,15,5,0.5,6
+European Vacation Prep,Create detailed packing list for summer trip,Travel & Leisure,Packing lists,60,8,2,9
+Live Music Composition,Write original song for local band performance,Creative,Art and music,40,7,5,8
+Family Reunion Coordination,Plan annual family gathering,Social or Community,Social gatherings,90,8,6,9
+Marathon Training Program,Develop comprehensive running schedule,Personal,Fitness and health,120,9,10,10
+Investment Portfolio Rebalancing,Adjust stock and bond allocations,Financial,Investment planning,45,7,3,8
+Ceramics Workshop Registration,Enroll in weekend pottery class,Creative,Art and music,30,6,2,7
+Annual Medical Check-up,Schedule comprehensive health screening,Health & Wellness,Medical appointments,60,7,2,8
+Charity Gala Preparation,Organize fundraising event materials,Social or Community,Social gatherings,75,8,5,9
+Online Programming Bootcamp,Complete intensive coding course,Educational,Online courses,90,8,40,9
+Business Networking Mixer,Attend professional industry event,Social or Community,Networking events,45,7,3,8
+Wilderness Backpacking Trip,Plan multi-day hiking expedition,Travel & Leisure,Packing lists,120,9,6,10
+Jazz Improvisation Practice,Develop musical improvisation skills,Creative,Art and music,60,7,4,8
+Corporate Strategy Retreat,Facilitate leadership planning session,Work or Professional,Meetings,30,6,8,7
+Personal Finance Workshop,Attend financial literacy seminar,Personal,Personal finance,45,7,3,8
+Emergency Preparedness Kit,Assemble comprehensive safety supplies,Miscellaneous,Future plans,90,8,4,9
+Mountain Bike Trail Mapping,Create GPS route for cycling adventure,Personal,Fitness and health,60,7,5,8
+Community Garden Volunteering,Participate in local urban gardening,Social or Community,Volunteering events,45,6,4,7
+Smartphone Photography Course,Learn advanced mobile photography,Educational,Online courses,60,7,6,8
+International Wire Transfer,Set up cross-border bank transaction,Errands,Banking tasks,15,5,1,6
+Winter Clothing Donation Drive,Organize clothing collection for charity,Social or Community,Volunteering events,30,6,3,7
+Retirement Home Visitation,Spend time with elderly community members,Social or Community,Volunteering events,45,7,3,8
+Art Gallery Exhibition Planning,Curate local artists' showcase,Creative,Design projects,90,8,10,9
+Mountain Climbing Training,Develop strength and technique program,Personal,Fitness and health,120,9,12,10
+Startup Pitch Preparation,Develop business presentation deck,Work or Professional,Meetings,45,7,6,8
+Family Budget Reconciliation,Review and adjust household expenses,Personal,Personal finance,60,7,4,8
+Community Theater Audition,Prepare monologue and performance,Creative,Art and music,30,6,5,7
+Remote Work Policy Draft,Create guidelines for flexible working,Work or Professional,Reports and documentation,45,7,5,8
+Meditation Retreat Registration,Book spiritual wellness workshop,Health & Wellness,Mental health check-ins,60,8,3,9
+International Recipe Collection,Compile cookbook of global cuisines,Personal,Leisure and hobbies,90,8,6,9
+Tech Conference Preparation,Research and plan conference attendance,Work or Professional,Team collaboration,45,7,4,8
+Local Food Bank Support,Organize meal packaging event,Social or Community,Volunteering events,30,6,4,7
+Historical Documentary Research,Compile archival material,Educational,Research projects,120,9,20,10
+Urban Gardening Workshop,Learn sustainable farming techniques,Personal,Fitness and health,45,7,3,8
+Corporate Team Building,Plan interdepartmental bonding activity,Work or Professional,Team collaboration,60,8,5,9
+Wilderness First Aid Course,Complete emergency medical training,Health & Wellness,Workout plans,45,7,6,8
+Freelance Portfolio Development,Update professional work samples,Work or Professional,Reports and documentation,60,8,4,9
+Wildlife Photography Expedition,Plan nature photography trip,Creative,Content creation,90,8,7,9
+Senior Citizen Technology Class,Teach digital skills to elderly,Social or Community,Social gatherings,45,7,3,8
+Personal Brand Strategy,Develop professional online presence,Personal,Personal finance,60,8,5,9
+Local Music Festival Organization,Coordinate community music event,Social or Community,Social gatherings,90,8,10,9
+Adventure Race Training,Prepare for multi-sport competition,Personal,Fitness and health,120,9,15,10
+Mobile App UI Redesign,Revamp user interface for company's mobile application,Creative,Design projects,20,5,12,5
+Pet Adoption Paperwork,Complete documentation for rescue dog adoption,Personal,Family and social events,7,4,2,4
+Retirement Fund Consultation,Meet with financial advisor about long-term investment strategy,Financial,Investment planning,30,6,2,6
+Community Science Workshop,Organize local STEM education event for children,Social or Community,Volunteering events,45,7,6,7
+Vintage Furniture Restoration,Research and begin restoring antique writing desk,Personal,Leisure and hobbies,60,8,10,8
+International Language Exchange,Set up weekly online conversation with native Spanish speaker,Educational,Online courses,14,5,3,5
+Cybersecurity Training,Complete mandatory corporate security awareness program,Work or Professional,Team collaboration,10,4,4,4
+Sustainability Home Audit,Evaluate home energy efficiency and eco-friendly improvements,Personal,Future plans,30,6,5,6
+Local Podcast Production,Record and edit podcast episode about community initiatives,Creative,Content creation,15,5,6,5
+Mental Wellness Retreat Planning,Research and book holistic wellness weekend,Health & Wellness,Mental health check-ins,40,7,4,7
+Urban Cycling Infrastructure Survey,Document bike lane conditions for city planning committee,Social or Community,Research projects,25,6,3,6
+Startup Mentorship Program,Develop curriculum for young entrepreneurs,Work or Professional,Project deadlines,35,7,8,7
+Genealogy Research Project,Trace family history using online archives,Personal,Research projects,90,9,15,9
+Artisan Bread Baking Workshop,Learn advanced bread-making techniques,Personal,Fitness and health,20,5,4,5
+International Film Festival Submission,Prepare documentary for festival entry,Creative,Writing,50,8,12,8
+Emergency Response Training,Complete wilderness first aid certification,Health & Wellness,Workout plans,30,6,6,6
+Corporate Social Responsibility Report,Draft annual sustainability and impact document,Work or Professional,Reports and documentation,25,6,7,6
+Cultural Heritage Preservation,Volunteer at local historical museum documentation project,Social or Community,Volunteering events,40,7,5,7
+Advanced Photography Workshop,Attend professional-level digital photography course,Educational,Online courses,35,7,6,7
+Home Energy Retrofit,Implement solar panel and insulation upgrades,Personal,Household chores,60,8,20,8
+Tech Startup Pitch Competition,Prepare and rehearse business presentation,Work or Professional,Meetings,15,5,6,5
+Marine Conservation Expedition,Plan research trip to study coral reef ecosystem,Educational,Research projects,120,9,16,9
+Virtual Reality Art Installation,Design interactive digital art experience,Creative,Design projects,45,7,10,7
+Adaptive Sports Program Development,Create inclusive fitness curriculum for disabled athletes,Social or Community,Social gatherings,50,8,8,8
+Sustainable Agriculture Internship,Apply and prepare for agricultural research position,Work or Professional,Future plans,60,8,5,8
+Wilderness Photography Expedition,Plan multi-day nature photography project,Creative,Content creation,75,8,12,8
+Community Elder Technology Program,Develop digital literacy curriculum for seniors,Social or Community,Social gatherings,40,7,6,7
+Blockchain Technology Seminar,Organize professional development workshop,Work or Professional,Team collaboration,30,6,5,6
+Personal Nutrition Genome Analysis,Complete comprehensive health and genetic assessment,Health & Wellness,Medical appointments,45,7,4,7
+Independent Film Script Writing,Develop original screenplay for independent production,Creative,Writing,90,9,40,9
+Urban Permaculture Design,Create sustainable garden plan for community space,Personal,Fitness and health,60,8,10,8
+International Climate Action Conference,Prepare research presentation for global forum,Educational,Research projects,55,8,12,8
+Robotic Process Automation Project,Develop workflow optimization strategy,Work or Professional,Project deadlines,40,7,15,7
+Native Plant Restoration Initiative,Lead local ecosystem rehabilitation project,Social or Community,Volunteering events,90,9,20,9
+Professional Voice Acting Workshop,Attend intensive vocal performance training,Creative,Art and music,30,6,8,6
+Quantum Computing Research Paper,Draft academic publication on emerging technologies,Educational,Research projects,120,9,60,9
+Remote Work Productivity Tools,Evaluate and implement team collaboration software,Work or Professional,Team collaboration,25,6,6,6
+Personal Brand Video Production,Create professional career highlights video,Creative,Content creation,40,7,10,7
+Space Exploration Museum Exhibit,Design interactive educational display,Social or Community,Design projects,75,8,25,8
+Adaptive Musical Instrument Design,Develop accessibility-focused music technology,Creative,Design projects,90,9,30,9
+International Culinary Exchange Program,Organize cross-cultural cooking workshops,Personal,Leisure and hobbies,60,8,12,8
+Renewable Energy Consulting Project,Develop sustainable infrastructure recommendations,Work or Professional,Project deadlines,50,8,20,8
+Mindfulness Meditation Retreat Leadership,Train to become certified meditation instructor,Health & Wellness,Mental health check-ins,90,9,40,9
+Archaeological Field Research,Participate in historical site excavation,Educational,Research projects,120,9,80,9
+Community Disaster Preparedness Plan,Develop emergency response strategy,Social or Community,Volunteering events,60,8,15,8
+Digital Art NFT Collection,Create and mint unique digital artwork series,Creative,Art and music,45,7,20,7
+Global Health Policy Symposium,Prepare research presentation on healthcare innovations,Work or Professional,Meetings,40,7,12,7
+Ocean Microplastic Research Expedition,Participate in marine environmental study,Educational,Research projects,90,9,60,9
+Inclusive Design Workshop Series,Develop accessibility training for design professionals,Work or Professional,Team collaboration,50,8,16,8
+Personal Time Management Masterclass,Create comprehensive productivity course,Personal,Personal finance,60,8,25,8
+Virtual Reality Therapy Development,Design mental health intervention technology,Health & Wellness,Medical appointments,75,8,40,8
+Regenerative Agriculture Startup,Develop sustainable farming business model,Work or Professional,Project deadlines,90,9,50,9
+International Youth Leadership Summit,Organize global youth empowerment conference,Social or Community,Social gatherings,75,8,30,8
+AI Ethics Research Fellowship,Conduct comprehensive study on artificial intelligence,Educational,Research projects,120,9,100,9
+Urban Wildlife Conservation Program,Develop city ecosystem protection strategy,Social or Community,Volunteering events,60,8,20,8
+Professional Music Production Course,Learn advanced audio engineering techniques,Creative,Art and music,45,7,30,7
+Global Sustainable Design Competition,Prepare innovative eco-friendly product proposal,Work or Professional,Project deadlines,60,8,25,8
+Community Health Innovation Lab,Create preventive healthcare technology prototype,Health & Wellness,Medical appointments,90,9,60,9
+Immersive Language Learning Platform,Develop interactive linguistic education technology,Educational,Online courses,75,8,40,8
+Cultural Diplomacy Documentary,Produce film about international understanding,Creative,Content creation,90,9,80,9
+Social Impact Investment Strategy,Design community-focused financial model,Personal,Personal finance,60,8,20,8
+Adaptive Sports Technology Research,Develop inclusive athletic equipment,Work or Professional,Project deadlines,75,8,50,8
+Global Mental Health Awareness Campaign,Create comprehensive multimedia awareness program,Social or Community,Social gatherings,90,9,60,9
+Zero-Waste Urban Living Guide,Develop comprehensive sustainability resource,Personal,Future plans,75,8,40,8
