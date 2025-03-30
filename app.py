@@ -206,9 +206,9 @@ class TaskManagerApp:
             success, error = self.auth_manager.handle_login(username, password)
             if success:
                 return redirect(url_for('index'))
-            return render_template('login.html', error=error)
+            return render_template('signin.html', error=error)
        
-        return render_template('login.html')
+        return render_template('signin.html')
    
     def signup(self):
         if request.method == 'POST':
@@ -220,9 +220,9 @@ class TaskManagerApp:
             success, error = self.auth_manager.handle_signup(username, email, password, confirm_password)
             if success:
                 return redirect(url_for('login'))
-            return render_template('signup.html', error=error)
+            return render_template('signin.html', error=error)
        
-        return render_template('signup.html')
+        return render_template('signin.html')
    
     def logout(self):
         session.clear()
