@@ -163,6 +163,7 @@ class TaskDatabase:
                 self.disconnect()
         return False
 
+
     def get_task(self, task_id, user_id):
         if self.connect():
             try:
@@ -219,3 +220,41 @@ class TaskDatabase:
             finally:
                 self.disconnect()
         return False
+
+
+    def search_tasks(self, user_id, search_query):
+        if self.connect():
+            try:
+                query = """
+                SELECT * FROM TASKS
+                WHERE user_id = ?
+                AND completed = 0
+                AND (
+                    LOWER(title) LIKE LOWER(?)
+                    OR LOWER(description) LIKE LOWER(?)
+                )
+                ORDER BY priority DESC
+                """
+                search_pattern = f"%{search_query}%"
+                self.cursor.execute(query, (user_id, search_pattern, search_pattern))
+               
+                columns = [column[0] for column in self.cursor.description]
+                tasks = []
+                for row in self.cursor.fetchall():
+                    task = dict(zip(columns, row))
+                    if 'deadline_datetime' in task:
+                        deadline = datetime.strptime(task['deadline_datetime'], '%Y-%m-%d %H:%M')
+                        current = datetime.now()
+                        days_left = (deadline - current).days
+                        if (deadline - current).seconds > 0 and days_left >= 0:
+                            days_left += 1
+                        task['deadline_days'] = max(0, days_left)
+                    tasks.append(task)
+               
+                return tasks
+            except pyodbc.Error as e:
+                print(f"Error searching tasks: {e}")
+                return []
+            finally:
+                self.disconnect()
+        return []

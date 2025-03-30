@@ -9,12 +9,10 @@ import smtplib
 from email.mime.text import MIMEText
 import random
 
-
 class EmailService:
     def __init__(self, sender_email, sender_password):
         self.sender_email = sender_email
         self.sender_password = sender_password
-
 
     def send_email(self, to_email, subject, body):
         try:
@@ -22,7 +20,6 @@ class EmailService:
             msg['Subject'] = subject
             msg['From'] = self.sender_email
             msg['To'] = to_email
-
 
             server = smtplib.SMTP('smtp.gmail.com', 587)
             server.starttls()
@@ -34,16 +31,13 @@ class EmailService:
             print(f"Email send error: {e}")
             return False
 
-
 class OTPManager:
     def __init__(self):
         self.storage = {}
         self.expiry_minutes = 5
 
-
     def generate_otp(self):
         return str(random.randint(100000, 999999))
-
 
     def store_otp(self, email, otp):
         self.storage[email] = {
@@ -51,25 +45,22 @@ class OTPManager:
             'expires': datetime.now() + timedelta(minutes=self.expiry_minutes)
         }
 
-
     def verify_otp(self, email, otp):
         stored_data = self.storage.get(email)
         if not stored_data or stored_data['expires'] < datetime.now():
             return False, "OTP expired. Please resend."
-       
+        
         if otp != stored_data['otp']:
             return False, "Invalid OTP"
-       
+        
         del self.storage[email]
         return True, "OTP verified successfully"
-
 
 class AuthManager:
     def __init__(self, user_db, email_service, otp_manager):
         self.user_db = user_db
         self.email_service = email_service
         self.otp_manager = otp_manager
-
 
     def handle_login(self, username, password):
         success, user_id = self.user_db.verify_user(username, password)
@@ -79,15 +70,12 @@ class AuthManager:
             return True, None
         return False, "Invalid username or password"
 
-
     def handle_signup(self, username, email, password, confirm_password):
         if password != confirm_password:
             return False, "Passwords do not match"
 
-
         if email != session.get('verified_email'):
             return False, "Please verify your email first"
-
 
         success, message = self.user_db.create_user(username, email, password)
         if success:
@@ -95,35 +83,28 @@ class AuthManager:
             return True, None
         return False, message
 
-
     def handle_send_otp(self, email):
         if not email:
             return False, "Email is required"
 
-
         otp = self.otp_manager.generate_otp()
         self.otp_manager.store_otp(email, otp)
 
-
         subject = 'OTP for ML Task Manager Registration'
         body = f'Your OTP is: {otp}. It will expire in {self.otp_manager.expiry_minutes} minutes.'
-
 
         if self.email_service.send_email(email, subject, body):
             return True, "OTP sent successfully"
         return False, "Failed to send OTP"
 
-
     def handle_verify_otp(self, email, otp):
         if not email or not otp:
             return False, "Email and OTP are required"
-
 
         success, message = self.otp_manager.verify_otp(email, otp)
         if success:
             session['verified_email'] = email
         return success, message
-
 
 class TaskManagerApp:
     def __init__(self):
@@ -140,7 +121,7 @@ class TaskManagerApp:
         DATABASE={DATABASE_NAME};
         Trusted_Connection=yes;
         """
-       
+        
         # Initialize services
         self.task_db = TaskDatabase(self.connection_string)
         self.user_db = UserDatabase(self.connection_string)
@@ -190,6 +171,7 @@ class TaskManagerApp:
         self.app.add_url_rule('/delete_task/<int:task_id>', 'delete_task', self.login_required(self.delete_task))
         self.app.add_url_rule('/filter_tasks', 'filter_tasks', self.login_required(self.filter_tasks))
         self.app.add_url_rule('/edit_task/<int:task_id>', 'edit_task', self.edit_task, methods=['GET', 'POST'])
+        self.app.add_url_rule('/search_tasks_ajax', 'search_tasks_ajax', self.search_tasks_ajax)
        
         @self.app.route('/toggle_theme', methods=['POST'])
         def toggle_theme():
@@ -233,7 +215,6 @@ class TaskManagerApp:
         success, message = self.auth_manager.handle_send_otp(email)
         return jsonify({"success": success, "message": message}), 200 if success else 400
 
-
     def verify_otp(self):
         email = request.form.get('email')
         otp = request.form.get('otp')
@@ -242,7 +223,15 @@ class TaskManagerApp:
    
     def index(self):
         try:
-            tasks = self.task_db.get_all_tasks(session['user_id'])
+            # Get search query from request args
+            search_query = request.args.get('search', '').strip()
+            
+            # Get tasks based on search query
+            if search_query:
+                tasks = self.task_db.search_tasks(session['user_id'], search_query)
+            else:
+                tasks = self.task_db.get_all_tasks(session['user_id'])
+            
             categories = self.task_prioritizer.get_all_categories()
            
             # Calculate stats
@@ -254,7 +243,8 @@ class TaskManagerApp:
                                 categories=categories,
                                 urgent_tasks=urgent_tasks,
                                 due_today=due_today,
-                                username=session.get('username'))
+                                username=session.get('username'),
+                                search_query=search_query)
         except Exception as e:
             print(f"Error in index route: {e}")
             return render_template('index.html', tasks=[], error=str(e))
@@ -360,23 +350,46 @@ class TaskManagerApp:
         except Exception as e:
             print(f"Error in filter_tasks route: {e}")
             return jsonify({'error': str(e)}), 500
+
+    def search_tasks_ajax(self):
+        try:
+            search_query = request.args.get('search', '').strip()
+            if search_query:
+                tasks = self.task_db.search_tasks(session['user_id'], search_query)
+            else:
+                tasks = self.task_db.get_all_tasks(session['user_id'])
+
+            # Convert datetime objects to strings for JSON serialization
+            for task in tasks:
+                if isinstance(task['created_at'], datetime):
+                    task['created_at'] = task['created_at'].strftime('%Y-%m-%d %H:%M:%S')
+
+            return jsonify({
+                'tasks': tasks,
+                'html': render_template('task_list_partial.html', 
+                                     tasks=tasks,
+                                     search_query=search_query)
+            })
+        except Exception as e:
+            print(f"Error in search_tasks_ajax route: {e}")
+            return jsonify({'error': str(e)}), 500
    
     def edit_task(self, task_id):
         if 'user_id' not in session:
             return redirect(url_for('login'))
-       
+        
         if request.method == 'GET':
             # Get the task details
             task = self.task_db.get_task(task_id, session['user_id'])
             if not task:
                 flash('Task not found or you do not have permission to edit it.', 'error')
                 return redirect(url_for('index'))
-           
+            
             return render_template('edit_task.html',
                                  task=task,
                                  categories=self.task_prioritizer.get_all_categories(),
                                  username=session['username'])
-       
+        
         elif request.method == 'POST':
             # Get form data
             title = request.form.get('title')
@@ -386,10 +399,10 @@ class TaskManagerApp:
             deadline = request.form.get('deadline_datetime')
             urgency = int(request.form.get('urgency'))
             effort = float(request.form.get('effort'))
-           
+            
             # Calculate days left
             deadline_days = self.calculate_days_left(deadline)
-           
+            
             # Update the task
             task_data = {
                 'title': title,
@@ -401,24 +414,22 @@ class TaskManagerApp:
                 'urgency': urgency,
                 'effort': effort
             }
-           
+            
             # Predict new priority
             priority = self.task_prioritizer.predict_priority(task_data)
-           
+            
             # Update the task
             self.task_db.update_task(task_id, session['user_id'], task_data, priority)
-           
+            
             flash('Task updated successfully!', 'success')
             return redirect(url_for('index'))
    
     def run(self, debug=True):
         self.app.run(debug=debug)
 
-
 # Create the application instance
 task_manager = TaskManagerApp()
 app = task_manager.app
-
 
 if __name__ == '__main__':
     task_manager.run(debug=True)

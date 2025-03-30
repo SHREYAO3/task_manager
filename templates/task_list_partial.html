@@ -1,0 +1,63 @@
+{% if tasks %}
+    <div class="task-grid">
+        {% for task in tasks %}
+            <div class="task-card priority-{{ task.priority|int }}">
+                <div class="task-card-header">
+                    <div class="priority-badge">{{ "%.1f"|format(task.priority) }}</div>
+                    <div class="task-meta">
+                        <span class="task-category">{{ task.category }}</span>
+                        <span class="task-type">{{ task.type }}</span>
+                    </div>
+                </div>
+                <div class="task-card-body">
+                    <h3 class="task-title">{{ task.title }}</h3>
+                    <p class="task-description">{{ task.description }}</p>
+                   
+                    <div class="task-metrics">
+                        <div class="metric">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span>{{ task.deadline_datetime|replace(' ', ' at ') }}</span>
+                        </div>
+                        <div class="metric {% if task.deadline_days <= 1 %}urgent{% elif task.deadline_days <= 3 %}warning{% endif %}">
+                            <i class="fas fa-hourglass-half"></i>
+                            <span>{{ task.deadline_days }} days left</span>
+                        </div>
+                        <div class="metric">
+                            <i class="fas fa-clock"></i>
+                            <span>{{ task.effort }}h effort</span>
+                        </div>
+                        <div class="metric">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>Urgency: {{ task.urgency }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="task-card-actions">
+                    <a href="{{ url_for('edit_task', task_id=task.id) }}" class="btn btn-edit">
+                        <i class="fas fa-edit"></i> Edit
+                    </a>
+                    <a href="{{ url_for('complete_task', task_id=task.id) }}" class="btn btn-complete">
+                        <i class="fas fa-check"></i> Complete
+                    </a>
+                    <a href="{{ url_for('delete_task', task_id=task.id) }}" class="btn btn-delete">
+                        <i class="fas fa-trash"></i> Delete
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="empty-state">
+        <i class="fas fa-clipboard-list empty-icon"></i>
+        {% if search_query %}
+            <h3>No tasks found matching "{{ search_query }}"</h3>
+            <p>Try a different search term or <a href="{{ url_for('index') }}">view all tasks</a></p>
+        {% else %}
+            <h3>No tasks added yet</h3>
+            <p>Click "Add New Task" to get started!</p>
+            <a href="{{ url_for('add_task') }}" class="btn add-btn">
+                <i class="fas fa-plus"></i> Add New Task
+            </a>
+        {% endif %}
+    </div>
+{% endif %}

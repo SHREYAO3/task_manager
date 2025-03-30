@@ -63,7 +63,6 @@
         </div>
     </div>
 
-
     <!-- Main Content -->
     <div id="main">
         <div class="container">
@@ -99,7 +98,28 @@
                
                 <div class="task-list-container">
                     <div class="task-list-header">
-                        <h2><i class="fas fa-list-check"></i> Your Tasks</h2>
+                        <div class="header-title-section">
+                            <h2><i class="fas fa-list-check"></i> Your Tasks</h2>
+                            <a href="{{ url_for('add_task') }}" class="btn btn-primary add-task-btn">
+                                <i class="fas fa-plus"></i> Add Task
+                            </a>
+                        </div>
+                        <div class="search-bar">
+                            <form action="{{ url_for('index') }}" method="GET" class="search-form" id="searchForm">
+                                <div class="search-input-container">
+                                    <input type="text" 
+                                           name="search" 
+                                           placeholder="Search tasks..." 
+                                           value="{{ search_query }}" 
+                                           class="search-input"
+                                           id="searchInput"
+                                           oninput="handleSearch(this.value)">
+                                    <button type="submit" class="search-button">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                         <div class="filter-options">
                             <select id="category-filter" class="filter-select">
                                 <option value="">All Categories</option>
@@ -115,8 +135,9 @@
                         </div>
                     </div>
                    
-                    {% if tasks %}
-                        <div class="task-grid">
+                    <div id="taskListContainer">
+                        {% if tasks %}
+                            <div class="task-grid">
                             {% for task in tasks %}
                                 <div class="task-card priority-{{ task.priority|int }}">
                                     <div class="task-card-header">
@@ -162,17 +183,23 @@
                                     </div>
                                 </div>
                             {% endfor %}
-                        </div>
-                    {% else %}
-                        <div class="empty-state">
-                            <i class="fas fa-clipboard-list empty-icon"></i>
-                            <h3>No tasks added yet</h3>
-                            <p>Click "Add New Task" to get started!</p>
-                            <a href="{{ url_for('add_task') }}" class="btn add-btn">
-                                <i class="fas fa-plus"></i> Add New Task
-                            </a>
-                        </div>
-                    {% endif %}
+                            </div>
+                        {% else %}
+                            <div class="empty-state">
+                                <i class="fas fa-clipboard-list empty-icon"></i>
+                                {% if search_query %}
+                                    <h3>No tasks found matching "{{ search_query }}"</h3>
+                                    <p>Try a different search term or <a href="{{ url_for('index') }}">view all tasks</a></p>
+                                {% else %}
+                                    <h3>No tasks added yet</h3>
+                                    <p>Click "Add New Task" to get started!</p>
+                                    <a href="{{ url_for('add_task') }}" class="btn add-btn">
+                                        <i class="fas fa-plus"></i> Add New Task
+                                    </a>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
                 </div>
             </main>
            
@@ -194,7 +221,6 @@
         icon.classList.toggle('fa-moon', savedTheme === 'light');
         icon.classList.toggle('fa-sun', savedTheme === 'dark');
 
-
         themeToggle.addEventListener('click', () => {
             document.body.classList.toggle('dark-theme');
             const isDark = document.body.classList.contains('dark-theme');
@@ -213,7 +239,6 @@
             });
         });
 
-
         // Sidebar functions
         function w3_open() {
             document.getElementById("main").style.marginLeft = "25%";
@@ -222,13 +247,11 @@
             document.querySelector(".menu-toggle").style.display = "none";
         }
 
-
         function w3_close() {
             document.getElementById("main").style.marginLeft = "0%";
             document.getElementById("mySidebar").style.display = "none";
             document.querySelector(".menu-toggle").style.display = "block";
         }
-
 
         // Close sidebar when clicking outside
         window.onclick = function(event) {
@@ -237,6 +260,55 @@
                 w3_close();
             }
         }
+
+        // Debounce function to limit API calls
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Search functionality
+        function handleSearch(value) {
+            if (!value.trim()) {
+                // If search box is empty, fetch all tasks
+                fetchTasks('');
+            } else {
+                // If there's a search term, fetch matching tasks
+                fetchTasks(value);
+            }
+        }
+
+        // Debounced version of handleSearch
+        const debouncedSearch = debounce(handleSearch, 300);
+
+        // Function to fetch tasks from the server
+        function fetchTasks(searchQuery) {
+            fetch(`/search_tasks_ajax?search=${encodeURIComponent(searchQuery)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.html) {
+                        document.getElementById('taskListContainer').innerHTML = data.html;
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        // Update the search input event listener
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            debouncedSearch(e.target.value);
+        });
+
+        // Prevent form submission as we're handling search with AJAX
+        document.getElementById('searchForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+        });
     </script>
 </body>
 </html>
