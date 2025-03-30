@@ -151,8 +151,7 @@ class TaskManagerApp:
        
         # Register routes
         self._register_routes()
-
-
+   
     def login_required(self, f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
@@ -160,8 +159,7 @@ class TaskManagerApp:
                 return redirect(url_for('login'))
             return f(*args, **kwargs)
         return decorated_function
-
-
+   
     def _register_routes(self):
         # Auth routes
         self.app.add_url_rule('/login', 'login', self.login, methods=['GET', 'POST'])
@@ -170,18 +168,19 @@ class TaskManagerApp:
         self.app.add_url_rule('/send_otp', 'send_otp', self.send_otp, methods=['POST'])
         self.app.add_url_rule('/verify_otp', 'verify_otp', self.verify_otp, methods=['POST'])
        
-        # Other routes
+        # Landing page route
         @self.app.route('/')
+        @self.app.route('/landing')
         def landing():
             if 'user_id' in session:
-                return redirect(url_for('index'))
-            return render_template('landing.html')
-       
-        @self.app.route('/home')
-        def home():
-            if 'user_id' not in session:
-                return redirect(url_for('login'))
-            return render_template('landing.html', logged_in=True, username=session.get('username'))
+                # Get user data
+                user = self.user_db.get_user_by_id(session['user_id'])
+                if user:
+                    return render_template('landing.html',
+                                        logged_in=True,
+                                        username=user['username'],
+                                        email=user['email'])
+            return render_template('landing.html', logged_in=False)
        
         # Protected routes
         self.app.add_url_rule('/dashboard', 'index', self.login_required(self.index))
@@ -198,8 +197,7 @@ class TaskManagerApp:
             new_theme = 'dark' if current_theme == 'light' else 'light'
             session['theme'] = new_theme
             return jsonify({'theme': new_theme})
-
-
+   
     def login(self):
         if request.method == 'POST':
             username = request.form.get('username')
@@ -211,8 +209,7 @@ class TaskManagerApp:
             return render_template('login.html', error=error)
        
         return render_template('login.html')
-
-
+   
     def signup(self):
         if request.method == 'POST':
             username = request.form.get('username')
@@ -226,13 +223,11 @@ class TaskManagerApp:
             return render_template('signup.html', error=error)
        
         return render_template('signup.html')
-
-
+   
     def logout(self):
         session.clear()
         return redirect(url_for('landing'))
-
-
+   
     def send_otp(self):
         email = request.form.get('email')
         success, message = self.auth_manager.handle_send_otp(email)
@@ -244,8 +239,7 @@ class TaskManagerApp:
         otp = request.form.get('otp')
         success, message = self.auth_manager.handle_verify_otp(email, otp)
         return jsonify({"success": success, "message": message}), 200 if success else 400
-
-
+   
     def index(self):
         try:
             tasks = self.task_db.get_all_tasks(session['user_id'])
@@ -310,6 +304,7 @@ class TaskManagerApp:
                     print("Failed to add task to database")
                     return render_template('add_task.html',
                                           categories=self.task_prioritizer.get_all_categories(),
+                                          username=session.get('username'),
                                           error="Failed to add task to database")
                
                 # Redirect to index page
@@ -318,11 +313,14 @@ class TaskManagerApp:
                 print(f"Error in add_task route: {e}")
                 return render_template('add_task.html',
                                       categories=self.task_prioritizer.get_all_categories(),
+                                      username=session.get('username'),
                                       error=str(e))
        
         # GET request - show the form
         categories = self.task_prioritizer.get_all_categories()
-        return render_template('add_task.html', categories=categories)
+        return render_template('add_task.html',
+                             categories=categories,
+                             username=session.get('username'))
    
     def get_types(self, category):
         types = self.task_prioritizer.get_types_for_category(category)
@@ -374,7 +372,10 @@ class TaskManagerApp:
                 flash('Task not found or you do not have permission to edit it.', 'error')
                 return redirect(url_for('index'))
            
-            return render_template('edit_task.html', task=task, categories=self.task_prioritizer.get_all_categories())
+            return render_template('edit_task.html',
+                                 task=task,
+                                 categories=self.task_prioritizer.get_all_categories(),
+                                 username=session['username'])
        
         elif request.method == 'POST':
             # Get form data
@@ -409,8 +410,7 @@ class TaskManagerApp:
            
             flash('Task updated successfully!', 'success')
             return redirect(url_for('index'))
-
-
+   
     def run(self, debug=True):
         self.app.run(debug=debug)
 

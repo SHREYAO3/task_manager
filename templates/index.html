@@ -7,154 +7,179 @@
     <!-- Google Fonts - Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- W3.CSS -->
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/5/w3.css">
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="landing-nav">
-        <div class="nav-brand">
-            <i class="fas fa-robot"></i>
-            <span>ML Task Manager</span>
-        </div>
-        <div class="nav-actions">
-            <button class="theme-toggle" id="themeToggle">
-                <i class="fas fa-moon"></i>
+    <!-- Sidebar -->
+    <div class="w3-sidebar w3-bar-block w3-card w3-animate-left" style="display:none" id="mySidebar">
+        <div class="sidebar-header">
+            <div class="header-content">
+                <i class="fas fa-brain"></i>
+                <span>ML Task Manager</span>
+            </div>
+            <button class="close-btn" onclick="w3_close()">
+                <i class="fas fa-times"></i>
             </button>
-            <a href="{{ url_for('add_task') }}" class="btn add-btn">
-                <i class="fas fa-plus"></i>
-                Add New Task
-            </a>
-            <div class="user-menu">
-                <div class="user-info">
-                    <div class="user-avatar">
-                        {{ username[0].upper() }}
-                    </div>
-                    <span>{{ username }}</span>
+        </div>
+        <div class="user-profile">
+            <div class="user-info">
+                <div class="user-avatar">
+                    {{ username[0].upper() }}
                 </div>
-                <div class="dropdown">
-                    <a href="{{ url_for('home') }}" class="dropdown-item">
-                        <i class="fas fa-home"></i>
-                        Home
-                    </a>
-                    <a href="{{ url_for('logout') }}" class="dropdown-item">
-                        <i class="fas fa-sign-out-alt"></i>
-                        Logout
-                    </a>
-                </div>
+                <span>{{ username }}</span>
             </div>
         </div>
-    </nav>
+        <a href="{{ url_for('landing') }}" class="w3-bar-item w3-button">
+            <i class="fas fa-home"></i> Home
+        </a>
+        <a href="{{ url_for('index') }}" class="w3-bar-item w3-button">
+            <i class="fas fa-tachometer-alt"></i> Dashboard
+        </a>
+        <a href="{{ url_for('add_task') }}" class="w3-bar-item w3-button">
+            <i class="fas fa-plus"></i> Add New Task
+        </a>
+        <a href="#" class="w3-bar-item w3-button">
+            <i class="fas fa-tasks"></i> All Tasks
+        </a>
+        <a href="#" class="w3-bar-item w3-button">
+            <i class="fas fa-calendar-check"></i> Completed Tasks
+        </a>
+        <a href="#" class="w3-bar-item w3-button">
+            <i class="fas fa-chart-bar"></i> Statistics
+        </a>
+        <a href="#" class="w3-bar-item w3-button">
+            <i class="fas fa-cog"></i> Settings
+        </a>
+        <div class="sidebar-footer">
+            <button class="theme-toggle" id="themeToggle">
+                <i class="fas fa-moon"></i> Toggle Theme
+            </button>
+            <a href="{{ url_for('logout') }}" class="w3-bar-item w3-button">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </div>
 
 
-    <div class="container">
-        <main>
-            <div class="dashboard-stats">
-                <div class="stat-card" data-filter="all">
-                    <i class="fas fa-tasks"></i>
-                    <div class="stat-info">
-                        <span class="stat-value">{{ tasks|length }}</span>
-                        <span class="stat-label">Total Tasks</span>
-                    </div>
-                </div>
-                <div class="stat-card" data-filter="urgent">
-                    <i class="fas fa-fire"></i>
-                    <div class="stat-info">
-                        <span class="stat-value">{{ urgent_tasks|default(0) }}</span>
-                        <span class="stat-label">Urgent Tasks</span>
-                    </div>
-                </div>
-                <div class="stat-card" data-filter="due-today">
-                    <i class="fas fa-calendar-day"></i>
-                    <div class="stat-info">
-                        <span class="stat-value">{{ due_today|default(0) }}</span>
-                        <span class="stat-label">Due Today</span>
-                    </div>
-                </div>
+    <!-- Main Content -->
+    <div id="main">
+        <div class="container">
+            <div class="menu-toggle">
+                <button onclick="w3_open()" class="menu-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
             </div>
-           
-            <div class="task-list-container">
-                <div class="task-list-header">
-                    <h2><i class="fas fa-list-check"></i> Your Tasks</h2>
-                    <div class="filter-options">
-                        <select id="category-filter" class="filter-select">
-                            <option value="">All Categories</option>
-                            {% for category in categories %}
-                                <option value="{{ category }}">{{ category }}</option>
-                            {% endfor %}
-                        </select>
-                        <select id="sort-options" class="filter-select">
-                            <option value="priority">Sort by Priority</option>
-                            <option value="deadline">Sort by Deadline</option>
-                            <option value="effort">Sort by Effort</option>
-                        </select>
+            <main>
+                <div class="dashboard-stats">
+                    <div class="stat-card" data-filter="all">
+                        <i class="fas fa-tasks"></i>
+                        <div class="stat-info">
+                            <span class="stat-value">{{ tasks|length }}</span>
+                            <span class="stat-label">Total Tasks</span>
+                        </div>
+                    </div>
+                    <div class="stat-card" data-filter="urgent">
+                        <i class="fas fa-fire"></i>
+                        <div class="stat-info">
+                            <span class="stat-value">{{ urgent_tasks|default(0) }}</span>
+                            <span class="stat-label">Urgent Tasks</span>
+                        </div>
+                    </div>
+                    <div class="stat-card" data-filter="due-today">
+                        <i class="fas fa-calendar-day"></i>
+                        <div class="stat-info">
+                            <span class="stat-value">{{ due_today|default(0) }}</span>
+                            <span class="stat-label">Due Today</span>
+                        </div>
                     </div>
                 </div>
                
-                {% if tasks %}
-                    <div class="task-grid">
-                        {% for task in tasks %}
-                            <div class="task-card priority-{{ task.priority|int }}">
-                                <div class="task-card-header">
-                                    <div class="priority-badge">{{ "%.1f"|format(task.priority) }}</div>
-                                    <div class="task-meta">
-                                        <span class="task-category">{{ task.category }}</span>
-                                        <span class="task-type">{{ task.type }}</span>
-                                    </div>
-                                </div>
-                                <div class="task-card-body">
-                                    <h3 class="task-title">{{ task.title }}</h3>
-                                    <p class="task-description">{{ task.description }}</p>
-                                   
-                                    <div class="task-metrics">
-                                        <div class="metric">
-                                            <i class="fas fa-calendar-alt"></i>
-                                            <span>{{ task.deadline_datetime|replace(' ', ' at ') }}</span>
-                                        </div>
-                                        <div class="metric {% if task.deadline_days <= 1 %}urgent{% elif task.deadline_days <= 3 %}warning{% endif %}">
-                                            <i class="fas fa-hourglass-half"></i>
-                                            <span>{{ task.deadline_days }} days left</span>
-                                        </div>
-                                        <div class="metric">
-                                            <i class="fas fa-clock"></i>
-                                            <span>{{ task.effort }}h effort</span>
-                                        </div>
-                                        <div class="metric">
-                                            <i class="fas fa-exclamation-circle"></i>
-                                            <span>Urgency: {{ task.urgency }}</span>
+                <div class="task-list-container">
+                    <div class="task-list-header">
+                        <h2><i class="fas fa-list-check"></i> Your Tasks</h2>
+                        <div class="filter-options">
+                            <select id="category-filter" class="filter-select">
+                                <option value="">All Categories</option>
+                                {% for category in categories %}
+                                    <option value="{{ category }}">{{ category }}</option>
+                                {% endfor %}
+                            </select>
+                            <select id="sort-options" class="filter-select">
+                                <option value="priority">Sort by Priority</option>
+                                <option value="deadline">Sort by Deadline</option>
+                                <option value="effort">Sort by Effort</option>
+                            </select>
+                        </div>
+                    </div>
+                   
+                    {% if tasks %}
+                        <div class="task-grid">
+                            {% for task in tasks %}
+                                <div class="task-card priority-{{ task.priority|int }}">
+                                    <div class="task-card-header">
+                                        <div class="priority-badge">{{ "%.1f"|format(task.priority) }}</div>
+                                        <div class="task-meta">
+                                            <span class="task-category">{{ task.category }}</span>
+                                            <span class="task-type">{{ task.type }}</span>
                                         </div>
                                     </div>
+                                    <div class="task-card-body">
+                                        <h3 class="task-title">{{ task.title }}</h3>
+                                        <p class="task-description">{{ task.description }}</p>
+                                       
+                                        <div class="task-metrics">
+                                            <div class="metric">
+                                                <i class="fas fa-calendar-alt"></i>
+                                                <span>{{ task.deadline_datetime|replace(' ', ' at ') }}</span>
+                                            </div>
+                                            <div class="metric {% if task.deadline_days <= 1 %}urgent{% elif task.deadline_days <= 3 %}warning{% endif %}">
+                                                <i class="fas fa-hourglass-half"></i>
+                                                <span>{{ task.deadline_days }} days left</span>
+                                            </div>
+                                            <div class="metric">
+                                                <i class="fas fa-clock"></i>
+                                                <span>{{ task.effort }}h effort</span>
+                                            </div>
+                                            <div class="metric">
+                                                <i class="fas fa-exclamation-circle"></i>
+                                                <span>Urgency: {{ task.urgency }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="task-card-actions">
+                                        <a href="{{ url_for('edit_task', task_id=task.id) }}" class="btn btn-edit">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </a>
+                                        <a href="{{ url_for('complete_task', task_id=task.id) }}" class="btn btn-complete">
+                                            <i class="fas fa-check"></i> Complete
+                                        </a>
+                                        <a href="{{ url_for('delete_task', task_id=task.id) }}" class="btn btn-delete">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </a>
+                                    </div>
                                 </div>
-                                <div class="task-card-actions">
-                                    <a href="{{ url_for('edit_task', task_id=task.id) }}" class="btn btn-edit">
-                                        <i class="fas fa-edit"></i> Edit
-                                    </a>
-                                    <a href="{{ url_for('complete_task', task_id=task.id) }}" class="btn btn-complete">
-                                        <i class="fas fa-check"></i> Complete
-                                    </a>
-                                    <a href="{{ url_for('delete_task', task_id=task.id) }}" class="btn btn-delete">
-                                        <i class="fas fa-trash"></i> Delete
-                                    </a>
-                                </div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <div class="empty-state">
-                        <i class="fas fa-clipboard-list empty-icon"></i>
-                        <h3>No tasks added yet</h3>
-                        <p>Click "Add New Task" to get started!</p>
-                        <a href="{{ url_for('add_task') }}" class="btn add-btn">
-                            <i class="fas fa-plus"></i> Add New Task
-                        </a>
-                    </div>
-                {% endif %}
-            </div>
-        </main>
-       
-        <footer>
-            <p>ML Task Manager &copy; 2025 | <i class="fas fa-brain"></i> AI-powered task prioritization</p>
-        </footer>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="fas fa-clipboard-list empty-icon"></i>
+                            <h3>No tasks added yet</h3>
+                            <p>Click "Add New Task" to get started!</p>
+                            <a href="{{ url_for('add_task') }}" class="btn add-btn">
+                                <i class="fas fa-plus"></i> Add New Task
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </main>
+           
+            <footer>
+                <p>ML Task Manager &copy; 2025 | <i class="fas fa-brain"></i> AI-powered task prioritization</p>
+            </footer>
+        </div>
     </div>
    
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
@@ -187,6 +212,31 @@
                 }
             });
         });
+
+
+        // Sidebar functions
+        function w3_open() {
+            document.getElementById("main").style.marginLeft = "25%";
+            document.getElementById("mySidebar").style.width = "25%";
+            document.getElementById("mySidebar").style.display = "block";
+            document.querySelector(".menu-toggle").style.display = "none";
+        }
+
+
+        function w3_close() {
+            document.getElementById("main").style.marginLeft = "0%";
+            document.getElementById("mySidebar").style.display = "none";
+            document.querySelector(".menu-toggle").style.display = "block";
+        }
+
+
+        // Close sidebar when clicking outside
+        window.onclick = function(event) {
+            const sidebar = document.getElementById("mySidebar");
+            if (event.target == sidebar) {
+                w3_close();
+            }
+        }
     </script>
 </body>
 </html>

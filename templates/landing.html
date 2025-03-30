@@ -50,12 +50,21 @@
     <!-- Hero Section -->
     <section class="hero-section">
         <div class="hero-content">
-            <h1>Organize Your ML Projects with Ease</h1>
-            <p>A powerful task management system designed specifically for machine learning projects. Track experiments, manage datasets, and collaborate with your team.</p>
-            <div class="hero-buttons">
-                <a href="{{ url_for('signup') }}" class="btn btn-primary">Get Started</a>
-                <a href="#about" class="btn btn-outline">Learn More</a>
-            </div>
+            {% if logged_in %}
+                <h1>Welcome back, {{ username }}!</h1>
+                <p>Continue managing your ML projects and tasks efficiently.</p>
+                <div class="hero-buttons">
+                    <a href="{{ url_for('index') }}" class="btn btn-primary">Go to Dashboard</a>
+                    <a href="{{ url_for('add_task') }}" class="btn btn-outline">Add New Task</a>
+                </div>
+            {% else %}
+                <h1>Organize Your ML Projects with Ease</h1>
+                <p>A powerful task management system designed specifically for machine learning projects. Track experiments, manage datasets, and collaborate with your team.</p>
+                <div class="hero-buttons">
+                    <a href="{{ url_for('signup') }}" class="btn btn-primary">Get Started</a>
+                    <a href="#about" class="btn btn-outline">Learn More</a>
+                </div>
+            {% endif %}
         </div>
         <div class="hero-image">
             <div class="hero-illustration">
