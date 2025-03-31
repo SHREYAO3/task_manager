@@ -89,6 +89,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 </div>
                 <div class="task-card-actions">
+                    <a href="/edit_task/${task.id}" class="btn btn-edit">
+                        <i class="fas fa-edit"></i> Edit
+                    </a>
                     <a href="/complete_task/${task.id}" class="btn btn-complete">
                         <i class="fas fa-check"></i> Complete
                     </a>
