@@ -653,6 +653,11 @@ h1 {
     color: var(--text-secondary);
     margin-bottom: var(--spacing-md);
     line-height: 1.5;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-height: 2.8em; /* Approximately 2 lines of text */
 }
 
 .task-metrics {
@@ -713,32 +718,66 @@ h1 {
     margin-right: 0.25rem;
 }
 
-/* Empty State */
+/* Loading and Error States */
+.loading-state,
+.error-state,
 .empty-state {
     text-align: center;
-    padding: var(--spacing-xl) var(--spacing-lg);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--spacing-md);
+    padding: 2rem;
+    margin: 1rem 0;
+    border-radius: 8px;
+    background-color: var(--card-bg);
+    box-shadow: var(--card-shadow);
 }
 
-.empty-icon {
-    font-size: 4rem;
-    color: var(--primary-light);
-    opacity: 0.6;
-    margin-bottom: var(--spacing-sm);
+.loading-state i,
+.error-state i,
+.empty-state i {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: var(--text-muted);
 }
 
-.empty-state h3 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--text-primary);
+.loading-state i.fa-spinner {
+    color: var(--primary-color);
+    animation: spin 1s linear infinite;
 }
 
+.error-state i {
+    color: var(--danger-color);
+}
+
+.loading-state p,
+.error-state p,
 .empty-state p {
-    color: var(--text-secondary);
-    margin-bottom: var(--spacing-md);
+    color: var(--text-muted);
+    margin: 0.5rem 0;
+}
+
+.error-state h3,
+.empty-state h3 {
+    color: var(--text-color);
+    margin: 0.5rem 0;
+}
+
+.error-state button {
+    margin-top: 1rem;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.dark-theme .loading-state,
+.dark-theme .error-state,
+.dark-theme .empty-state {
+    background-color: var(--dark-card-bg, #2d2d2d);
+    box-shadow: var(--dark-card-shadow, 0 2px 4px rgba(0, 0, 0, 0.2));
 }
 
 /* Form Styles */
@@ -2126,4 +2165,51 @@ footer i {
 
 .dark-theme .search-button:hover {
     color: var(--primary-color);
+}
+
+.tasks-section {
+    margin-bottom: var(--spacing-lg);
+}
+
+.section-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.section-title i {
+    color: var(--primary-color);
+}
+
+.completed-tasks {
+    opacity: 0.8;
+}
+
+.completed-tasks .task-card {
+    background-color: rgba(92, 184, 92, 0.05);
+    border-color: var(--border-color);
+}
+
+.completed-tasks .task-card:hover {
+    opacity: 1;
+    border-color: var(--primary-color);
+}
+
+.completed-tasks .task-card .status-badge.completed {
+    background-color: rgba(92, 184, 92, 0.2);
+    color: #5cb85c;
+}
+
+.dark-theme .completed-tasks .task-card {
+    background-color: rgba(92, 184, 92, 0.1);
+}
+
+.dark-theme .completed-tasks .task-card .status-badge.completed {
+    background-color: rgba(92, 184, 92, 0.3);
 }

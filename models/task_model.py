@@ -3,6 +3,7 @@ import os
 import json
 from datetime import datetime
 
+
 class TaskDatabase:
     def __init__(self, connection_string=None):
         DRIVER_NAME = 'SQL SERVER'
@@ -36,6 +37,7 @@ class TaskDatabase:
     def initialize_db(self):
         if self.connect():
             try:
+                # Create tasks table if it doesn't exist
                 self.cursor.execute("""
                 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'TASKS')
                 BEGIN
@@ -53,11 +55,29 @@ class TaskDatabase:
                         priority FLOAT NOT NULL,
                         created_at DATETIME DEFAULT GETDATE(),
                         completed BIT DEFAULT 0,
+                        status NVARCHAR(20) DEFAULT 'pending',
                         FOREIGN KEY (user_id) REFERENCES USERS(id)
                     )
                 END
                 """)
                 self.conn.commit()
+               
+                # Check if status column exists
+                has_status_column = True
+                try:
+                    self.cursor.execute("SELECT status FROM TASKS WHERE 1=0")
+                except pyodbc.Error:
+                    has_status_column = False
+                
+                # Add status column if it doesn't exist
+                if not has_status_column:
+                    try:
+                        self.cursor.execute("ALTER TABLE TASKS ADD status NVARCHAR(20) DEFAULT 'pending'")
+                        self.conn.commit()
+                        print("Added status column to TASKS table")
+                    except pyodbc.Error as e:
+                        print(f"Error adding status column: {e}")
+               
             except pyodbc.Error as e:
                 print(f"Error creating table: {e}")
             finally:
@@ -68,9 +88,10 @@ class TaskDatabase:
             try:
                 query = """
                 INSERT INTO TASKS (user_id, title, description, category, type, deadline_datetime, deadline_days,
-                                urgency, effort, priority)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                urgency, effort, priority, status)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """
+                status = task_data.get('status', 'pending')
                 self.cursor.execute(query, (
                     user_id,
                     task_data['title'],
@@ -81,7 +102,8 @@ class TaskDatabase:
                     task_data['deadline_days'],
                     task_data['urgency'],
                     task_data['effort'],
-                    priority
+                    priority,
+                    status
                 ))
                 self.conn.commit()
                 self.cursor.execute("SELECT @@IDENTITY AS ID")
@@ -106,12 +128,17 @@ class TaskDatabase:
                 sort_column = sort_mapping.get(order_by, 'priority')
                 direction = "DESC" if descending else "ASC"
                
-                query = f"SELECT * FROM TASKS WHERE completed = 0 AND user_id = ? ORDER BY {sort_column} {direction}"
+                query = f"SELECT * FROM TASKS WHERE user_id = ? ORDER BY {sort_column} {direction}"
                 self.cursor.execute(query, (user_id,))
                
                 columns = [column[0] for column in self.cursor.description]
                 tasks = []
-                for row in self.cursor.fetchall():
+                
+                # Fetch all rows before closing the connection
+                rows = self.cursor.fetchall()
+                
+                # Process the rows after fetching all data
+                for row in rows:
                     task = dict(zip(columns, row))
                     if 'deadline_datetime' in task:
                         deadline = datetime.strptime(task['deadline_datetime'], '%Y-%m-%d %H:%M')
@@ -121,6 +148,14 @@ class TaskDatabase:
                             days_left += 1
                        
                         task['deadline_days'] = max(0, days_left)
+                   
+                    # Set default status if not present
+                    if 'status' not in task or task['status'] is None:
+                        task['status'] = 'pending'
+                       
+                    # Ensure status is consistent with completed flag
+                    if task.get('completed'):
+                        task['status'] = 'completed'
                    
                     tasks.append(task)
                
@@ -137,7 +172,7 @@ class TaskDatabase:
         if self.connect():
             try:
                 self.cursor.execute("""
-                UPDATE TASKS SET completed = 1 WHERE id = ? AND user_id = ?
+                UPDATE TASKS SET completed = 1, status = 'completed' WHERE id = ? AND user_id = ?
                 """, (task_id, user_id))
                 self.conn.commit()
                 return True
@@ -164,13 +199,62 @@ class TaskDatabase:
         return False
 
 
+    def update_task_status(self, task_id, user_id, status):
+        if self.connect():
+            try:
+                # Check if status column exists
+                has_status_column = True
+                try:
+                    self.cursor.execute("SELECT status FROM TASKS WHERE id = ?", (task_id,))
+                    self.cursor.fetchone()  # Just to check if it works
+                except pyodbc.Error:
+                    has_status_column = False
+                
+                # Create status column if it doesn't exist
+                if not has_status_column:
+                    self.cursor.execute("ALTER TABLE TASKS ADD status NVARCHAR(20) DEFAULT 'pending'")
+                    self.conn.commit()
+               
+                # Update the task status
+                self.cursor.execute("""
+                UPDATE TASKS SET status = ? WHERE id = ? AND user_id = ?
+                """, (status, task_id, user_id))
+                self.conn.commit()
+               
+                # If status is 'completed', also update the completed flag
+                if status == 'completed':
+                    self.cursor.execute("""
+                    UPDATE TASKS SET completed = 1 WHERE id = ? AND user_id = ?
+                    """, (task_id, user_id))
+                    self.conn.commit()
+                elif status != 'completed':
+                    # If status is not 'completed', ensure completed flag is set to 0
+                    self.cursor.execute("""
+                    UPDATE TASKS SET completed = 0 WHERE id = ? AND user_id = ?
+                    """, (task_id, user_id))
+                    self.conn.commit()
+               
+                return True
+            except pyodbc.Error as e:
+                print(f"Error updating task status: {e}")
+                return False
+            finally:
+                self.disconnect()
+        return False
+
+
     def get_task(self, task_id, user_id):
         if self.connect():
             try:
                 query = "SELECT * FROM TASKS WHERE id = ? AND user_id = ?"
                 self.cursor.execute(query, (task_id, user_id))
+                
+                # Get column names
                 columns = [column[0] for column in self.cursor.description]
+                
+                # Fetch the row before closing the connection
                 row = self.cursor.fetchone()
+                
                 if row:
                     task = dict(zip(columns, row))
                     if 'deadline_datetime' in task:
@@ -180,6 +264,15 @@ class TaskDatabase:
                         if (deadline - current).seconds > 0 and days_left >= 0:
                             days_left += 1
                         task['deadline_days'] = max(0, days_left)
+                   
+                    # Set default status if not present
+                    if 'status' not in task or task['status'] is None:
+                        task['status'] = 'pending'
+                       
+                    # Ensure status is consistent with completed flag
+                    if task.get('completed'):
+                        task['status'] = 'completed'
+                       
                     return task
                 return None
             except pyodbc.Error as e:
@@ -189,14 +282,30 @@ class TaskDatabase:
                 self.disconnect()
         return None
 
+
     def update_task(self, task_id, user_id, task_data, priority):
         if self.connect():
             try:
+                # First, get the existing task to preserve the status if not explicitly changed
+                current_status = 'pending'
+                try:
+                    self.cursor.execute("SELECT status FROM TASKS WHERE id = ? AND user_id = ?", (task_id, user_id))
+                    row = self.cursor.fetchone()
+                    if row and row[0]:
+                        current_status = row[0]
+                except pyodbc.Error:
+                    # If there's an error, use default 'pending' status
+                    pass
+               
+                # Use the provided status or keep the current one
+                status = task_data.get('status', current_status)
+               
+                # Execute the update query in one go
                 query = """
                 UPDATE TASKS
                 SET title = ?, description = ?, category = ?, type = ?,
                     deadline_datetime = ?, deadline_days = ?, urgency = ?,
-                    effort = ?, priority = ?
+                    effort = ?, priority = ?, status = ?
                 WHERE id = ? AND user_id = ?
                 """
                 self.cursor.execute(query, (
@@ -209,6 +318,7 @@ class TaskDatabase:
                     task_data['urgency'],
                     task_data['effort'],
                     priority,
+                    status,
                     task_id,
                     user_id
                 ))
@@ -222,13 +332,14 @@ class TaskDatabase:
         return False
 
 
+
+
     def search_tasks(self, user_id, search_query):
         if self.connect():
             try:
                 query = """
                 SELECT * FROM TASKS
                 WHERE user_id = ?
-                AND completed = 0
                 AND (
                     LOWER(title) LIKE LOWER(?)
                     OR LOWER(description) LIKE LOWER(?)
@@ -240,7 +351,12 @@ class TaskDatabase:
                
                 columns = [column[0] for column in self.cursor.description]
                 tasks = []
-                for row in self.cursor.fetchall():
+                
+                # Fetch all rows before closing the connection
+                rows = self.cursor.fetchall()
+                
+                # Process the rows after fetching all data
+                for row in rows:
                     task = dict(zip(columns, row))
                     if 'deadline_datetime' in task:
                         deadline = datetime.strptime(task['deadline_datetime'], '%Y-%m-%d %H:%M')
@@ -249,6 +365,15 @@ class TaskDatabase:
                         if (deadline - current).seconds > 0 and days_left >= 0:
                             days_left += 1
                         task['deadline_days'] = max(0, days_left)
+                   
+                    # Set default status if not present
+                    if 'status' not in task or task['status'] is None:
+                        task['status'] = 'pending'
+                       
+                    # Ensure status is consistent with completed flag
+                    if task.get('completed'):
+                        task['status'] = 'completed'
+                       
                     tasks.append(task)
                
                 return tasks

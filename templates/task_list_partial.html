@@ -1,17 +1,52 @@
+<!-- Add CSS to prevent status badge overlap -->
+<style>
+    .task-card-header {
+        position: relative;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+    }
+   
+    .task-meta {
+        max-width: 70%; /* Limit width to prevent overlap */
+        overflow: hidden;
+    }
+
+
+    .status-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 2px 6px;
+        border-radius: 10px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        text-transform: capitalize;
+        white-space: nowrap;
+    }
+</style>
+
+
 {% if tasks %}
     <div class="task-grid">
         {% for task in tasks %}
-            <div class="task-card priority-{{ task.priority|int }}">
+            <div class="task-card priority-{{ task.priority|int }} status-{{ task.status or 'pending' }} {% if task.status == 'completed' %}task-completed{% endif %}" data-task-id="{{ task.id }}">
                 <div class="task-card-header">
                     <div class="priority-badge">{{ "%.1f"|format(task.priority) }}</div>
-                    <div class="task-meta">
-                        <span class="task-category">{{ task.category }}</span>
-                        <span class="task-type">{{ task.type }}</span>
+                    <div class="status-badge {{ task.status|lower }}">{{ task.status }}</div>
+                </div>
+                <div class="task-meta-info">
+                    <div class="task-category-label">
+                        <i class="fas fa-folder"></i> {{ task.category }}
+                    </div>
+                    <div class="task-type-label">
+                        <i class="fas fa-tag"></i> {{ task.type }}
                     </div>
                 </div>
                 <div class="task-card-body">
                     <h3 class="task-title">{{ task.title }}</h3>
-                    <p class="task-description">{{ task.description }}</p>
+                    <p class="task-description" title="{{ task.description }}">{{ task.description }}</p>
                    
                     <div class="task-metrics">
                         <div class="metric">
@@ -33,15 +68,28 @@
                     </div>
                 </div>
                 <div class="task-card-actions">
-                    <a href="{{ url_for('edit_task', task_id=task.id) }}" class="btn btn-edit">
-                        <i class="fas fa-edit"></i> Edit
-                    </a>
-                    <a href="{{ url_for('complete_task', task_id=task.id) }}" class="btn btn-complete">
-                        <i class="fas fa-check"></i> Complete
-                    </a>
-                    <a href="{{ url_for('delete_task', task_id=task.id) }}" class="btn btn-delete">
-                        <i class="fas fa-trash"></i> Delete
-                    </a>
+                    <div class="task-status">
+                        <select class="status-dropdown" onchange="updateTaskStatus('{{ task.id }}', this.value)">
+                            <option value="pending" {% if task.status == 'pending' or not task.status %}selected{% endif %}>Pending</option>
+                            <option value="in-progress" {% if task.status == 'in-progress' %}selected{% endif %}>In Progress</option>
+                            <option value="review" {% if task.status == 'review' %}selected{% endif %}>In Review</option>
+                            <option value="completed" {% if task.status == 'completed' %}selected{% endif %}>Completed</option>
+                        </select>
+                    </div>
+                    <div class="task-actions">
+                        <a href="{{ url_for('view_task', task_id=task.id) }}" class="btn btn-info btn-sm me-2" title="View Details">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <a href="{{ url_for('edit_task', task_id=task.id) }}" class="btn btn-primary btn-sm me-2" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <button onclick="completeTask('{{ task.id }}')" class="btn btn-success btn-sm me-2" title="Complete">
+                            <i class="fas fa-check"></i>
+                        </button>
+                        <button onclick="deleteTask('{{ task.id }}')" class="btn btn-danger btn-sm" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
         {% endfor %}

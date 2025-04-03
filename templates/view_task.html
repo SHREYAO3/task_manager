@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Details - ML Task Manager</title>
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- W3.CSS -->
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/5/w3.css">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="w3-sidebar w3-bar-block w3-card w3-animate-left" style="display:none" id="mySidebar">
+        <div class="sidebar-header">
+            <div class="header-content">
+                <i class="fas fa-brain"></i>
+                <span>ML Task Manager</span>
+            </div>
+            <button class="close-btn" onclick="w3_close()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="user-profile">
+            <div class="user-info">
+                <div class="user-avatar">
+                    {{ username[0].upper() }}
+                </div>
+                <span>{{ username }}</span>
+            </div>
+        </div>
+        <a href="{{ url_for('landing') }}" class="w3-bar-item w3-button">
+            <i class="fas fa-home"></i> Home
+        </a>
+        <a href="{{ url_for('index') }}" class="w3-bar-item w3-button">
+            <i class="fas fa-tachometer-alt"></i> Dashboard
+        </a>
+        <a href="{{ url_for('add_task') }}" class="w3-bar-item w3-button">
+            <i class="fas fa-plus"></i> Add New Task
+        </a>
+        <a href="#" class="w3-bar-item w3-button">
+            <i class="fas fa-tasks"></i> All Tasks
+        </a>
+        <a href="#" class="w3-bar-item w3-button">
+            <i class="fas fa-calendar-check"></i> Completed Tasks
+        </a>
+        <a href="#" class="w3-bar-item w3-button">
+            <i class="fas fa-chart-bar"></i> Statistics
+        </a>
+        <a href="#" class="w3-bar-item w3-button">
+            <i class="fas fa-cog"></i> Settings
+        </a>
+        <div class="sidebar-footer">
+            <button class="theme-toggle" id="themeToggle">
+                <i class="fas fa-moon"></i> Toggle Theme
+            </button>
+            <a href="{{ url_for('logout') }}" class="w3-bar-item w3-button">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </div>
+
+
+    <!-- Main Content -->
+    <div id="main">
+        <div class="container">
+            <div class="menu-toggle">
+                <button onclick="w3_open()" class="menu-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+
+            <!-- Task Details Section -->
+            <div class="task-details-container">
+                <!-- Back button -->
+                <div class="back-to-dashboard">
+                    <a href="{{ url_for('index') }}" class="back-btn" id="backToDashboard">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                </div>
+                
+                <!-- Task Header with Checkbox -->
+                <div class="task-header">
+                    <div class="task-checkbox">
+                        <input type="checkbox" id="taskComplete" {% if task.status == 'completed' %}checked{% endif %}>
+                        <label for="taskComplete"></label>
+                    </div>
+                    <div class="task-content">
+                        <div class="task-header-row">
+                            <h1 class="task-title">{{ task.title }}</h1>
+                            <div class="status-chip">
+                                <div class="status-badge {{ task.status|lower or 'pending' }}">
+                                    {{ task.status|default('Pending')|title }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="task-text">{{ task.description or '' }}</div>
+                    </div>
+                </div>
+
+
+                <!-- Task Details Panel -->
+                <div class="task-details-panel">
+                    <!-- Project -->
+                    <div class="detail-row">
+                        <div class="detail-label">Category</div>
+                        <div class="detail-value">
+                            <i class="fas fa-inbox"></i>
+                            <span>{{ task.category }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Type -->
+                    <div class="detail-row">
+                        <div class="detail-label">Type</div>
+                        <div class="detail-value">
+                            <i class="fas fa-tag"></i>
+                            <span>{{ task.type }}</span>
+                        </div>
+                    </div>
+
+
+                    <!-- Date -->
+                    <div class="detail-row">
+                        <div class="detail-label">Deadline</div>
+                        <div class="detail-value">
+                            <i class="far fa-calendar"></i>
+                            <span>{{ task.deadline_datetime }}</span>
+                        </div>
+                    </div>
+
+
+                    <!-- Deadline -->
+                    <div class="detail-row">
+                        <div class="detail-label">Days left</div>
+                        <div class="detail-value">
+                            <i class="fas fa-hourglass-half"></i>
+                            <span>{{ task.deadline_days }} days</span>
+                        </div>
+                    </div>
+
+
+                    <!-- Priority -->
+                    <div class="detail-row">
+                        <div class="detail-label">Priority</div>
+                        <div class="detail-value">
+                            <div class="priority-flag {% if task.priority <= 3 %}priority-high{% elif task.priority <= 6 %}priority-medium{% else %}priority-low{% endif %}">
+                                <i class="fas fa-flag"></i>
+                                <span>{{ "%.1f"|format(task.priority) }}</span>
+                            </div>
+                            <div class="priority-level">
+                                ({% if task.priority <= 3 %}High{% elif task.priority <= 6 %}Medium{% else %}Low{% endif %})
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- Labels -->
+                    <div class="detail-row">
+                        <div class="detail-label">Status</div>
+                        <div class="detail-value">
+                            <select class="status-dropdown" onchange="updateTaskStatus('{{ task.id }}', this.value)">
+                                <option value="pending" {% if task.status == 'pending' or not task.status %}selected{% endif %}>Pending</option>
+                                <option value="in-progress" {% if task.status == 'in-progress' %}selected{% endif %}>In Progress</option>
+                                <option value="review" {% if task.status == 'review' %}selected{% endif %}>In Review</option>
+                                <option value="completed" {% if task.status == 'completed' %}selected{% endif %}>Completed</option>
+                            </select>
+                        </div>
+                    </div>
+
+
+                    <!-- Reminders -->
+                    <div class="detail-row">
+                        <div class="detail-label">Reminders</div>
+                        <div class="detail-value">
+                            <i class="far fa-clock"></i>
+                            <span>At time of task</span>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Add Sub-task Button -->
+                <div class="add-subtask">
+                    <button class="add-subtask-button">
+                        <i class="fas fa-plus"></i>
+                        <span>Add sub-task</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <style>
+        .task-details-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            min-height: 100vh;
+            border-left: 1px solid var(--border-color, #eee);
+        }
+
+        .back-to-dashboard {
+            padding: 20px 20px 12px;
+            border-bottom: 1px solid var(--border-color, #eee);
+            margin-bottom: 5px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            padding: 6px 10px;
+            border-radius: 4px;
+        }
+
+        .back-btn:hover {
+            color: var(--primary-dark);
+            background-color: rgba(var(--primary-rgb), 0.05);
+            transform: translateX(-2px);
+        }
+
+        .back-btn i {
+            font-size: 14px;
+            transition: transform 0.2s ease;
+        }
+
+        .back-btn:hover i {
+            transform: translateX(-2px);
+        }
+
+        .dark-theme .back-to-dashboard {
+            border-bottom-color: var(--dark-border-color, #3d3d3d);
+        }
+
+        .task-header {
+            padding: 15px 20px 20px;
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+        }
+
+        .task-checkbox {
+            position: relative;
+            min-width: 24px;
+            height: 24px;
+            margin-top: 8px;
+        }
+
+        .task-checkbox input[type="checkbox"] {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--text-muted);
+            border-radius: 50%;
+            cursor: pointer;
+            appearance: none;
+            transition: all 0.2s ease;
+        }
+
+        .task-checkbox input[type="checkbox"]:checked {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            position: relative;
+        }
+        
+        .task-checkbox input[type="checkbox"]:checked::after {
+            content: '✓';
+            position: absolute;
+            color: white;
+            font-size: 14px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .task-checkbox input[type="checkbox"]:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.2);
+        }
+
+        .task-content {
+            flex: 1;
+        }
+
+        .task-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 5px;
+        }
+
+        .status-chip {
+            margin-left: 15px;
+            flex-shrink: 0;
+            align-self: flex-start;
+            margin-top: 3px;
+        }
+
+        .status-chip .status-badge {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .dark-theme .status-chip .status-badge {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .task-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+            line-height: 1.4;
+            flex: 1;
+        }
+
+        .task-text {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 5px;
+            line-height: 1.4;
+        }
+
+        .task-details-panel {
+            padding: 0 20px;
+        }
+
+        .detail-row {
+            display: flex;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color, #eee);
+            font-size: 0.9rem;
+        }
+
+        .detail-label {
+            width: 100px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .detail-value {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-primary);
+        }
+
+        .icon-button {
+            background: none;
+            border: none;
+            padding: 4px;
+            color: var(--text-muted);
+            cursor: pointer;
+            margin-left: auto;
+        }
+
+        .lock-button {
+            opacity: 0.7;
+        }
+
+        .add-label-button {
+            background: none;
+            border: none;
+            padding: 4px 8px;
+            color: var(--text-muted);
+            cursor: pointer;
+            border: 1px dashed var(--text-muted);
+            border-radius: 4px;
+        }
+
+        .add-subtask {
+            padding: 20px;
+            border-top: 1px solid var(--border-color, #eee);
+            margin-top: 20px;
+        }
+
+        .add-subtask-button {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        /* Dark theme adjustments */
+        .dark-theme .task-details-container {
+            border-left-color: var(--dark-border-color, #3d3d3d);
+        }
+
+        .dark-theme .detail-row {
+            border-bottom-color: var(--dark-border-color, #3d3d3d);
+        }
+
+        .dark-theme .add-subtask {
+            border-top-color: var(--dark-border-color, #3d3d3d);
+        }
+
+        .priority-flag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-weight: 500;
+            background: var(--bg-color);
+        }
+
+        .priority-high {
+            color: var(--priority-high);
+            background: rgba(245, 54, 92, 0.1);
+        }
+
+        .priority-medium {
+            color: var(--priority-medium);
+            background: rgba(252, 198, 0, 0.1);
+        }
+
+        .priority-low {
+            color: var(--priority-low);
+            background: rgba(45, 206, 137, 0.1);
+        }
+
+        .priority-level {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-left: 8px;
+        }
+
+        .status-badge {
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: capitalize;
+            white-space: nowrap;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .dark-theme .status-badge {
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .status-badge.pending {
+            background-color: rgba(240, 173, 78, 0.2);
+            color: #f0ad4e;
+        }
+
+        .status-badge.in-progress {
+            background-color: rgba(91, 192, 222, 0.2);
+            color: #5bc0de;
+        }
+
+        .status-badge.review {
+            background-color: rgba(138, 43, 226, 0.2);
+            color: #8a2be2;
+        }
+
+        .status-badge.completed {
+            background-color: rgba(92, 184, 92, 0.2);
+            color: #5cb85c;
+        }
+
+        .dark-theme .status-badge.pending {
+            background-color: rgba(240, 173, 78, 0.3);
+            color: #f0ad4e;
+        }
+
+        .dark-theme .status-badge.in-progress {
+            background-color: rgba(91, 192, 222, 0.3);
+            color: #5bc0de;
+        }
+
+        .dark-theme .status-badge.review {
+            background-color: rgba(138, 43, 226, 0.3);
+            color: #8a2be2;
+        }
+
+        .dark-theme .status-badge.completed {
+            background-color: rgba(92, 184, 92, 0.3);
+            color: #5cb85c;
+        }
+
+        .status-dropdown {
+            margin-left: 10px;
+            padding: 6px 10px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            background-color: transparent;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .dark-theme .status-dropdown {
+            border-color: var(--dark-border-color);
+            color: var(--text-color);
+            background-color: var(--card-bg);
+        }
+
+        .status-dropdown:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.2);
+        }
+    </style>
+
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Check for saved theme preference
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.body.classList.toggle('dark-theme', savedTheme === 'dark');
+
+
+        // Sidebar functions
+        function w3_open() {
+            document.getElementById("main").style.marginLeft = "25%";
+            document.getElementById("mySidebar").style.width = "25%";
+            document.getElementById("mySidebar").style.display = "block";
+            document.querySelector(".menu-toggle").style.display = "none";
+        }
+
+
+        function w3_close() {
+            document.getElementById("main").style.marginLeft = "0%";
+            document.getElementById("mySidebar").style.display = "none";
+            document.querySelector(".menu-toggle").style.display = "block";
+        }
+
+
+        // Close sidebar when clicking outside
+        window.onclick = function(event) {
+            const sidebar = document.getElementById("mySidebar");
+            if (event.target == sidebar) {
+                w3_close();
+            }
+        }
+
+
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('themeToggle');
+        const icon = themeToggle.querySelector('i');
+       
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-theme');
+            const isDark = document.body.classList.contains('dark-theme');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+           
+            // Update icon
+            icon.classList.toggle('fa-moon', !isDark);
+            icon.classList.toggle('fa-sun', isDark);
+           
+            // Send theme to server
+            fetch('/toggle_theme', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+        });
+
+
+        // Function to update task status
+        function updateTaskStatus(taskId, status) {
+            fetch(`/update_task_status/${taskId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ status: status })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Update the status badge
+                    const statusBadge = document.querySelector('.status-chip .status-badge');
+                    if (statusBadge) {
+                        statusBadge.className = `status-badge ${status}`;
+                        statusBadge.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+                    }
+                    
+                    // Store the task status change in localStorage to sync with dashboard
+                    const taskUpdate = {
+                        taskId: taskId,
+                        status: status,
+                        timestamp: new Date().getTime()
+                    };
+                    localStorage.setItem('task_status_update', JSON.stringify(taskUpdate));
+                    
+                    // If checkbox status should be updated based on completion
+                    if (status === 'completed') {
+                        const taskComplete = document.getElementById('taskComplete');
+                        if (taskComplete) {
+                            taskComplete.checked = true;
+                        }
+                    } else {
+                        const taskComplete = document.getElementById('taskComplete');
+                        if (taskComplete) {
+                            taskComplete.checked = false;
+                        }
+                    }
+                    
+                    // Notify user of successful update
+                    const statusMessage = document.createElement('div');
+                    statusMessage.className = 'status-update-message';
+                    statusMessage.textContent = 'Task status updated successfully';
+                    statusMessage.style.position = 'fixed';
+                    statusMessage.style.bottom = '20px';
+                    statusMessage.style.right = '20px';
+                    statusMessage.style.padding = '10px 20px';
+                    statusMessage.style.backgroundColor = '#5cb85c';
+                    statusMessage.style.color = 'white';
+                    statusMessage.style.borderRadius = '4px';
+                    statusMessage.style.zIndex = '1000';
+                    document.body.appendChild(statusMessage);
+                    
+                    // Remove message after 3 seconds
+                    setTimeout(() => {
+                        statusMessage.style.opacity = '0';
+                        statusMessage.style.transition = 'opacity 0.5s ease';
+                        setTimeout(() => {
+                            document.body.removeChild(statusMessage);
+                        }, 500);
+                    }, 3000);
+                } else {
+                    alert('Failed to update task status: ' + data.message);
+                    // Reset the dropdown to its previous value
+                    const dropdown = document.querySelector('.status-dropdown');
+                    if (dropdown) {
+                        dropdown.value = data.current_status || 'pending';
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while updating task status');
+            });
+        }
+
+
+        // Handle task completion checkbox
+        document.addEventListener('DOMContentLoaded', function() {
+            const taskComplete = document.getElementById('taskComplete');
+            if (taskComplete) {
+                taskComplete.addEventListener('change', function() {
+                    const status = this.checked ? 'completed' : 'pending';
+                    updateTaskStatus('{{ task.id }}', status);
+                    
+                    // Update the status dropdown to match
+                    const statusDropdown = document.querySelector('.status-dropdown');
+                    if (statusDropdown) {
+                        statusDropdown.value = status;
+                    }
+                });
+            }
+        });
+
+
+        // Function to calculate days left
+        function calculateDaysLeft(deadlineDatetime) {
+            const deadline = new Date(deadlineDatetime.replace(' ', 'T'));
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            deadline.setHours(0, 0, 0, 0);
+           
+            const diffTime = deadline - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return Math.max(0, diffDays);
+        }
+
+
+        // Add navigation event to detect when going back to dashboard
+        const dashboardLinks = document.querySelectorAll('a[href="{{ url_for("index") }}"]');
+        dashboardLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                const statusDropdown = document.querySelector('.status-dropdown');
+                const currentStatus = statusDropdown ? statusDropdown.value : null;
+                
+                if (currentStatus) {
+                    // Set a flag to indicate navigation to dashboard
+                    sessionStorage.setItem('returning_to_dashboard', 'true');
+                }
+            });
+        });
+
+
+        // Function to update days left
+        function updateDaysLeft() {
+            const deadlineSpan = document.querySelector('.detail-row:nth-child(3) .detail-value span');
+            const daysLeftSpan = document.querySelector('.detail-row:nth-child(4) .detail-value span');
+           
+            if (deadlineSpan && daysLeftSpan) {
+                const deadlineDatetime = deadlineSpan.textContent;
+                const daysLeft = calculateDaysLeft(deadlineDatetime);
+                daysLeftSpan.textContent = `${daysLeft} days`;
+            }
+        }
+
+
+        // Update days left every minute
+        setInterval(updateDaysLeft, 60000);
+
+
+        // Initial update when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDaysLeft();
+            
+            // Add event listener for back to dashboard button
+            const backToDashboardBtn = document.getElementById('backToDashboard');
+            if (backToDashboardBtn) {
+                backToDashboardBtn.addEventListener('click', function() {
+                    // Set flag to indicate returning to dashboard
+                    sessionStorage.setItem('returning_to_dashboard', 'true');
+                });
+            }
+        });
+    </script>
+</body>
+</html>

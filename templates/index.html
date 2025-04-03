@@ -11,6 +11,327 @@
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/5/w3.css">
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Add this to your existing styles */
+        .btn-success {
+            background-color: transparent;
+            color: var(--success-color);
+            border: 1px solid var(--success-color);
+            padding: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+
+        .btn-success:hover {
+            background-color: var(--success-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+
+        .btn-danger {
+            background-color: transparent;
+            color: var(--danger-color);
+            border: 1px solid var(--danger-color);
+            padding: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+
+        .btn-danger:hover {
+            background-color: var(--danger-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+
+        .btn-info {
+            background-color: transparent;
+            color: var(--info-color);
+            border: 1px solid var(--info-color);
+            padding: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+
+        .btn-info:hover {
+            background-color: var(--info-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+
+        .btn-primary {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            padding: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+
+        .btn-primary:hover {
+            background-color: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+
+        .dark-theme .btn-success,
+        .dark-theme .btn-danger,
+        .dark-theme .btn-info,
+        .dark-theme .btn-primary {
+            box-shadow: none;
+        }
+
+
+        .dark-theme .btn-success:hover,
+        .dark-theme .btn-danger:hover,
+        .dark-theme .btn-info:hover,
+        .dark-theme .btn-primary:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+
+        .task-card-actions {
+            position: relative;
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            padding: 12px;
+            border-top: 1px solid var(--border-color);
+        }
+
+
+        .dark-theme .task-card-actions {
+            border-top-color: var(--dark-border-color, #3d3d3d);
+        }
+
+
+        .btn-sm {
+            padding: 6px 10px;
+            font-size: 0.875rem;
+        }
+
+
+        .me-2 {
+            margin-right: 8px;
+        }
+
+
+        /* Clickable stat cards */
+        .stat-card {
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+
+        .dark-theme .stat-card:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+
+        .stat-card.active {
+            border: 2px solid var(--primary-color);
+            background-color: rgba(var(--primary-rgb), 0.05);
+        }
+
+
+        .dark-theme .stat-card.active {
+            border: 2px solid var(--primary-color);
+            background-color: rgba(var(--primary-rgb), 0.15);
+        }
+
+
+        /* Task status dropdown */
+        .task-status {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+
+        .status-dropdown {
+            padding: 6px 10px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            background-color: transparent;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+
+        .dark-theme .status-dropdown {
+            border-color: var(--dark-border-color);
+            color: var(--text-color);
+            background-color: var(--card-bg);
+        }
+
+
+        .status-dropdown:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.2);
+        }
+
+
+        /* Status-based styling for task cards */
+        .task-card.status-pending {
+            border-left: 4px solid #f0ad4e; /* Orange */
+        }
+
+
+        .task-card.status-in-progress {
+            border-left: 4px solid #5bc0de; /* Blue */
+        }
+
+
+        .task-card.status-review {
+            border-left: 4px solid #8a2be2; /* Purple */
+        }
+
+
+        .task-card.status-completed {
+            border-left: 4px solid #5cb85c; /* Green */
+            background-color: rgba(92, 184, 92, 0.05);
+        }
+
+
+        .task-card.task-completed {
+            background-color: rgba(92, 184, 92, 0.05);
+            transition: opacity 0.5s ease;
+        }
+
+
+        .dark-theme .task-card.task-completed,
+        .dark-theme .task-card.status-completed {
+            background-color: rgba(92, 184, 92, 0.1);
+        }
+
+
+        /* Status badge */
+        .task-card-header {
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+        }
+
+
+        .status-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: capitalize;
+            white-space: nowrap;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+
+        .dark-theme .status-badge {
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+
+        .status-badge.pending {
+            background-color: rgba(240, 173, 78, 0.2);
+            color: #f0ad4e;
+        }
+
+
+        .status-badge.in-progress {
+            background-color: rgba(91, 192, 222, 0.2);
+            color: #5bc0de;
+        }
+
+
+        .status-badge.review {
+            background-color: rgba(138, 43, 226, 0.2);
+            color: #8a2be2;
+        }
+
+
+        .status-badge.completed {
+            background-color: rgba(92, 184, 92, 0.2);
+            color: #5cb85c;
+        }
+
+
+        .dark-theme .status-badge.pending {
+            background-color: rgba(240, 173, 78, 0.3);
+            color: #f0ad4e;
+        }
+
+
+        .dark-theme .status-badge.in-progress {
+            background-color: rgba(91, 192, 222, 0.3);
+            color: #5bc0de;
+        }
+
+
+        .dark-theme .status-badge.review {
+            background-color: rgba(138, 43, 226, 0.3);
+            color: #8a2be2;
+        }
+
+
+        .dark-theme .status-badge.completed {
+            background-color: rgba(92, 184, 92, 0.3);
+            color: #5cb85c;
+        }
+
+
+        /* Adjust task card actions for the status dropdown */
+        .task-meta-info {
+            padding: 0 10px 10px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+
+        .dark-theme .task-meta-info {
+            border-bottom-color: var(--dark-border-color);
+        }
+
+
+        .task-category-label,
+        .task-type-label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin: 2px 0;
+        }
+
+
+        .task-category-label i,
+        .task-type-label i {
+            width: 16px;
+            text-align: center;
+            opacity: 0.7;
+        }
+    </style>
 </head>
 <body>
     <!-- Sidebar -->
@@ -63,6 +384,7 @@
         </div>
     </div>
 
+
     <!-- Main Content -->
     <div id="main">
         <div class="container">
@@ -107,10 +429,10 @@
                         <div class="search-bar">
                             <form action="{{ url_for('index') }}" method="GET" class="search-form" id="searchForm">
                                 <div class="search-input-container">
-                                    <input type="text" 
-                                           name="search" 
-                                           placeholder="Search tasks..." 
-                                           value="{{ search_query }}" 
+                                    <input type="text"
+                                           name="search"
+                                           placeholder="Search tasks..."
+                                           value="{{ search_query }}"
                                            class="search-input"
                                            id="searchInput"
                                            oninput="handleSearch(this.value)">
@@ -127,6 +449,13 @@
                                     <option value="{{ category }}">{{ category }}</option>
                                 {% endfor %}
                             </select>
+                            <select id="status-filter" class="filter-select">
+                                <option value="">All Statuses</option>
+                                <option value="pending">Pending</option>
+                                <option value="in-progress">In Progress</option>
+                                <option value="review">In Review</option>
+                                <option value="completed">Completed</option>
+                            </select>
                             <select id="sort-options" class="filter-select">
                                 <option value="priority">Sort by Priority</option>
                                 <option value="deadline">Sort by Deadline</option>
@@ -135,70 +464,138 @@
                         </div>
                     </div>
                    
-                    <div id="taskListContainer">
-                        {% if tasks %}
-                            <div class="task-grid">
+                    <!-- Active Tasks Section -->
+                    <div class="tasks-section active-tasks">
+                        <h3 class="section-title"><i class="fas fa-spinner"></i> Active Tasks</h3>
+                        <div id="activeTasksContainer" class="task-grid">
                             {% for task in tasks %}
-                                <div class="task-card priority-{{ task.priority|int }}">
-                                    <div class="task-card-header">
-                                        <div class="priority-badge">{{ "%.1f"|format(task.priority) }}</div>
-                                        <div class="task-meta">
-                                            <span class="task-category">{{ task.category }}</span>
-                                            <span class="task-type">{{ task.type }}</span>
+                                {% if task.status != 'completed' %}
+                                    <div class="task-card priority-{{ task.priority|int }} status-{{ task.status or 'pending' }}" data-task-id="{{ task.id }}">
+                                        <div class="task-card-header">
+                                            <div class="priority-badge">{{ "%.1f"|format(task.priority) }}</div>
+                                            <div class="status-badge {{ task.status|lower }}">{{ task.status }}</div>
                                         </div>
-                                    </div>
-                                    <div class="task-card-body">
-                                        <h3 class="task-title">{{ task.title }}</h3>
-                                        <p class="task-description">{{ task.description }}</p>
-                                       
-                                        <div class="task-metrics">
-                                            <div class="metric">
-                                                <i class="fas fa-calendar-alt"></i>
-                                                <span>{{ task.deadline_datetime|replace(' ', ' at ') }}</span>
+                                        <div class="task-meta-info">
+                                            <div class="task-category-label">
+                                                <i class="fas fa-folder"></i> {{ task.category }}
                                             </div>
-                                            <div class="metric {% if task.deadline_days <= 1 %}urgent{% elif task.deadline_days <= 3 %}warning{% endif %}">
-                                                <i class="fas fa-hourglass-half"></i>
-                                                <span>{{ task.deadline_days }} days left</span>
-                                            </div>
-                                            <div class="metric">
-                                                <i class="fas fa-clock"></i>
-                                                <span>{{ task.effort }}h effort</span>
-                                            </div>
-                                            <div class="metric">
-                                                <i class="fas fa-exclamation-circle"></i>
-                                                <span>Urgency: {{ task.urgency }}</span>
+                                            <div class="task-type-label">
+                                                <i class="fas fa-tag"></i> {{ task.type }}
                                             </div>
                                         </div>
+                                        <div class="task-card-body">
+                                            <h3 class="task-title">{{ task.title }}</h3>
+                                            <p class="task-description" title="{{ task.description }}">{{ task.description }}</p>
+                                            <div class="task-metrics">
+                                                <div class="metric">
+                                                    <i class="fas fa-calendar-alt"></i>
+                                                    <span>{{ task.deadline_datetime|replace(' ', ' at ') }}</span>
+                                                </div>
+                                                <div class="metric {% if task.deadline_days <= 1 %}urgent{% elif task.deadline_days <= 3 %}warning{% endif %}">
+                                                    <i class="fas fa-hourglass-half"></i>
+                                                    <span>{{ task.deadline_days }} days left</span>
+                                                </div>
+                                                <div class="metric">
+                                                    <i class="fas fa-clock"></i>
+                                                    <span>{{ task.effort }}h effort</span>
+                                                </div>
+                                                <div class="metric">
+                                                    <i class="fas fa-exclamation-circle"></i>
+                                                    <span>Urgency: {{ task.urgency }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="task-card-actions">
+                                            <div class="task-status">
+                                                <select class="status-dropdown" onchange="updateTaskStatus('{{ task.id }}', this.value)">
+                                                    <option value="pending" {% if task.status == 'pending' or not task.status %}selected{% endif %}>Pending</option>
+                                                    <option value="in-progress" {% if task.status == 'in-progress' %}selected{% endif %}>In Progress</option>
+                                                    <option value="review" {% if task.status == 'review' %}selected{% endif %}>In Review</option>
+                                                    <option value="completed" {% if task.status == 'completed' %}selected{% endif %}>Completed</option>
+                                                </select>
+                                            </div>
+                                            <div class="task-actions">
+                                                <a href="{{ url_for('view_task', task_id=task.id) }}" class="btn btn-info btn-sm me-2" title="View Details">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a href="{{ url_for('edit_task', task_id=task.id) }}" class="btn btn-primary btn-sm me-2" title="Edit">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <button onclick="deleteTask('{{ task.id }}')" class="btn btn-danger btn-sm" title="Delete">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="task-card-actions">
-                                        <a href="{{ url_for('edit_task', task_id=task.id) }}" class="btn btn-edit">
-                                            <i class="fas fa-edit"></i> Edit
-                                        </a>
-                                        <a href="{{ url_for('complete_task', task_id=task.id) }}" class="btn btn-complete">
-                                            <i class="fas fa-check"></i> Complete
-                                        </a>
-                                        <a href="{{ url_for('delete_task', task_id=task.id) }}" class="btn btn-delete">
-                                            <i class="fas fa-trash"></i> Delete
-                                        </a>
-                                    </div>
-                                </div>
-                            {% endfor %}
-                            </div>
-                        {% else %}
-                            <div class="empty-state">
-                                <i class="fas fa-clipboard-list empty-icon"></i>
-                                {% if search_query %}
-                                    <h3>No tasks found matching "{{ search_query }}"</h3>
-                                    <p>Try a different search term or <a href="{{ url_for('index') }}">view all tasks</a></p>
-                                {% else %}
-                                    <h3>No tasks added yet</h3>
-                                    <p>Click "Add New Task" to get started!</p>
-                                    <a href="{{ url_for('add_task') }}" class="btn add-btn">
-                                        <i class="fas fa-plus"></i> Add New Task
-                                    </a>
                                 {% endif %}
-                            </div>
-                        {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+
+
+                    <!-- Completed Tasks Section -->
+                    <div class="tasks-section completed-tasks">
+                        <h3 class="section-title"><i class="fas fa-check-circle"></i> Completed Tasks</h3>
+                        <div id="completedTasksContainer" class="task-grid">
+                            {% for task in tasks %}
+                                {% if task.status == 'completed' %}
+                                    <div class="task-card priority-{{ task.priority|int }} status-completed task-completed" data-task-id="{{ task.id }}">
+                                        <div class="task-card-header">
+                                            <div class="priority-badge">{{ "%.1f"|format(task.priority) }}</div>
+                                            <div class="status-badge completed">Completed</div>
+                                        </div>
+                                        <div class="task-meta-info">
+                                            <div class="task-category-label">
+                                                <i class="fas fa-folder"></i> {{ task.category }}
+                                            </div>
+                                            <div class="task-type-label">
+                                                <i class="fas fa-tag"></i> {{ task.type }}
+                                            </div>
+                                        </div>
+                                        <div class="task-card-body">
+                                            <h3 class="task-title">{{ task.title }}</h3>
+                                            <p class="task-description" title="{{ task.description }}">{{ task.description }}</p>
+                                            <div class="task-metrics">
+                                                <div class="metric">
+                                                    <i class="fas fa-calendar-alt"></i>
+                                                    <span>{{ task.deadline_datetime|replace(' ', ' at ') }}</span>
+                                                </div>
+                                                <div class="metric">
+                                                    <i class="fas fa-hourglass-half"></i>
+                                                    <span>{{ task.deadline_days }} days left</span>
+                                                </div>
+                                                <div class="metric">
+                                                    <i class="fas fa-clock"></i>
+                                                    <span>{{ task.effort }}h effort</span>
+                                                </div>
+                                                <div class="metric">
+                                                    <i class="fas fa-exclamation-circle"></i>
+                                                    <span>Urgency: {{ task.urgency }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="task-card-actions">
+                                            <div class="task-status">
+                                                <select class="status-dropdown" onchange="updateTaskStatus('{{ task.id }}', this.value)">
+                                                    <option value="pending">Pending</option>
+                                                    <option value="in-progress">In Progress</option>
+                                                    <option value="review">In Review</option>
+                                                    <option value="completed" selected>Completed</option>
+                                                </select>
+                                            </div>
+                                            <div class="task-actions">
+                                                <a href="{{ url_for('view_task', task_id=task.id) }}" class="btn btn-info btn-sm me-2" title="View Details">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <button onclick="deleteTask('{{ task.id }}')" class="btn btn-danger btn-sm" title="Delete">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
                     </div>
                 </div>
             </main>
@@ -211,6 +608,110 @@
    
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
     <script>
+        // Check for task status updates from view_task page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if there are any task status updates in localStorage
+            const taskUpdateString = localStorage.getItem('task_status_update');
+            
+            // Check if we're returning from view task page
+            const returningFromTaskView = sessionStorage.getItem('returning_to_dashboard');
+            if (returningFromTaskView === 'true') {
+                console.log('Returning from task view page, refreshing task data');
+                // Clear the flag
+                sessionStorage.removeItem('returning_to_dashboard');
+                
+                // Force refresh task data by calling filterTasks
+                setTimeout(() => {
+                    // Use a timeout to ensure the DOM is fully loaded
+                    filterTasks();
+                }, 100);
+            }
+            
+            if (taskUpdateString) {
+                try {
+                    const taskUpdate = JSON.parse(taskUpdateString);
+                    const { taskId, status, timestamp } = taskUpdate;
+                    
+                    // Only process updates that are less than 1 hour old
+                    const currentTime = new Date().getTime();
+                    const oneHour = 60 * 60 * 1000;
+                    
+                    if (currentTime - timestamp < oneHour) {
+                        console.log('Applying task status update from view page:', taskUpdate);
+                        
+                        // Find the task card in the DOM
+                        const taskCard = document.querySelector(`[data-task-id="${taskId}"]`);
+                        if (taskCard) {
+                            // Update the status dropdown
+                            const dropdown = taskCard.querySelector('.status-dropdown');
+                            if (dropdown) {
+                                dropdown.value = status;
+                            }
+                            
+                            // Update the status badge
+                            const statusBadge = taskCard.querySelector('.status-badge');
+                            if (statusBadge) {
+                                statusBadge.className = `status-badge ${status}`;
+                                statusBadge.textContent = status;
+                            }
+                            
+                            // Update task card styling
+                            taskCard.classList.remove('status-pending', 'status-in-progress', 'status-review', 'status-completed');
+                            taskCard.classList.add(`status-${status}`);
+                            
+                            // Move task to appropriate container if needed
+                            if (status === 'completed') {
+                                const completedContainer = document.getElementById('completedTasksContainer');
+                                taskCard.classList.add('task-completed');
+                                if (completedContainer && !completedContainer.contains(taskCard)) {
+                                    completedContainer.appendChild(taskCard);
+                                }
+                            } else {
+                                const activeContainer = document.getElementById('activeTasksContainer');
+                                taskCard.classList.remove('task-completed');
+                                if (activeContainer && !activeContainer.contains(taskCard)) {
+                                    activeContainer.appendChild(taskCard);
+                                }
+                            }
+                            
+                            // Update the action buttons based on completion status
+                            const taskActions = taskCard.querySelector('.task-actions');
+                            if (taskActions) {
+                                if (status === 'completed') {
+                                    taskActions.innerHTML = `
+                                        <a href="/view_task/${taskId}" class="btn btn-info btn-sm me-2" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <button onclick="deleteTask('${taskId}')" class="btn btn-danger btn-sm" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    `;
+                                } else {
+                                    taskActions.innerHTML = `
+                                        <a href="/view_task/${taskId}" class="btn btn-info btn-sm me-2" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="/edit_task/${taskId}" class="btn btn-primary btn-sm me-2" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button onclick="deleteTask('${taskId}')" class="btn btn-danger btn-sm" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    `;
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Clear the update information after applying
+                    localStorage.removeItem('task_status_update');
+                } catch (error) {
+                    console.error('Error processing task status update:', error);
+                    localStorage.removeItem('task_status_update');
+                }
+            }
+        });
+
         // Dark mode toggle
         const themeToggle = document.getElementById('themeToggle');
         const icon = themeToggle.querySelector('i');
@@ -220,6 +721,9 @@
         document.body.classList.toggle('dark-theme', savedTheme === 'dark');
         icon.classList.toggle('fa-moon', savedTheme === 'light');
         icon.classList.toggle('fa-sun', savedTheme === 'dark');
+
+        // We don't need to add listeners here since they're already added in script.js
+        // The existing script.js implementation handles the filter correctly
 
         themeToggle.addEventListener('click', () => {
             document.body.classList.toggle('dark-theme');
@@ -247,11 +751,13 @@
             document.querySelector(".menu-toggle").style.display = "none";
         }
 
+
         function w3_close() {
             document.getElementById("main").style.marginLeft = "0%";
             document.getElementById("mySidebar").style.display = "none";
             document.querySelector(".menu-toggle").style.display = "block";
         }
+
 
         // Close sidebar when clicking outside
         window.onclick = function(event) {
@@ -260,6 +766,7 @@
                 w3_close();
             }
         }
+
 
         // Debounce function to limit API calls
         function debounce(func, wait) {
@@ -274,6 +781,7 @@
             };
         }
 
+
         // Search functionality
         function handleSearch(value) {
             if (!value.trim()) {
@@ -285,30 +793,568 @@
             }
         }
 
+
         // Debounced version of handleSearch
         const debouncedSearch = debounce(handleSearch, 300);
+
+
+        // Helper function to create task card HTML
+        function createTaskCard(task) {
+            const card = document.createElement('div');
+            const isCompleted = task.status === 'completed';
+            card.className = `task-card priority-${Math.round(task.priority)} status-${task.status || 'pending'} ${isCompleted ? 'task-completed' : ''}`;
+            card.setAttribute('data-task-id', task.id);
+           
+            card.innerHTML = `
+                <div class="task-card-header">
+                    <div class="priority-badge">${task.priority.toFixed(1)}</div>
+                    <div class="status-badge ${task.status || 'pending'}">${task.status || 'pending'}</div>
+                </div>
+                <div class="task-meta-info">
+                    <div class="task-category-label">
+                        <i class="fas fa-folder"></i> ${task.category}
+                    </div>
+                    <div class="task-type-label">
+                        <i class="fas fa-tag"></i> ${task.type}
+                    </div>
+                </div>
+                <div class="task-card-body">
+                    <h3 class="task-title">${task.title}</h3>
+                    <p class="task-description" title="${task.description}">${task.description}</p>
+                    <div class="task-metrics">
+                        <div class="metric">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span>${task.deadline_datetime.replace(' ', ' at ')}</span>
+                        </div>
+                        <div class="metric ${task.deadline_days <= 1 ? 'urgent' : task.deadline_days <= 3 ? 'warning' : ''}">
+                            <i class="fas fa-hourglass-half"></i>
+                            <span>${task.deadline_days} days left</span>
+                        </div>
+                        <div class="metric">
+                            <i class="fas fa-clock"></i>
+                            <span>${task.effort}h effort</span>
+                        </div>
+                        <div class="metric">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>Urgency: ${task.urgency}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="task-card-actions">
+                    <div class="task-status">
+                        <select class="status-dropdown" onchange="updateTaskStatus('${task.id}', this.value)">
+                            <option value="pending" ${!task.status || task.status === 'pending' ? 'selected' : ''}>Pending</option>
+                            <option value="in-progress" ${task.status === 'in-progress' ? 'selected' : ''}>In Progress</option>
+                            <option value="review" ${task.status === 'review' ? 'selected' : ''}>In Review</option>
+                            <option value="completed" ${task.status === 'completed' ? 'selected' : ''}>Completed</option>
+                        </select>
+                    </div>
+                    <div class="task-actions">
+                        <a href="/view_task/${task.id}" class="btn btn-info btn-sm me-2" title="View Details">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        ${!isCompleted ? `
+                            <a href="/edit_task/${task.id}" class="btn btn-primary btn-sm me-2" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                        ` : ''}
+                        <button onclick="deleteTask('${task.id}')" class="btn btn-danger btn-sm" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+           
+            return card;
+        }
 
         // Function to fetch tasks from the server
         function fetchTasks(searchQuery) {
             fetch(`/search_tasks_ajax?search=${encodeURIComponent(searchQuery)}`)
                 .then(response => response.json())
                 .then(data => {
-                    if (data.html) {
-                        document.getElementById('taskListContainer').innerHTML = data.html;
+                    if (Array.isArray(data.tasks)) {
+                        // Split tasks into active and completed
+                        const activeTasks = data.tasks.filter(task => task.status !== 'completed');
+                        const completedTasks = data.tasks.filter(task => task.status === 'completed');
+                       
+                        // Update active tasks container
+                        const activeTasksContainer = document.getElementById('activeTasksContainer');
+                        if (activeTasksContainer) {
+                            // Clear container first
+                            activeTasksContainer.innerHTML = '';
+                            
+                            if (activeTasks.length === 0) {
+                                activeTasksContainer.innerHTML = `
+                                    <div class="empty-state">
+                                        <i class="fas fa-clipboard-list empty-icon"></i>
+                                        <h3>No active tasks found</h3>
+                                        <p>Try a different search term</p>
+                                    </div>
+                                `;
+                            } else {
+                                // Create individual task cards and append them
+                                activeTasks.forEach(task => {
+                                    const taskCard = createTaskCard(task);
+                                    activeTasksContainer.appendChild(taskCard);
+                                });
+                            }
+                        }
+                       
+                        // Update completed tasks container
+                        const completedTasksContainer = document.getElementById('completedTasksContainer');
+                        if (completedTasksContainer) {
+                            // Clear container first
+                            completedTasksContainer.innerHTML = '';
+                            
+                            if (completedTasks.length === 0) {
+                                completedTasksContainer.innerHTML = `
+                                    <div class="empty-state">
+                                        <i class="fas fa-clipboard-list empty-icon"></i>
+                                        <h3>No completed tasks found</h3>
+                                        <p>Try a different search term</p>
+                                    </div>
+                                `;
+                            } else {
+                                // Create individual task cards and append them
+                                completedTasks.forEach(task => {
+                                    const taskCard = createTaskCard(task);
+                                    completedTasksContainer.appendChild(taskCard);
+                                });
+                            }
+                        }
+                    } else {
+                        console.error('Invalid response format:', data);
                     }
                 })
-                .catch(error => console.error('Error:', error));
+                .catch(error => {
+                    console.error('Error:', error);
+                    const activeTasksContainer = document.getElementById('activeTasksContainer');
+                    const completedTasksContainer = document.getElementById('completedTasksContainer');
+                   
+                    const errorMessage = `
+                        <div class="error-state">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <h3>Error loading tasks</h3>
+                            <p>${error.message}</p>
+                            <button onclick="fetchTasks('${searchQuery}')" class="btn btn-primary">Try Again</button>
+                        </div>
+                    `;
+                   
+                    if (activeTasksContainer) activeTasksContainer.innerHTML = errorMessage;
+                    if (completedTasksContainer) completedTasksContainer.innerHTML = errorMessage;
+                });
         }
 
-        // Update the search input event listener
+
+        // Update the search input event listener with loading state
         document.getElementById('searchInput').addEventListener('input', function(e) {
-            debouncedSearch(e.target.value);
+            const searchQuery = e.target.value;
+           
+            // Show loading state
+            const activeTasksContainer = document.getElementById('activeTasksContainer');
+            const completedTasksContainer = document.getElementById('completedTasksContainer');
+           
+            const loadingState = `
+                <div class="loading-state">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Searching tasks...</p>
+                </div>
+            `;
+           
+            if (activeTasksContainer) activeTasksContainer.innerHTML = loadingState;
+            if (completedTasksContainer) completedTasksContainer.innerHTML = loadingState;
+           
+            // Use debounced search
+            debouncedSearch(searchQuery);
         });
 
-        // Prevent form submission as we're handling search with AJAX
-        document.getElementById('searchForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+
+        // Filter by category and sort options
+        document.getElementById('category-filter').addEventListener('change', function() {
+            filterTasks();
         });
+
+
+        document.getElementById('status-filter').addEventListener('change', function() {
+            filterTasks();
+        });
+
+
+        document.getElementById('sort-options').addEventListener('change', function() {
+            filterTasks();
+        });
+
+
+        // Function to filter tasks
+        function filterTasks() {
+            const category = document.getElementById('category-filter').value;
+            const status = document.getElementById('status-filter').value;
+            const sortBy = document.getElementById('sort-options').value;
+           
+            // Show loading state
+            const activeTasksContainer = document.getElementById('activeTasksContainer');
+            const completedTasksContainer = document.getElementById('completedTasksContainer');
+            
+            if (activeTasksContainer) activeTasksContainer.innerHTML = `
+                <div class="loading-state">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading tasks...</p>
+                </div>
+            `;
+            
+            if (completedTasksContainer) completedTasksContainer.innerHTML = `
+                <div class="loading-state">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading tasks...</p>
+                </div>
+            `;
+           
+            fetch(`/filter_tasks?category=${encodeURIComponent(category)}&status=${encodeURIComponent(status)}&sort=${encodeURIComponent(sortBy)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Check if data is an array of tasks
+                    if (Array.isArray(data)) {
+                        // Split tasks into active and completed
+                        const activeTasks = data.filter(task => task.status !== 'completed');
+                        const completedTasks = data.filter(task => task.status === 'completed');
+                       
+                        // Update active tasks container
+                        if (activeTasksContainer) {
+                            // Clear container first
+                            activeTasksContainer.innerHTML = '';
+                            
+                            if (activeTasks.length === 0) {
+                                activeTasksContainer.innerHTML = `
+                                    <div class="empty-state">
+                                        <i class="fas fa-clipboard-list empty-icon"></i>
+                                        <h3>No active tasks found</h3>
+                                        <p>All tasks are completed or try different filter options</p>
+                                    </div>
+                                `;
+                            } else {
+                                // Create individual task cards and append them
+                                activeTasks.forEach(task => {
+                                    const taskCard = createTaskCard(task);
+                                    activeTasksContainer.appendChild(taskCard);
+                                });
+                            }
+                        }
+                       
+                        // Update completed tasks container
+                        if (completedTasksContainer) {
+                            // Clear container first
+                            completedTasksContainer.innerHTML = '';
+                            
+                            if (completedTasks.length === 0) {
+                                completedTasksContainer.innerHTML = `
+                                    <div class="empty-state">
+                                        <i class="fas fa-clipboard-list empty-icon"></i>
+                                        <h3>No completed tasks found</h3>
+                                        <p>Complete some tasks to see them here</p>
+                                    </div>
+                                `;
+                            } else {
+                                // Create individual task cards and append them
+                                completedTasks.forEach(task => {
+                                    const taskCard = createTaskCard(task);
+                                    completedTasksContainer.appendChild(taskCard);
+                                });
+                            }
+                        }
+                    } else if (data.error) {
+                        throw new Error(data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    if (activeTasksContainer) {
+                        activeTasksContainer.innerHTML = `
+                            <div class="error-state">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <h3>Error loading tasks</h3>
+                                <p>${error.message}</p>
+                                <button onclick="filterTasks()" class="btn btn-primary">Try Again</button>
+                            </div>
+                        `;
+                    }
+                    
+                    if (completedTasksContainer) {
+                        completedTasksContainer.innerHTML = `
+                            <div class="error-state">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <h3>Error loading tasks</h3>
+                                <p>${error.message}</p>
+                                <button onclick="filterTasks()" class="btn btn-primary">Try Again</button>
+                            </div>
+                        `;
+                    }
+                });
+        }
+
+
+        // Function to complete a task
+        function completeTask(taskId) {
+            if (confirm('Are you sure you want to mark this task as complete?')) {
+                fetch(`/complete_task/${taskId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        // Remove the task card from the DOM
+                        const taskCard = document.querySelector(`[data-task-id="${taskId}"]`);
+                        if (taskCard) {
+                            taskCard.remove();
+                        }
+                        // Update task count
+                        updateTaskCount();
+                    } else {
+                        alert('Failed to complete task: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while completing the task');
+                });
+            }
+        }
+
+
+        // Function to delete a task
+        function deleteTask(taskId) {
+            if (confirm('Are you sure you want to delete this task? This action cannot be undone.')) {
+                fetch(`/delete_task/${taskId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        // Remove the task card from the DOM
+                        const taskCard = document.querySelector(`[data-task-id="${taskId}"]`);
+                        if (taskCard) {
+                            taskCard.remove();
+                        }
+                        // Update task count
+                        updateTaskCount();
+                    } else {
+                        alert('Failed to delete task: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while deleting the task');
+                });
+            }
+        }
+
+
+        // Function to update task count
+        function updateTaskCount() {
+            // Update total tasks count
+            const taskCount = document.querySelector('.stat-card[data-filter="all"] .stat-value');
+            if (taskCount) {
+                const currentCount = parseInt(taskCount.textContent);
+                taskCount.textContent = Math.max(0, currentCount - 1);
+            }
+           
+            // Update urgent tasks count
+            const urgentTaskCount = document.querySelector('.stat-card[data-filter="urgent"] .stat-value');
+            if (urgentTaskCount) {
+                const currentUrgentCount = parseInt(urgentTaskCount.textContent);
+                // Only decrement if greater than 0
+                if (currentUrgentCount > 0) {
+                    urgentTaskCount.textContent = currentUrgentCount - 1;
+                }
+            }
+           
+            // Update due today count
+            const dueTodayCount = document.querySelector('.stat-card[data-filter="due-today"] .stat-value');
+            if (dueTodayCount) {
+                const currentDueTodayCount = parseInt(dueTodayCount.textContent);
+                // Only decrement if greater than 0
+                if (currentDueTodayCount > 0) {
+                    dueTodayCount.textContent = currentDueTodayCount - 1;
+                }
+            }
+        }
+
+
+        // Function to update task status
+        function updateTaskStatus(taskId, status) {
+            // Immediately update the UI before making the server request
+            const taskCard = document.querySelector(`[data-task-id="${taskId}"]`);
+            const previousStatus = taskCard.querySelector('.status-dropdown').value;
+           
+            if (taskCard) {
+                // Update task actions immediately based on the new status
+                const taskActions = taskCard.querySelector('.task-actions');
+                if (taskActions) {
+                    if (status === 'completed') {
+                        taskActions.innerHTML = `
+                            <a href="/view_task/${taskId}" class="btn btn-info btn-sm me-2" title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <button onclick="deleteTask('${taskId}')" class="btn btn-danger btn-sm" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        `;
+                    } else {
+                        taskActions.innerHTML = `
+                            <a href="/view_task/${taskId}" class="btn btn-info btn-sm me-2" title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="/edit_task/${taskId}" class="btn btn-primary btn-sm me-2" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <button onclick="deleteTask('${taskId}')" class="btn btn-danger btn-sm" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        `;
+                    }
+                }
+            }
+
+
+            // Make the server request
+            fetch(`/update_task_status/${taskId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ status: status })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    if (taskCard) {
+                        // Remove all status classes
+                        taskCard.classList.remove('status-pending', 'status-in-progress', 'status-review', 'status-completed');
+                        // Add the new status class
+                        taskCard.classList.add(`status-${status}`);
+                       
+                        // Update the status badge
+                        const statusBadge = taskCard.querySelector('.status-badge');
+                        if (statusBadge) {
+                            statusBadge.className = `status-badge ${status}`;
+                            statusBadge.textContent = status;
+                        }
+                       
+                        // Move task to appropriate container
+                        if (status === 'completed') {
+                            const completedContainer = document.getElementById('completedTasksContainer');
+                            taskCard.classList.add('task-completed');
+                            completedContainer.appendChild(taskCard);
+                        } else {
+                            const activeContainer = document.getElementById('activeTasksContainer');
+                            taskCard.classList.remove('task-completed');
+                            activeContainer.appendChild(taskCard);
+                        }
+                    }
+                } else {
+                    // Revert UI changes if server update fails
+                    alert('Failed to update task status: ' + data.message);
+                   
+                    // Reset the dropdown to its previous value
+                    const dropdown = document.querySelector(`[data-task-id="${taskId}"] .status-dropdown`);
+                    if (dropdown) {
+                        dropdown.value = previousStatus;
+                    }
+                   
+                    // Reset the action buttons
+                    const taskActions = taskCard.querySelector('.task-actions');
+                    if (taskActions) {
+                        if (previousStatus === 'completed') {
+                            taskActions.innerHTML = `
+                                <a href="/view_task/${taskId}" class="btn btn-info btn-sm me-2" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <button onclick="deleteTask('${taskId}')" class="btn btn-danger btn-sm" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            `;
+                        } else {
+                            taskActions.innerHTML = `
+                                <a href="/view_task/${taskId}" class="btn btn-info btn-sm me-2" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="/edit_task/${taskId}" class="btn btn-primary btn-sm me-2" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button onclick="deleteTask('${taskId}')" class="btn btn-danger btn-sm" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            `;
+                        }
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while updating task status');
+               
+                // Reset UI on error
+                if (taskCard) {
+                    const dropdown = taskCard.querySelector('.status-dropdown');
+                    if (dropdown) {
+                        dropdown.value = previousStatus;
+                    }
+                   
+                    // Reset action buttons
+                    const taskActions = taskCard.querySelector('.task-actions');
+                    if (taskActions) {
+                        if (previousStatus === 'completed') {
+                            taskActions.innerHTML = `
+                                <a href="/view_task/${taskId}" class="btn btn-info btn-sm me-2" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <button onclick="deleteTask('${taskId}')" class="btn btn-danger btn-sm" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            `;
+                        } else {
+                            taskActions.innerHTML = `
+                                <a href="/view_task/${taskId}" class="btn btn-info btn-sm me-2" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="/edit_task/${taskId}" class="btn btn-primary btn-sm me-2" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button onclick="deleteTask('${taskId}')" class="btn btn-danger btn-sm" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            `;
+                        }
+                    }
+                }
+            });
+        }
     </script>
 </body>
 </html>
