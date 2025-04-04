@@ -56,11 +56,28 @@ class TaskDatabase:
                         created_at DATETIME DEFAULT GETDATE(),
                         completed BIT DEFAULT 0,
                         status NVARCHAR(20) DEFAULT 'pending',
+                        reminder_datetime NVARCHAR(50),
                         FOREIGN KEY (user_id) REFERENCES USERS(id)
                     )
                 END
                 """)
                 self.conn.commit()
+               
+                # Check if reminder_datetime column exists
+                has_reminder_column = True
+                try:
+                    self.cursor.execute("SELECT reminder_datetime FROM TASKS WHERE 1=0")
+                except pyodbc.Error:
+                    has_reminder_column = False
+               
+                # Add reminder_datetime column if it doesn't exist
+                if not has_reminder_column:
+                    try:
+                        self.cursor.execute("ALTER TABLE TASKS ADD reminder_datetime NVARCHAR(50)")
+                        self.conn.commit()
+                        print("Added reminder_datetime column to TASKS table")
+                    except pyodbc.Error as e:
+                        print(f"Error adding reminder_datetime column: {e}")
                
                 # Check if status column exists
                 has_status_column = True
@@ -68,7 +85,7 @@ class TaskDatabase:
                     self.cursor.execute("SELECT status FROM TASKS WHERE 1=0")
                 except pyodbc.Error:
                     has_status_column = False
-                
+               
                 # Add status column if it doesn't exist
                 if not has_status_column:
                     try:
@@ -133,10 +150,10 @@ class TaskDatabase:
                
                 columns = [column[0] for column in self.cursor.description]
                 tasks = []
-                
+               
                 # Fetch all rows before closing the connection
                 rows = self.cursor.fetchall()
-                
+               
                 # Process the rows after fetching all data
                 for row in rows:
                     task = dict(zip(columns, row))
@@ -199,6 +216,8 @@ class TaskDatabase:
         return False
 
 
+
+
     def update_task_status(self, task_id, user_id, status):
         if self.connect():
             try:
@@ -209,7 +228,7 @@ class TaskDatabase:
                     self.cursor.fetchone()  # Just to check if it works
                 except pyodbc.Error:
                     has_status_column = False
-                
+               
                 # Create status column if it doesn't exist
                 if not has_status_column:
                     self.cursor.execute("ALTER TABLE TASKS ADD status NVARCHAR(20) DEFAULT 'pending'")
@@ -243,18 +262,20 @@ class TaskDatabase:
         return False
 
 
+
+
     def get_task(self, task_id, user_id):
         if self.connect():
             try:
                 query = "SELECT * FROM TASKS WHERE id = ? AND user_id = ?"
                 self.cursor.execute(query, (task_id, user_id))
-                
+               
                 # Get column names
                 columns = [column[0] for column in self.cursor.description]
-                
+               
                 # Fetch the row before closing the connection
                 row = self.cursor.fetchone()
-                
+               
                 if row:
                     task = dict(zip(columns, row))
                     if 'deadline_datetime' in task:
@@ -281,6 +302,8 @@ class TaskDatabase:
             finally:
                 self.disconnect()
         return None
+
+
 
 
     def update_task(self, task_id, user_id, task_data, priority):
@@ -334,6 +357,10 @@ class TaskDatabase:
 
 
 
+
+
+
+
     def search_tasks(self, user_id, search_query):
         if self.connect():
             try:
@@ -351,10 +378,10 @@ class TaskDatabase:
                
                 columns = [column[0] for column in self.cursor.description]
                 tasks = []
-                
+               
                 # Fetch all rows before closing the connection
                 rows = self.cursor.fetchall()
-                
+               
                 # Process the rows after fetching all data
                 for row in rows:
                     task = dict(zip(columns, row))
@@ -383,3 +410,67 @@ class TaskDatabase:
             finally:
                 self.disconnect()
         return []
+
+
+    def set_reminder(self, task_id, user_id, reminder_datetime):
+        if self.connect():
+            try:
+                self.cursor.execute("""
+                UPDATE TASKS SET reminder_datetime = ? WHERE id = ? AND user_id = ?
+                """, (reminder_datetime, task_id, user_id))
+                self.conn.commit()
+                return True
+            except pyodbc.Error as e:
+                print(f"Error setting reminder: {e}")
+                return False
+            finally:
+                self.disconnect()
+        return False
+
+
+    def get_pending_reminders(self):
+        """Get all tasks with reminders that need to be sent"""
+        if self.connect():
+            try:
+                current_time = datetime.now().strftime('%Y-%m-%d %H:%M')
+                self.cursor.execute("""
+                SELECT t.*, u.email, u.username
+                FROM TASKS t
+                JOIN USERS u ON t.user_id = u.id
+                WHERE t.reminder_datetime <= ?
+                AND t.reminder_datetime IS NOT NULL
+                AND t.status != 'completed'
+                """, (current_time,))
+               
+                columns = [column[0] for column in self.cursor.description]
+                tasks = []
+               
+                rows = self.cursor.fetchall()
+                for row in rows:
+                    task = dict(zip(columns, row))
+                    tasks.append(task)
+               
+                return tasks
+            except pyodbc.Error as e:
+                print(f"Error getting pending reminders: {e}")
+                return []
+            finally:
+                self.disconnect()
+        return []
+
+
+    def clear_reminder(self, task_id):
+        """Clear the reminder after it has been sent"""
+        if self.connect():
+            try:
+                self.cursor.execute("""
+                UPDATE TASKS SET reminder_datetime = NULL WHERE id = ?
+                """, (task_id,))
+                self.conn.commit()
+                return True
+            except pyodbc.Error as e:
+                print(f"Error clearing reminder: {e}")
+                return False
+            finally:
+                self.disconnect()
+        return False

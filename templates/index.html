@@ -612,33 +612,33 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Check if there are any task status updates in localStorage
             const taskUpdateString = localStorage.getItem('task_status_update');
-            
+           
             // Check if we're returning from view task page
             const returningFromTaskView = sessionStorage.getItem('returning_to_dashboard');
             if (returningFromTaskView === 'true') {
                 console.log('Returning from task view page, refreshing task data');
                 // Clear the flag
                 sessionStorage.removeItem('returning_to_dashboard');
-                
+               
                 // Force refresh task data by calling filterTasks
                 setTimeout(() => {
                     // Use a timeout to ensure the DOM is fully loaded
                     filterTasks();
                 }, 100);
             }
-            
+           
             if (taskUpdateString) {
                 try {
                     const taskUpdate = JSON.parse(taskUpdateString);
                     const { taskId, status, timestamp } = taskUpdate;
-                    
+                   
                     // Only process updates that are less than 1 hour old
                     const currentTime = new Date().getTime();
                     const oneHour = 60 * 60 * 1000;
-                    
+                   
                     if (currentTime - timestamp < oneHour) {
                         console.log('Applying task status update from view page:', taskUpdate);
-                        
+                       
                         // Find the task card in the DOM
                         const taskCard = document.querySelector(`[data-task-id="${taskId}"]`);
                         if (taskCard) {
@@ -647,18 +647,18 @@
                             if (dropdown) {
                                 dropdown.value = status;
                             }
-                            
+                           
                             // Update the status badge
                             const statusBadge = taskCard.querySelector('.status-badge');
                             if (statusBadge) {
                                 statusBadge.className = `status-badge ${status}`;
                                 statusBadge.textContent = status;
                             }
-                            
+                           
                             // Update task card styling
                             taskCard.classList.remove('status-pending', 'status-in-progress', 'status-review', 'status-completed');
                             taskCard.classList.add(`status-${status}`);
-                            
+                           
                             // Move task to appropriate container if needed
                             if (status === 'completed') {
                                 const completedContainer = document.getElementById('completedTasksContainer');
@@ -673,7 +673,7 @@
                                     activeContainer.appendChild(taskCard);
                                 }
                             }
-                            
+                           
                             // Update the action buttons based on completion status
                             const taskActions = taskCard.querySelector('.task-actions');
                             if (taskActions) {
@@ -702,7 +702,7 @@
                             }
                         }
                     }
-                    
+                   
                     // Clear the update information after applying
                     localStorage.removeItem('task_status_update');
                 } catch (error) {
@@ -806,63 +806,63 @@
             card.setAttribute('data-task-id', task.id);
            
             card.innerHTML = `
-                <div class="task-card-header">
-                    <div class="priority-badge">${task.priority.toFixed(1)}</div>
-                    <div class="status-badge ${task.status || 'pending'}">${task.status || 'pending'}</div>
-                </div>
-                <div class="task-meta-info">
-                    <div class="task-category-label">
-                        <i class="fas fa-folder"></i> ${task.category}
-                    </div>
-                    <div class="task-type-label">
-                        <i class="fas fa-tag"></i> ${task.type}
-                    </div>
-                </div>
-                <div class="task-card-body">
-                    <h3 class="task-title">${task.title}</h3>
+                        <div class="task-card-header">
+                            <div class="priority-badge">${task.priority.toFixed(1)}</div>
+                            <div class="status-badge ${task.status || 'pending'}">${task.status || 'pending'}</div>
+                        </div>
+                        <div class="task-meta-info">
+                            <div class="task-category-label">
+                                <i class="fas fa-folder"></i> ${task.category}
+                            </div>
+                            <div class="task-type-label">
+                                <i class="fas fa-tag"></i> ${task.type}
+                            </div>
+                        </div>
+                        <div class="task-card-body">
+                            <h3 class="task-title">${task.title}</h3>
                     <p class="task-description" title="${task.description}">${task.description}</p>
-                    <div class="task-metrics">
-                        <div class="metric">
-                            <i class="fas fa-calendar-alt"></i>
-                            <span>${task.deadline_datetime.replace(' ', ' at ')}</span>
+                            <div class="task-metrics">
+                                <div class="metric">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <span>${task.deadline_datetime.replace(' ', ' at ')}</span>
+                                </div>
+                                <div class="metric ${task.deadline_days <= 1 ? 'urgent' : task.deadline_days <= 3 ? 'warning' : ''}">
+                                    <i class="fas fa-hourglass-half"></i>
+                                    <span>${task.deadline_days} days left</span>
+                                </div>
+                                <div class="metric">
+                                    <i class="fas fa-clock"></i>
+                                    <span>${task.effort}h effort</span>
+                                </div>
+                                <div class="metric">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    <span>Urgency: ${task.urgency}</span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="metric ${task.deadline_days <= 1 ? 'urgent' : task.deadline_days <= 3 ? 'warning' : ''}">
-                            <i class="fas fa-hourglass-half"></i>
-                            <span>${task.deadline_days} days left</span>
-                        </div>
-                        <div class="metric">
-                            <i class="fas fa-clock"></i>
-                            <span>${task.effort}h effort</span>
-                        </div>
-                        <div class="metric">
-                            <i class="fas fa-exclamation-circle"></i>
-                            <span>Urgency: ${task.urgency}</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="task-card-actions">
-                    <div class="task-status">
-                        <select class="status-dropdown" onchange="updateTaskStatus('${task.id}', this.value)">
+                        <div class="task-card-actions">
+                            <div class="task-status">
+                                <select class="status-dropdown" onchange="updateTaskStatus('${task.id}', this.value)">
                             <option value="pending" ${!task.status || task.status === 'pending' ? 'selected' : ''}>Pending</option>
                             <option value="in-progress" ${task.status === 'in-progress' ? 'selected' : ''}>In Progress</option>
                             <option value="review" ${task.status === 'review' ? 'selected' : ''}>In Review</option>
                             <option value="completed" ${task.status === 'completed' ? 'selected' : ''}>Completed</option>
-                        </select>
-                    </div>
-                    <div class="task-actions">
-                        <a href="/view_task/${task.id}" class="btn btn-info btn-sm me-2" title="View Details">
-                            <i class="fas fa-eye"></i>
-                        </a>
+                                </select>
+                            </div>
+                            <div class="task-actions">
+                                <a href="/view_task/${task.id}" class="btn btn-info btn-sm me-2" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </a>
                         ${!isCompleted ? `
-                            <a href="/edit_task/${task.id}" class="btn btn-primary btn-sm me-2" title="Edit">
-                                <i class="fas fa-edit"></i>
-                            </a>
+                                <a href="/edit_task/${task.id}" class="btn btn-primary btn-sm me-2" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
                         ` : ''}
-                        <button onclick="deleteTask('${task.id}')" class="btn btn-danger btn-sm" title="Delete">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </div>
+                                <button onclick="deleteTask('${task.id}')" class="btn btn-danger btn-sm" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
             `;
            
             return card;
@@ -883,15 +883,15 @@
                         if (activeTasksContainer) {
                             // Clear container first
                             activeTasksContainer.innerHTML = '';
-                            
+                           
                             if (activeTasks.length === 0) {
                                 activeTasksContainer.innerHTML = `
                                     <div class="empty-state">
                                         <i class="fas fa-clipboard-list empty-icon"></i>
                                         <h3>No active tasks found</h3>
                                         <p>Try a different search term</p>
-                                    </div>
-                                `;
+                    </div>
+                `;
                             } else {
                                 // Create individual task cards and append them
                                 activeTasks.forEach(task => {
@@ -906,7 +906,7 @@
                         if (completedTasksContainer) {
                             // Clear container first
                             completedTasksContainer.innerHTML = '';
-                            
+                           
                             if (completedTasks.length === 0) {
                                 completedTasksContainer.innerHTML = `
                                     <div class="empty-state">
@@ -972,130 +972,22 @@
 
         // Filter by category and sort options
         document.getElementById('category-filter').addEventListener('change', function() {
-            filterTasks();
+            updateTasks();
         });
 
 
         document.getElementById('status-filter').addEventListener('change', function() {
-            filterTasks();
+            updateTasks();
         });
+
+
 
 
         document.getElementById('sort-options').addEventListener('change', function() {
-            filterTasks();
+            updateTasks();
         });
 
 
-        // Function to filter tasks
-        function filterTasks() {
-            const category = document.getElementById('category-filter').value;
-            const status = document.getElementById('status-filter').value;
-            const sortBy = document.getElementById('sort-options').value;
-           
-            // Show loading state
-            const activeTasksContainer = document.getElementById('activeTasksContainer');
-            const completedTasksContainer = document.getElementById('completedTasksContainer');
-            
-            if (activeTasksContainer) activeTasksContainer.innerHTML = `
-                <div class="loading-state">
-                    <i class="fas fa-spinner fa-spin"></i>
-                    <p>Loading tasks...</p>
-                </div>
-            `;
-            
-            if (completedTasksContainer) completedTasksContainer.innerHTML = `
-                <div class="loading-state">
-                    <i class="fas fa-spinner fa-spin"></i>
-                    <p>Loading tasks...</p>
-                </div>
-            `;
-           
-            fetch(`/filter_tasks?category=${encodeURIComponent(category)}&status=${encodeURIComponent(status)}&sort=${encodeURIComponent(sortBy)}`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    // Check if data is an array of tasks
-                    if (Array.isArray(data)) {
-                        // Split tasks into active and completed
-                        const activeTasks = data.filter(task => task.status !== 'completed');
-                        const completedTasks = data.filter(task => task.status === 'completed');
-                       
-                        // Update active tasks container
-                        if (activeTasksContainer) {
-                            // Clear container first
-                            activeTasksContainer.innerHTML = '';
-                            
-                            if (activeTasks.length === 0) {
-                                activeTasksContainer.innerHTML = `
-                                    <div class="empty-state">
-                                        <i class="fas fa-clipboard-list empty-icon"></i>
-                                        <h3>No active tasks found</h3>
-                                        <p>All tasks are completed or try different filter options</p>
-                                    </div>
-                                `;
-                            } else {
-                                // Create individual task cards and append them
-                                activeTasks.forEach(task => {
-                                    const taskCard = createTaskCard(task);
-                                    activeTasksContainer.appendChild(taskCard);
-                                });
-                            }
-                        }
-                       
-                        // Update completed tasks container
-                        if (completedTasksContainer) {
-                            // Clear container first
-                            completedTasksContainer.innerHTML = '';
-                            
-                            if (completedTasks.length === 0) {
-                                completedTasksContainer.innerHTML = `
-                                    <div class="empty-state">
-                                        <i class="fas fa-clipboard-list empty-icon"></i>
-                                        <h3>No completed tasks found</h3>
-                                        <p>Complete some tasks to see them here</p>
-                                    </div>
-                                `;
-                            } else {
-                                // Create individual task cards and append them
-                                completedTasks.forEach(task => {
-                                    const taskCard = createTaskCard(task);
-                                    completedTasksContainer.appendChild(taskCard);
-                                });
-                            }
-                        }
-                    } else if (data.error) {
-                        throw new Error(data.error);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    if (activeTasksContainer) {
-                        activeTasksContainer.innerHTML = `
-                            <div class="error-state">
-                                <i class="fas fa-exclamation-circle"></i>
-                                <h3>Error loading tasks</h3>
-                                <p>${error.message}</p>
-                                <button onclick="filterTasks()" class="btn btn-primary">Try Again</button>
-                            </div>
-                        `;
-                    }
-                    
-                    if (completedTasksContainer) {
-                        completedTasksContainer.innerHTML = `
-                            <div class="error-state">
-                                <i class="fas fa-exclamation-circle"></i>
-                                <h3>Error loading tasks</h3>
-                                <p>${error.message}</p>
-                                <button onclick="filterTasks()" class="btn btn-primary">Try Again</button>
-                            </div>
-                        `;
-                    }
-                });
-        }
 
 
         // Function to complete a task

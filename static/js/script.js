@@ -202,14 +202,14 @@ document.addEventListener('DOMContentLoaded', function() {
                
                 // Get the filter type from data attribute
                 const filterType = this.dataset.filter;
-                
+               
                 console.log('Stat card clicked:', filterType); // For debugging
                
                 // Reset category filter
                 if (categoryFilter) {
                     categoryFilter.value = '';
                 }
-                
+               
                 // Reset status filter
                 if (statusFilter) {
                     statusFilter.value = '';
@@ -312,51 +312,16 @@ function updateTaskStatus(taskId, status) {
     })
     .then(data => {
         if (data.success) {
-            // Fetch the updated task data
-            fetch(`/filter_tasks?task_id=${taskId}`)
-                .then(response => response.json())
-                .then(tasks => {
-                    if (tasks && tasks.length > 0) {
-                        const updatedTask = tasks[0];
-                        const taskCard = document.querySelector(`[data-task-id="${taskId}"]`);
-                        if (taskCard) {
-                            // Create new task card with fresh data
-                            const newTaskCard = createTaskCard(updatedTask);
-                           
-                            // Move to appropriate container
-                            if (status === 'completed') {
-                                const completedContainer = document.getElementById('completedTasksContainer');
-                                if (completedContainer) {
-                                    completedContainer.appendChild(newTaskCard);
-                                }
-                            } else {
-                                const activeContainer = document.getElementById('activeTasksContainer');
-                                if (activeContainer) {
-                                    activeContainer.appendChild(newTaskCard);
-                                }
-                            }
-
-
-                            // Remove old task card
-                            taskCard.remove();
-                        }
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching updated task:', error);
-                });
+            // Update the tasks view with the latest data
+            updateTasks();
         } else {
+            // Show error message
             alert('Failed to update task status: ' + data.message);
-            // Reset the dropdown to its previous value
-            const dropdown = document.querySelector(`[data-task-id="${taskId}"] .status-dropdown`);
-            if (dropdown) {
-                dropdown.value = data.current_status || 'pending';
-            }
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('An error occurred while updating task status');
+        alert('An error occurred while updating the task status');
     });
 }
 

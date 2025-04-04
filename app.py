@@ -8,6 +8,8 @@ from functools import wraps
 import smtplib
 from email.mime.text import MIMEText
 import random
+import threading
+import time
 
 
 class EmailService:
@@ -149,6 +151,10 @@ class TaskManagerApp:
         self.otp_manager = OTPManager()
         self.auth_manager = AuthManager(self.user_db, self.email_service, self.otp_manager)
        
+        # Start the reminder scheduler in a background thread
+        self.reminder_thread = threading.Thread(target=self._reminder_scheduler, daemon=True)
+        self.reminder_thread.start()
+       
         # Register routes
         self._register_routes()
    
@@ -167,6 +173,9 @@ class TaskManagerApp:
         self.app.add_url_rule('/logout', 'logout', self.logout)
         self.app.add_url_rule('/send_otp', 'send_otp', self.send_otp, methods=['POST'])
         self.app.add_url_rule('/verify_otp', 'verify_otp', self.verify_otp, methods=['POST'])
+        self.app.add_url_rule('/send_reminder/<int:task_id>', 'send_reminder', self.login_required(self.send_reminder), methods=['POST'])
+        self.app.add_url_rule('/set_reminder/<int:task_id>', 'set_reminder', self.login_required(self.set_reminder), methods=['POST'])
+        self.app.add_url_rule('/delete_reminder/<int:task_id>', 'delete_reminder', self.login_required(self.delete_reminder), methods=['POST'])
        
         # Landing page route
         @self.app.route('/')
@@ -541,6 +550,155 @@ class TaskManagerApp:
         except Exception as e:
             print(f"Error updating task status: {e}")
             return jsonify({'success': False, 'message': str(e)}), 500
+
+
+    def send_reminder(self, task_id):
+        try:
+            # Get the task details
+            task = self.task_db.get_task(task_id, session['user_id'])
+            if not task:
+                return jsonify({'success': False, 'message': 'Task not found'}), 404
+
+
+            # Get the user's email
+            user = self.user_db.get_user_by_id(session['user_id'])
+            if not user:
+                return jsonify({'success': False, 'message': 'User not found'}), 404
+
+
+            # Create the email subject and body
+            subject = f'Reminder: Task - {task["title"]}'
+            body = f"""
+Hello {user['username']},
+
+
+This is a reminder for your task:
+
+
+Title: {task['title']}
+Description: {task['description']}
+Category: {task['category']}
+Type: {task['type']}
+Deadline: {task['deadline_datetime']}
+Days Left: {task['deadline_days']}
+Priority: {task['priority']}
+Status: {task['status']}
+
+
+Please make sure to complete this task before the deadline.
+
+
+Best regards,
+ML Task Manager
+"""
+
+
+            # Send the email
+            if self.email_service.send_email(user['email'], subject, body):
+                return jsonify({'success': True, 'message': 'Reminder sent successfully'})
+            else:
+                return jsonify({'success': False, 'message': 'Failed to send reminder email'}), 500
+
+
+        except Exception as e:
+            print(f"Error sending reminder: {e}")
+            return jsonify({'success': False, 'message': str(e)}), 500
+
+
+
+
+    def _reminder_scheduler(self):
+        """Background thread that checks for and sends pending reminders"""
+        while True:
+            try:
+                # Get all pending reminders
+                pending_reminders = self.task_db.get_pending_reminders()
+               
+                for task in pending_reminders:
+                    # Create and send the reminder email
+                    subject = f'Reminder: Task - {task["title"]}'
+                    body = f"""
+Hello {task['username']},
+
+
+This is a reminder for your task:
+
+
+Title: {task['title']}
+Description: {task['description']}
+Category: {task['category']}
+Type: {task['type']}
+Deadline: {task['deadline_datetime']}
+Days Left: {task['deadline_days']}
+Priority: {task['priority']}
+Status: {task['status']}
+
+
+Please make sure to complete this task before the deadline.
+
+
+Best regards,
+ML Task Manager
+"""
+                    if self.email_service.send_email(task['email'], subject, body):
+                        # Clear the reminder after successful sending
+                        self.task_db.clear_reminder(task['id'])
+                   
+            except Exception as e:
+                print(f"Error in reminder scheduler: {e}")
+           
+            # Sleep for 1 minute before checking again
+            time.sleep(60)
+
+
+
+
+    def set_reminder(self, task_id):
+        try:
+            data = request.json
+            if not data or 'reminder_datetime' not in data:
+                return jsonify({'success': False, 'message': 'Reminder datetime is required'}), 400
+
+
+            reminder_datetime = data['reminder_datetime']
+           
+            # Validate the datetime format
+            try:
+                datetime.strptime(reminder_datetime, '%Y-%m-%d %H:%M')
+            except ValueError:
+                return jsonify({'success': False, 'message': 'Invalid datetime format'}), 400
+
+
+            # Set the reminder
+            success = self.task_db.set_reminder(task_id, session['user_id'], reminder_datetime)
+            if success:
+                return jsonify({'success': True, 'message': 'Reminder set successfully'})
+           
+            return jsonify({'success': False, 'message': 'Failed to set reminder'})
+
+
+        except Exception as e:
+            print(f"Error setting reminder: {e}")
+            return jsonify({'success': False, 'message': str(e)}), 500
+
+
+
+
+    def delete_reminder(self, task_id):
+        try:
+            # Clear the reminder
+            success = self.task_db.clear_reminder(task_id)
+            if success:
+                return jsonify({'success': True, 'message': 'Reminder deleted successfully'})
+           
+            return jsonify({'success': False, 'message': 'Failed to delete reminder'})
+
+
+        except Exception as e:
+            print(f"Error deleting reminder: {e}")
+            return jsonify({'success': False, 'message': str(e)}), 500
+
+
 
 
     def run(self, debug=True):

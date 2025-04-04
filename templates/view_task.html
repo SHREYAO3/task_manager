@@ -177,7 +177,21 @@
                         <div class="detail-label">Reminders</div>
                         <div class="detail-value">
                             <i class="far fa-clock"></i>
-                            <span>At time of task</span>
+                            <button class="send-reminder-button" onclick="sendReminder('{{ task.id }}')">
+                                <i class="fas fa-envelope"></i>
+                                Send Now
+                            </button>
+                            <div class="reminder-datetime">
+                                <input type="datetime-local" id="reminderDatetime" class="reminder-input" value="{{ task.reminder_datetime|replace(' ', 'T') if task.reminder_datetime else '' }}">
+                                <button class="set-reminder-button" onclick="setCustomReminder('{{ task.id }}')">
+                                    <i class="fas fa-clock"></i>
+                                    Set Reminder
+                                </button>
+                                <button class="delete-reminder-button" onclick="deleteReminder('{{ task.id }}')" {% if not task.reminder_datetime %}style="display: none;"{% endif %}>
+                                    <i class="fas fa-trash"></i>
+                                    Delete Reminder
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -270,7 +284,7 @@
             border-color: var(--primary-color);
             position: relative;
         }
-        
+       
         .task-checkbox input[type="checkbox"]:checked::after {
             content: '✓';
             position: absolute;
@@ -280,7 +294,7 @@
             left: 50%;
             transform: translate(-50%, -50%);
         }
-        
+       
         .task-checkbox input[type="checkbox"]:hover {
             border-color: var(--primary-color);
             box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.2);
@@ -518,7 +532,112 @@
             border-color: var(--primary-color);
             box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.2);
         }
+
+
+        .send-reminder-button {
+            margin-top: 9px;
+            margin-left: 10px;
+            padding: 5px 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: var(--primary-color);
+            color: white;
+            cursor: pointer;
+            font-size: 0.9em;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: background-color 0.3s;
+        }
+
+
+        .send-reminder-button:hover {
+            background-color: var(--primary-color-dark);
+        }
+
+
+        .send-reminder-button i {
+            font-size: 0.9em;
+        }
+
+
+        .reminder-datetime {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+
+        .reminder-input {
+            margin-top: 5px;
+            padding: 5px 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 0.9em;
+            color: var(--text-primary);
+            background-color: var(--bg-color);
+            align-items: center;
+        }
+
+
+        .dark-theme .reminder-input {
+            border-color: var(--dark-border-color);
+            background-color: var(--card-bg);
+            color: var(--text-color);
+        }
+
+
+        .set-reminder-button {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            background-color: var(--primary-color);
+            color: white;
+            cursor: pointer;
+            font-size: 0.9em;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: background-color 0.3s;
+        }
+
+
+        .set-reminder-button:hover {
+            background-color: var(--primary-color-dark);
+        }
+
+
+        .set-reminder-button i {
+            font-size: 0.9em;
+        }
+
+
+        .delete-reminder-button {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            background-color: var(--priority-high);
+            color: white;
+            cursor: pointer;
+            font-size: 0.9em;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: background-color 0.3s;
+        }
+
+
+        .delete-reminder-button:hover {
+            background-color: #d32f2f;
+        }
+
+
+        .delete-reminder-button i {
+            font-size: 0.9em;
+        }
     </style>
+
+
 
 
     <!-- Bootstrap JS -->
@@ -600,7 +719,7 @@
                         statusBadge.className = `status-badge ${status}`;
                         statusBadge.textContent = status.charAt(0).toUpperCase() + status.slice(1);
                     }
-                    
+                   
                     // Store the task status change in localStorage to sync with dashboard
                     const taskUpdate = {
                         taskId: taskId,
@@ -608,7 +727,7 @@
                         timestamp: new Date().getTime()
                     };
                     localStorage.setItem('task_status_update', JSON.stringify(taskUpdate));
-                    
+                   
                     // If checkbox status should be updated based on completion
                     if (status === 'completed') {
                         const taskComplete = document.getElementById('taskComplete');
@@ -621,7 +740,7 @@
                             taskComplete.checked = false;
                         }
                     }
-                    
+                   
                     // Notify user of successful update
                     const statusMessage = document.createElement('div');
                     statusMessage.className = 'status-update-message';
@@ -635,7 +754,7 @@
                     statusMessage.style.borderRadius = '4px';
                     statusMessage.style.zIndex = '1000';
                     document.body.appendChild(statusMessage);
-                    
+                   
                     // Remove message after 3 seconds
                     setTimeout(() => {
                         statusMessage.style.opacity = '0';
@@ -667,7 +786,7 @@
                 taskComplete.addEventListener('change', function() {
                     const status = this.checked ? 'completed' : 'pending';
                     updateTaskStatus('{{ task.id }}', status);
-                    
+                   
                     // Update the status dropdown to match
                     const statusDropdown = document.querySelector('.status-dropdown');
                     if (statusDropdown) {
@@ -697,7 +816,7 @@
             link.addEventListener('click', function(e) {
                 const statusDropdown = document.querySelector('.status-dropdown');
                 const currentStatus = statusDropdown ? statusDropdown.value : null;
-                
+               
                 if (currentStatus) {
                     // Set a flag to indicate navigation to dashboard
                     sessionStorage.setItem('returning_to_dashboard', 'true');
@@ -726,7 +845,7 @@
         // Initial update when page loads
         document.addEventListener('DOMContentLoaded', function() {
             updateDaysLeft();
-            
+           
             // Add event listener for back to dashboard button
             const backToDashboardBtn = document.getElementById('backToDashboard');
             if (backToDashboardBtn) {
@@ -736,6 +855,92 @@
                 });
             }
         });
+
+
+        function sendReminder(taskId) {
+            fetch(`/send_reminder/${taskId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Reminder email sent successfully!');
+                } else {
+                    alert('Failed to send reminder: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while sending the reminder.');
+            });
+        }
+
+
+        function setCustomReminder(taskId) {
+            const reminderDatetime = document.getElementById('reminderDatetime').value;
+            if (!reminderDatetime) {
+                alert('Please select a date and time for the reminder');
+                return;
+            }
+
+
+            // Convert datetime-local value to server format
+            const formattedDatetime = reminderDatetime.replace('T', ' ');
+
+
+            fetch(`/set_reminder/${taskId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    reminder_datetime: formattedDatetime
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show the delete button
+                    document.querySelector('.delete-reminder-button').style.display = 'inline-flex';
+                    alert('Reminder set successfully!');
+                } else {
+                    alert('Failed to set reminder: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while setting the reminder.');
+            });
+        }
+
+
+        function deleteReminder(taskId) {
+            fetch(`/delete_reminder/${taskId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Clear the datetime input
+                    document.getElementById('reminderDatetime').value = '';
+                    // Hide the delete button
+                    document.querySelector('.delete-reminder-button').style.display = 'none';
+                    alert('Reminder deleted successfully!');
+                } else {
+                    alert('Failed to delete reminder: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while deleting the reminder.');
+            });
+        }
     </script>
 </body>
 </html>
