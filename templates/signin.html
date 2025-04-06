@@ -23,13 +23,10 @@
         }
 
 
-
-
+        body.dark-theme,
         body.dark-mode {
             background: linear-gradient(45deg, #2c1b4a, #1a3d3a);
         }
-
-
 
 
         .navbar {
@@ -93,12 +90,14 @@
         }
 
 
+        body.dark-theme .navbar,
         body.dark-mode .navbar {
             background: rgba(0, 0, 0, 0.1);
             border-bottom: 1px solid rgba(255, 255, 255, 0.03);
         }
 
 
+        body.dark-theme .navbar::before,
         body.dark-mode .navbar::before {
             background: linear-gradient(
                 to right,
@@ -158,12 +157,14 @@
         }
 
 
+        body.dark-theme .nav-button,
         body.dark-mode .nav-button {
             background: rgba(255, 255, 255, 0.03);
             border-color: rgba(255, 255, 255, 0.02);
         }
 
 
+        body.dark-theme .nav-button:hover,
         body.dark-mode .nav-button:hover {
             background: rgba(255, 255, 255, 0.05);
             border-color: rgba(255, 255, 255, 0.05);
@@ -356,8 +357,6 @@
         }
 
 
-
-
         .alert {
             padding: 10px;
             margin-bottom: 20px;
@@ -367,15 +366,11 @@
         }
 
 
-
-
         .alert-error {
             background-color: #ffebee;
             color: #c62828;
             border: 1px solid #ffcdd2;
         }
-
-
 
 
         .email-input-group, .otp-input-group {
@@ -386,14 +381,10 @@
         }
 
 
-
-
         .email-input-group input, .otp-input-group input {
             flex: 1;
             margin: 0;
         }
-
-
 
 
         .email-input-group button, .otp-input-group button {
@@ -403,14 +394,10 @@
         }
 
 
-
-
         .otp-input-group input {
             flex: 3;
             width: 70%;
         }
-
-
 
 
         .otp-input-group button {
@@ -420,14 +407,10 @@
         }
 
 
-
-
         .otp-group {
             display: none;
             width: 100%;
         }
-
-
 
 
         .otp-timer {
@@ -439,37 +422,32 @@
         }
 
 
-
-
+        body.dark-theme .container,
         body.dark-mode .container {
             box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
         }
 
 
-
-
+        body.dark-theme .form-container,
         body.dark-mode .form-container {
             background: #1a1a1a;
         }
 
 
-
-
+        body.dark-theme input,
         body.dark-mode input {
             background-color: #2d2d2d;
             color: white;
         }
 
 
-
-
+        body.dark-theme .form-title,
         body.dark-mode .form-title {
             color: white;
         }
 
 
-
-
+        body.dark-theme .alert-error,
         body.dark-mode .alert-error {
             background-color: #3d1f1f;
             color: #ff8a8a;
@@ -477,12 +455,13 @@
         }
 
 
-
-
+        body.dark-theme .otp-timer,
         body.dark-mode .otp-timer {
             color: #aaa;
         }
     </style>
+    <!-- Add theme.js -->
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -499,8 +478,6 @@
             </button>
         </div>
     </nav>
-
-
 
 
     <div class="main-content">
@@ -569,8 +546,6 @@
     </div>
 
 
-
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const signUpButton = document.getElementById('signUp');
@@ -587,55 +562,14 @@
             let timerInterval;
 
 
-
-
-            // Dark mode functionality
-            const darkModeToggle = document.getElementById('darkModeToggle');
-            const body = document.body;
-            const icon = darkModeToggle.querySelector('i');
-
-
-
-
-            // Check for saved dark mode preference
-            const darkMode = localStorage.getItem('darkMode') === 'true';
-            if (darkMode) {
-                body.classList.add('dark-mode');
-                icon.classList.remove('fa-moon');
-                icon.classList.add('fa-sun');
-            }
-
-
-
-
-            darkModeToggle.addEventListener('click', () => {
-                body.classList.toggle('dark-mode');
-                if (body.classList.contains('dark-mode')) {
-                    localStorage.setItem('darkMode', 'true');
-                    icon.classList.remove('fa-moon');
-                    icon.classList.add('fa-sun');
-                } else {
-                    localStorage.setItem('darkMode', 'false');
-                    icon.classList.remove('fa-sun');
-                    icon.classList.add('fa-moon');
-                }
-            });
-
-
-
-
             signUpButton.addEventListener('click', () => {
                 container.classList.add('active');
             });
 
 
-
-
             signInButton.addEventListener('click', () => {
                 container.classList.remove('active');
             });
-
-
 
 
             function startOtpTimer() {
@@ -656,16 +590,12 @@
             }
 
 
-
-
             sendOtpBtn.addEventListener('click', async () => {
                 const email = emailInput.value;
                 if (!email) {
                     alert('Please enter your email address');
                     return;
                 }
-
-
 
 
                 try {
@@ -676,8 +606,6 @@
                         },
                         body: `email=${encodeURIComponent(email)}`
                     });
-
-
 
 
                     const data = await response.json();
@@ -695,21 +623,15 @@
             });
 
 
-
-
             verifyOtpBtn.addEventListener('click', async () => {
                 const email = emailInput.value;
                 const otp = otpInput.value;
-
-
 
 
                 if (!otp || otp.length !== 6) {
                     alert('Please enter a valid 6-digit OTP');
                     return;
                 }
-
-
 
 
                 try {
@@ -720,8 +642,6 @@
                         },
                         body: `email=${encodeURIComponent(email)}&otp=${encodeURIComponent(otp)}`
                     });
-
-
 
 
                     const data = await response.json();
@@ -739,8 +659,6 @@
                     alert('Failed to verify OTP. Please try again.');
                 }
             });
-
-
 
 
             // Disable signup button until email is verified
