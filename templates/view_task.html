@@ -49,7 +49,7 @@
         <a href="#" class="w3-bar-item w3-button">
             <i class="fas fa-calendar-check"></i> Completed Tasks
         </a>
-        <a href="#" class="w3-bar-item w3-button">
+        <a href="{{ url_for('statistics') }}" class="w3-bar-item w3-button">
             <i class="fas fa-chart-bar"></i> Statistics
         </a>
         <a href="#" class="w3-bar-item w3-button">
@@ -66,6 +66,8 @@
     </div>
 
 
+
+
     <!-- Main Content -->
     <div id="main">
         <div class="container">
@@ -74,6 +76,7 @@
                     <i class="fas fa-bars"></i>
                 </button>
             </div>
+
 
             <!-- Task Details Section -->
             <div class="task-details-container">
@@ -104,6 +107,8 @@
                 </div>
 
 
+
+
                 <!-- Task Details Panel -->
                 <div class="task-details-panel">
                     <!-- Project -->
@@ -115,6 +120,7 @@
                         </div>
                     </div>
 
+
                     <!-- Type -->
                     <div class="detail-row">
                         <div class="detail-label">Type</div>
@@ -123,6 +129,8 @@
                             <span>{{ task.type }}</span>
                         </div>
                     </div>
+
+
 
 
                     <!-- Date -->
@@ -135,6 +143,8 @@
                     </div>
 
 
+
+
                     <!-- Deadline -->
                     <div class="detail-row">
                         <div class="detail-label">Days left</div>
@@ -143,6 +153,8 @@
                             <span>{{ task.deadline_days }} days</span>
                         </div>
                     </div>
+
+
 
 
                     <!-- Priority -->
@@ -160,6 +172,8 @@
                     </div>
 
 
+
+
                     <!-- Labels -->
                     <div class="detail-row">
                         <div class="detail-label">Status</div>
@@ -172,6 +186,8 @@
                             </select>
                         </div>
                     </div>
+
+
 
 
                     <!-- Reminders -->
@@ -199,6 +215,8 @@
                 </div>
 
 
+
+
                 <!-- Add Sub-task Button -->
                 <div class="add-subtask">
                     <button class="add-subtask-button">
@@ -209,6 +227,8 @@
             </div>
         </div>
     </div>
+
+
 
 
     <style>

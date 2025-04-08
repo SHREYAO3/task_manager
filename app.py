@@ -176,6 +176,7 @@ class TaskManagerApp:
         self.app.add_url_rule('/send_reminder/<int:task_id>', 'send_reminder', self.login_required(self.send_reminder), methods=['POST'])
         self.app.add_url_rule('/set_reminder/<int:task_id>', 'set_reminder', self.login_required(self.set_reminder), methods=['POST'])
         self.app.add_url_rule('/delete_reminder/<int:task_id>', 'delete_reminder', self.login_required(self.delete_reminder), methods=['POST'])
+        self.app.add_url_rule('/statistics', 'statistics', self.login_required(self.statistics))
        
         # Landing page route
         @self.app.route('/')
@@ -266,7 +267,7 @@ class TaskManagerApp:
             categories = self.task_prioritizer.get_all_categories()
            
             # Calculate stats
-            urgent_tasks = sum(1 for task in tasks if task['urgency'] > 6)  # Count tasks with urgency > 6
+            urgent_tasks = sum(1 for task in tasks if task['urgency'] <= 3)  # Count tasks with urgency <= 3 (highest urgency)
             due_today = sum(1 for task in tasks if task['deadline_days'] <= 1)
            
             return render_template('index.html',
@@ -391,7 +392,7 @@ class TaskManagerApp:
 
             # Apply filters
             if filter_type == 'urgent':
-                tasks = [task for task in tasks if task['urgency'] > 6]
+                tasks = [task for task in tasks if task['urgency'] <= 3]  # Filter tasks with urgency <= 3 (highest urgency)
             elif filter_type == 'due-today':
                 tasks = [task for task in tasks if task['deadline_days'] <= 1]
             elif category:  # Only apply category filter if no special filter is active
@@ -697,6 +698,59 @@ ML Task Manager
         except Exception as e:
             print(f"Error deleting reminder: {e}")
             return jsonify({'success': False, 'message': str(e)}), 500
+
+
+
+
+    def statistics(self):
+        try:
+            # Get all tasks for the current user
+            tasks = self.task_db.get_all_tasks(session['user_id'])
+           
+            # Calculate various statistics
+            total_tasks = len(tasks)
+            completed_tasks = sum(1 for task in tasks if task.get('status') == 'completed')
+            pending_tasks = sum(1 for task in tasks if task.get('status') == 'pending')
+            in_progress_tasks = sum(1 for task in tasks if task.get('status') == 'in-progress')
+            review_tasks = sum(1 for task in tasks if task.get('status') == 'review')
+           
+            # Calculate urgency distribution
+            high_urgency = sum(1 for task in tasks if task['urgency'] > 7)
+            medium_urgency = sum(1 for task in tasks if 4 <= task['urgency'] <= 7)
+            low_urgency = sum(1 for task in tasks if task['urgency'] < 4)
+           
+            # Calculate deadline statistics
+            overdue_tasks = sum(1 for task in tasks if task['deadline_days'] == 0 and task.get('status') != 'completed')
+            due_today = sum(1 for task in tasks if task['deadline_days'] == 1)
+            due_this_week = sum(1 for task in tasks if 1 < task['deadline_days'] <= 7)
+           
+            # Calculate average effort
+            if total_tasks > 0:
+                avg_effort = sum(task['effort'] for task in tasks) / total_tasks
+            else:
+                avg_effort = 0
+           
+            # Calculate completion rate
+            completion_rate = (completed_tasks / total_tasks * 100) if total_tasks > 0 else 0
+           
+            return render_template('statistics.html',
+                                username=session.get('username'),
+                                total_tasks=total_tasks,
+                                completed_tasks=completed_tasks,
+                                pending_tasks=pending_tasks,
+                                in_progress_tasks=in_progress_tasks,
+                                review_tasks=review_tasks,
+                                high_urgency=high_urgency,
+                                medium_urgency=medium_urgency,
+                                low_urgency=low_urgency,
+                                overdue_tasks=overdue_tasks,
+                                due_today=due_today,
+                                due_this_week=due_this_week,
+                                avg_effort=round(avg_effort, 1),
+                                completion_rate=round(completion_rate, 1))
+        except Exception as e:
+            print(f"Error in statistics route: {e}")
+            return render_template('statistics.html', error=str(e))
 
 
 

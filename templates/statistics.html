@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Statistics - ML Task Manager</title>
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- W3.CSS -->
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/5/w3.css">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Theme Management -->
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+    <style>
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+       
+        .stats-card {
+            background-color: var(--card-bg);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+        }
+       
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+        }
+       
+        .stats-card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+       
+        .stats-card h3 i {
+            color: var(--primary-color);
+        }
+       
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 1rem;
+        }
+       
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+       
+        .metric-item {
+            background-color: var(--bg-secondary);
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            text-align: center;
+        }
+       
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+       
+        .metric-label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+       
+        .category-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+       
+        .category-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+       
+        .category-item:last-child {
+            border-bottom: none;
+        }
+       
+        .category-name {
+            color: var(--text-primary);
+        }
+       
+        .category-count {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="w3-sidebar w3-bar-block w3-card w3-animate-left" style="display:none" id="mySidebar">
+        <div class="sidebar-header">
+            <div class="header-content">
+                <i class="fas fa-brain"></i>
+                <span>ML Task Manager</span>
+            </div>
+            <button class="close-btn" onclick="w3_close()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="user-profile">
+            <div class="user-info">
+                <div class="user-avatar">
+                    {{ username[0].upper() }}
+                </div>
+                <span>{{ username }}</span>
+            </div>
+        </div>
+        <a href="{{ url_for('landing') }}" class="w3-bar-item w3-button">
+            <i class="fas fa-home"></i> Home
+        </a>
+        <a href="{{ url_for('index') }}" class="w3-bar-item w3-button">
+            <i class="fas fa-tachometer-alt"></i> Dashboard
+        </a>
+        <a href="{{ url_for('add_task') }}" class="w3-bar-item w3-button">
+            <i class="fas fa-plus"></i> Add New Task
+        </a>
+        <a href="#" class="w3-bar-item w3-button">
+            <i class="fas fa-tasks"></i> All Tasks
+        </a>
+        <a href="#" class="w3-bar-item w3-button">
+            <i class="fas fa-calendar-check"></i> Completed Tasks
+        </a>
+        <a href="{{ url_for('statistics') }}" class="w3-bar-item w3-button active">
+            <i class="fas fa-chart-bar"></i> Statistics
+        </a>
+        <a href="#" class="w3-bar-item w3-button">
+            <i class="fas fa-cog"></i> Settings
+        </a>
+        <div class="sidebar-footer">
+            <button class="theme-toggle" id="themeToggle">
+                <i class="fas fa-moon"></i> Toggle Theme
+            </button>
+            <a href="{{ url_for('logout') }}" class="w3-bar-item w3-button">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </div>
+
+
+    <!-- Main Content -->
+    <div id="main">
+        <div class="container">
+            <div class="menu-toggle">
+                <button onclick="w3_open()" class="menu-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+
+
+            <header>
+                <div class="header-content">
+                    <div class="logo-area">
+                        <i class="fas fa-chart-line"></i>
+                        <div class="title-area">
+                            <h1>Task Statistics</h1>
+                            <div class="subtitle">Analyze your task management performance</div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+
+            {% if error %}
+            <div class="alert alert-danger">
+                {{ error }}
+            </div>
+            {% else %}
+            <div class="stats-container">
+                <!-- Overview Card -->
+                <div class="stats-card">
+                    <h3><i class="fas fa-tasks"></i> Task Overview</h3>
+                    <div class="metric-grid">
+                        <div class="metric-item">
+                            <div class="metric-value">{{ total_tasks }}</div>
+                            <div class="metric-label">Total Tasks</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value">{{ completion_rate }}%</div>
+                            <div class="metric-label">Completion Rate</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value">{{ avg_effort }}h</div>
+                            <div class="metric-label">Avg. Effort</div>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="taskStatusChart"
+                            data-completed="{{ completed_tasks|default(0) }}"
+                            data-in-progress="{{ in_progress_tasks|default(0) }}"
+                            data-review="{{ review_tasks|default(0) }}"
+                            data-pending="{{ pending_tasks|default(0) }}"></canvas>
+                    </div>
+                </div>
+
+
+                <!-- Urgency Distribution Card -->
+                <div class="stats-card">
+                    <h3><i class="fas fa-exclamation-circle"></i> Urgency Distribution</h3>
+                    <div class="chart-container">
+                        <canvas id="urgencyChart"
+                            data-high="{{ high_urgency|default(0) }}"
+                            data-medium="{{ medium_urgency|default(0) }}"
+                            data-low="{{ low_urgency|default(0) }}"></canvas>
+                    </div>
+                </div>
+
+
+                <!-- Deadline Statistics Card -->
+                <div class="stats-card">
+                    <h3><i class="fas fa-calendar-alt"></i> Deadline Statistics</h3>
+                    <div class="metric-grid">
+                        <div class="metric-item">
+                            <div class="metric-value">{{ overdue_tasks }}</div>
+                            <div class="metric-label">Overdue</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value">{{ due_today }}</div>
+                            <div class="metric-label">Due Today</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value">{{ due_this_week }}</div>
+                            <div class="metric-label">Due This Week</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+
+    <script>
+        // Sidebar functions
+        function w3_open() {
+            document.getElementById("main").style.marginLeft = "25%";
+            document.getElementById("mySidebar").style.width = "25%";
+            document.getElementById("mySidebar").style.display = "block";
+            document.querySelector(".menu-toggle").style.display = "none";
+        }
+
+
+        function w3_close() {
+            document.getElementById("main").style.marginLeft = "0%";
+            document.getElementById("mySidebar").style.display = "none";
+            document.querySelector(".menu-toggle").style.display = "block";
+        }
+
+
+        // Charts initialization
+        document.addEventListener('DOMContentLoaded', function() {
+            // Task Status Chart
+            const taskStatusCanvas = document.getElementById('taskStatusChart');
+            const taskStatusCtx = taskStatusCanvas.getContext('2d');
+           
+            const completedTasks = parseInt(taskStatusCanvas.dataset.completed);
+            const inProgressTasks = parseInt(taskStatusCanvas.dataset.inProgress);
+            const reviewTasks = parseInt(taskStatusCanvas.dataset.review);
+            const pendingTasks = parseInt(taskStatusCanvas.dataset.pending);
+           
+            new Chart(taskStatusCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Completed', 'In Progress', 'Review', 'Pending'],
+                    datasets: [{
+                        data: [completedTasks, inProgressTasks, reviewTasks, pendingTasks],
+                        backgroundColor: ['#2ecc71', '#3498db', '#9b59b6', '#95a5a6']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+
+            // Urgency Chart
+            const urgencyCanvas = document.getElementById('urgencyChart');
+            const urgencyCtx = urgencyCanvas.getContext('2d');
+           
+            const highUrgency = parseInt(urgencyCanvas.dataset.high);
+            const mediumUrgency = parseInt(urgencyCanvas.dataset.medium);
+            const lowUrgency = parseInt(urgencyCanvas.dataset.low);
+           
+            new Chart(urgencyCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['High', 'Medium', 'Low'],
+                    datasets: [{
+                        data: [highUrgency, mediumUrgency, lowUrgency],
+                        backgroundColor: ['#e74c3c', '#f1c40f', '#2ecc71']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

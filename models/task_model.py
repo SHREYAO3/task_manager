@@ -57,6 +57,7 @@ class TaskDatabase:
                         completed BIT DEFAULT 0,
                         status NVARCHAR(20) DEFAULT 'pending',
                         reminder_datetime NVARCHAR(50),
+                        completed_at DATETIME NULL,
                         FOREIGN KEY (user_id) REFERENCES USERS(id)
                     )
                 END
@@ -189,7 +190,7 @@ class TaskDatabase:
         if self.connect():
             try:
                 self.cursor.execute("""
-                UPDATE TASKS SET completed = 1, status = 'completed' WHERE id = ? AND user_id = ?
+                UPDATE TASKS SET completed = 1, status = 'completed', completed_at = GETDATE() WHERE id = ? AND user_id = ?
                 """, (task_id, user_id))
                 self.conn.commit()
                 return True
@@ -240,16 +241,16 @@ class TaskDatabase:
                 """, (status, task_id, user_id))
                 self.conn.commit()
                
-                # If status is 'completed', also update the completed flag
+                # If status is 'completed', also update the completed flag and set completed_at
                 if status == 'completed':
                     self.cursor.execute("""
-                    UPDATE TASKS SET completed = 1 WHERE id = ? AND user_id = ?
+                    UPDATE TASKS SET completed = 1, completed_at = GETDATE() WHERE id = ? AND user_id = ?
                     """, (task_id, user_id))
                     self.conn.commit()
                 elif status != 'completed':
-                    # If status is not 'completed', ensure completed flag is set to 0
+                    # If status is not 'completed', ensure completed flag is set to 0 and clear completed_at
                     self.cursor.execute("""
-                    UPDATE TASKS SET completed = 0 WHERE id = ? AND user_id = ?
+                    UPDATE TASKS SET completed = 0, completed_at = NULL WHERE id = ? AND user_id = ?
                     """, (task_id, user_id))
                     self.conn.commit()
                
