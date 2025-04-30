@@ -714,6 +714,29 @@ ML Task Manager
             in_progress_tasks = sum(1 for task in tasks if task.get('status') == 'in-progress')
             review_tasks = sum(1 for task in tasks if task.get('status') == 'review')
            
+            # Calculate task aging statistics
+            current_time = datetime.now()
+            fresh_tasks = 0
+            stale_tasks = 0
+            aging_tasks = 0
+            
+            for task in tasks:
+                if task.get('status') == 'completed':
+                    continue
+                    
+                created_at = task.get('created_at')
+                if isinstance(created_at, str):
+                    created_at = datetime.strptime(created_at, '%Y-%m-%d %H:%M:%S.%f')
+                
+                age_days = (current_time - created_at).days
+                
+                if age_days < 3:
+                    fresh_tasks += 1
+                elif 3 <= age_days <= 7:
+                    stale_tasks += 1
+                else:
+                    aging_tasks += 1
+           
             # Calculate urgency distribution
             high_urgency = sum(1 for task in tasks if task['urgency'] > 7)
             medium_urgency = sum(1 for task in tasks if 4 <= task['urgency'] <= 7)
@@ -732,7 +755,126 @@ ML Task Manager
            
             # Calculate completion rate
             completion_rate = (completed_tasks / total_tasks * 100) if total_tasks > 0 else 0
-           
+
+            # Calculate category statistics
+            category_stats = {}
+            category_completion_times = {}
+
+            for task in tasks:
+                # Category statistics
+                category = task.get('category', 'Uncategorized')
+                task_type = task.get('type', 'Meetings')  # Default to Meetings if type is not specified
+                
+                if category not in category_stats:
+                    # Initialize all possible task types for this category
+                    category_stats[category] = {
+                        'total': 0,
+                        'completed': 0
+                    }
+                    # Add all task types from the mapping for this category
+                    if category in self.task_prioritizer.category_type_mapping:
+                        for task_type_name in self.task_prioritizer.category_type_mapping[category]:
+                            key = task_type_name.lower().replace(' ', '_')
+                            category_stats[category][key] = 0
+                
+                category_stats[category]['total'] += 1
+                if task.get('status') == 'completed':
+                    category_stats[category]['completed'] += 1
+                
+                # Increment the appropriate task type counter
+                task_type_lower = task_type.lower().replace(' ', '_')
+                if task_type_lower in category_stats[category]:
+                    category_stats[category][task_type_lower] += 1
+
+                # Calculate completion times for completed tasks
+                if task.get('status') == 'completed' and task.get('created_at') and task.get('completed_at'):
+                    try:
+                        created_at = datetime.strptime(task['created_at'], '%Y-%m-%d %H:%M:%S')
+                        completed_at = datetime.strptime(task['completed_at'], '%Y-%m-%d %H:%M:%S')
+                        completion_time = (completed_at - created_at).total_seconds() / 3600  # in hours
+
+                        # Update category completion times
+                        if category not in category_completion_times:
+                            category_completion_times[category] = []
+                        category_completion_times[category].append(completion_time)
+                    except:
+                        pass
+
+            # Calculate average completion times
+            avg_category_times = {
+                category: sum(times) / len(times) if times else 0
+                for category, times in category_completion_times.items()
+            }
+
+            # Find most/least active categories
+            sorted_categories = sorted(
+                category_stats.items(),
+                key=lambda x: x[1]['total'],
+                reverse=True
+            )
+            most_active_category = sorted_categories[0][0] if sorted_categories else None
+            least_active_category = sorted_categories[-1][0] if sorted_categories else None
+
+            # Calculate task trends over time
+            task_trends = {
+                'dates': [],
+                'created': [],
+                'completed': []
+            }
+            
+            # Get the date range (last 30 days)
+            end_date = datetime.now()
+            start_date = end_date - timedelta(days=30)
+            
+            # Initialize all dates in the range with chronological order
+            date_counts = {
+                'created': {},
+                'completed': {}
+            }
+            
+            # Create a list of dates for the last 30 days
+            current_date = start_date
+            while current_date <= end_date:
+                date_str = current_date.strftime('%Y-%m-%d')
+                date_counts['created'][date_str] = 0
+                date_counts['completed'][date_str] = 0
+                task_trends['dates'].append(current_date.strftime('%b %d'))  # Format as 'Mar 15'
+                current_date += timedelta(days=1)
+            
+            # Count tasks created and completed for each date
+            for task in tasks:
+                try:
+                    # Count created tasks
+                    if task.get('created_at'):
+                        if isinstance(task['created_at'], str):
+                            created_at = datetime.strptime(task['created_at'], '%Y-%m-%d %H:%M:%S.%f')
+                        else:
+                            created_at = task['created_at']
+                        
+                        if start_date <= created_at <= end_date:
+                            created_date = created_at.strftime('%Y-%m-%d')
+                            if created_date in date_counts['created']:
+                                date_counts['created'][created_date] += 1
+                    
+                    # Count completed tasks
+                    if task.get('status') == 'completed' and task.get('completed_at'):
+                        if isinstance(task['completed_at'], str):
+                            completed_at = datetime.strptime(task['completed_at'], '%Y-%m-%d %H:%M:%S.%f')
+                        else:
+                            completed_at = task['completed_at']
+                        
+                        if start_date <= completed_at <= end_date:
+                            completed_date = completed_at.strftime('%Y-%m-%d')
+                            if completed_date in date_counts['completed']:
+                                date_counts['completed'][completed_date] += 1
+                except Exception as e:
+                    print(f"Error processing task for trends: {e}")
+                    continue
+
+            # Convert counts to ordered lists
+            task_trends['created'] = list(date_counts['created'].values())
+            task_trends['completed'] = list(date_counts['completed'].values())
+
             return render_template('statistics.html',
                                 username=session.get('username'),
                                 total_tasks=total_tasks,
@@ -747,7 +889,16 @@ ML Task Manager
                                 due_today=due_today,
                                 due_this_week=due_this_week,
                                 avg_effort=round(avg_effort, 1),
-                                completion_rate=round(completion_rate, 1))
+                                completion_rate=round(completion_rate, 1),
+                                category_stats=category_stats,
+                                avg_category_times=avg_category_times,
+                                most_active_category=most_active_category,
+                                least_active_category=least_active_category,
+                                task_trends=task_trends,
+                                category_type_mapping=self.task_prioritizer.category_type_mapping,
+                                fresh_tasks=fresh_tasks,
+                                stale_tasks=stale_tasks,
+                                aging_tasks=aging_tasks)
         except Exception as e:
             print(f"Error in statistics route: {e}")
             return render_template('statistics.html', error=str(e))

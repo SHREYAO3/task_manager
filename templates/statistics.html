@@ -58,7 +58,7 @@
        
         .metric-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            grid-template-columns: repeat(2, 1fr);
             gap: 1rem;
             margin-bottom: 1rem;
         }
@@ -68,18 +68,30 @@
             padding: 1rem;
             border-radius: var(--radius-md);
             text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 90px;
         }
        
         .metric-value {
-            font-size: 1.5rem;
-            font-weight: 700;
+            font-size: 1rem;
+            font-weight: 600;
             color: var(--primary-color);
             margin-bottom: 0.5rem;
+            word-break: break-word;
+            max-width: 100%;
+            text-align: center;
+            line-height: 1.2;
+            padding: 0 0.5rem;
+            hyphens: auto;
         }
        
         .metric-label {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: var(--text-muted);
+            text-align: center;
         }
        
         .category-list {
@@ -107,6 +119,64 @@
         .category-count {
             color: var(--primary-color);
             font-weight: 600;
+        }
+
+        .section-header {
+            margin: 2rem 0 1rem;
+            padding: 1rem;
+            background-color: var(--card-bg);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .section-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-header p {
+            margin: 0.5rem 0 0;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .category-types-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .category-types-card {
+            background-color: var(--card-bg);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+        }
+
+        .category-types-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .category-types-card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .category-types-card .chart-container {
+            position: relative;
+            height: 250px;
         }
     </style>
 </head>
@@ -217,6 +287,31 @@
                     </div>
                 </div>
 
+                <!-- Category Insights Card -->
+                <div class="stats-card">
+                    <h3><i class="fas fa-folder"></i> Category Insights</h3>
+                    <div class="metric-grid">
+                        <div class="metric-item">
+                            <div class="metric-value">{{ most_active_category }}</div>
+                            <div class="metric-label">Most Active</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value">{{ least_active_category }}</div>
+                            <div class="metric-label">Least Active</div>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Task Trends Card -->
+                <div class="stats-card">
+                    <h3><i class="fas fa-chart-line"></i> Task Trends</h3>
+                    <div class="chart-container">
+                        <canvas id="trendsChart"></canvas>
+                    </div>
+                </div>
 
                 <!-- Urgency Distribution Card -->
                 <div class="stats-card">
@@ -228,7 +323,6 @@
                             data-low="{{ low_urgency|default(0) }}"></canvas>
                     </div>
                 </div>
-
 
                 <!-- Deadline Statistics Card -->
                 <div class="stats-card">
@@ -248,6 +342,45 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Task Types by Category Card -->
+                <div class="stats-card">
+                    <h3><i class="fas fa-layer-group"></i> Task Aging Report</h3>
+                    <div class="metric-grid">
+                        <div class="metric-item">
+                            <div class="metric-value">{{ fresh_tasks|default(0) }}</div>
+                            <div class="metric-label">Fresh Tasks</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value">{{ stale_tasks|default(0) }}</div>
+                            <div class="metric-label">Stale Tasks</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value">{{ aging_tasks|default(0) }}</div>
+                            <div class="metric-label">Aging Tasks</div>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="taskAgingChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Task Types by Category Section -->
+            <div class="section-header">
+                <h2><i class="fas fa-layer-group"></i> Task Types by Category</h2>
+                <p>Detailed breakdown of task types within each category</p>
+            </div>
+
+            <div class="category-types-container">
+                {% for category, types in category_type_mapping.items() %}
+                <div class="category-types-card">
+                    <h3><i class="fas fa-folder"></i> {{ category }}</h3>
+                    <div class="chart-container">
+                        <canvas id="categoryTypesChart_{{ loop.index }}"></canvas>
+                    </div>
+                </div>
+                {% endfor %}
             </div>
             {% endif %}
         </div>
@@ -326,6 +459,245 @@
                     plugins: {
                         legend: {
                             position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            // Category Chart
+            const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+            const categoryData = {
+                labels: {{ category_stats.keys()|list|tojson }},
+                datasets: [{
+                    label: 'Tasks by Category',
+                    data: {{ category_stats.values()|map(attribute='total')|list|tojson }},
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            };
+            new Chart(categoryCtx, {
+                type: 'bar',
+                data: categoryData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Trends Chart
+            const trendsCtx = document.getElementById('trendsChart').getContext('2d');
+            const dates = {{ task_trends.dates|tojson }};
+            const createdData = {{ task_trends.created|tojson }};
+            const completedData = {{ task_trends.completed|tojson }};
+            
+            new Chart(trendsCtx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [
+                        {
+                            label: 'Tasks Created',
+                            data: createdData,
+                            borderColor: 'rgba(255, 105, 180, 1)',
+                            backgroundColor: 'rgba(255, 105, 180, 0.1)',
+                            tension: 0.3,
+                            fill: true,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'Tasks Completed',
+                            data: completedData,
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                            tension: 0.3,
+                            fill: true,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            borderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 15
+                            }
+                        },
+                        tooltip: {
+                            position: 'nearest',
+                            callbacks: {
+                                title: function(context) {
+                                    return context[0].label;
+                                },
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${context.parsed.y} tasks`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Number of Tasks'
+                            },
+                            ticks: {
+                                stepSize: 1,
+                                precision: 0
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            title: {
+                                display: true,
+                                text: 'Date'
+                            },
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 45
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Task Types by Category Charts
+            {% for category, types in category_type_mapping.items() %}
+            const categoryTypesCtx{{ loop.index }} = document.getElementById('categoryTypesChart_{{ loop.index }}').getContext('2d');
+            const categoryTypesData{{ loop.index }} = {
+                labels: {{ types|tojson }},
+                datasets: [{
+                    data: [
+                        {% for type in types %}
+                        {{ category_stats[category][type.lower().replace(' ', '_')]|default(0) }},
+                        {% endfor %}
+                    ],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.8)',
+                        'rgba(54, 162, 235, 0.8)',
+                        'rgba(255, 206, 86, 0.8)',
+                        'rgba(75, 192, 192, 0.8)',
+                        'rgba(153, 102, 255, 0.8)',
+                        'rgba(255, 159, 64, 0.8)',
+                        'rgba(201, 203, 207, 0.8)',
+                        'rgba(255, 99, 132, 0.8)',
+                        'rgba(54, 162, 235, 0.8)',
+                        'rgba(255, 206, 86, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(201, 203, 207, 1)',
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            };
+
+            new Chart(categoryTypesCtx{{ loop.index }}, {
+                type: 'doughnut',
+                data: categoryTypesData{{ loop.index }},
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 15,
+                                font: {
+                                    size: 10
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const value = context.raw || 0;
+                                    return `${context.label}: ${value} task${value !== 1 ? 's' : ''}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            {% endfor %}
+
+            // Task Aging Report Chart
+            const taskAgingCtx = document.getElementById('taskAgingChart').getContext('2d');
+            const taskAgingData = {
+                labels: ['Fresh (<3 days)', 'Stale (3-7 days)', 'Aging (7+ days)'],
+                datasets: [{
+                    data: [
+                        {{ fresh_tasks|default(0) }},
+                        {{ stale_tasks|default(0) }},
+                        {{ aging_tasks|default(0) }}
+                    ],
+                    backgroundColor: [
+                        'rgba(46, 204, 113, 0.8)',  // Green for fresh
+                        'rgba(241, 196, 15, 0.8)',  // Yellow for stale
+                        'rgba(231, 76, 60, 0.8)'    // Red for aging
+                    ],
+                    borderColor: [
+                        'rgba(46, 204, 113, 1)',
+                        'rgba(241, 196, 15, 1)',
+                        'rgba(231, 76, 60, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            };
+
+            new Chart(taskAgingCtx, {
+                type: 'doughnut',
+                data: taskAgingData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 15,
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const value = context.raw || 0;
+                                    return `${context.label}: ${value} task${value !== 1 ? 's' : ''}`;
+                                }
+                            }
                         }
                     }
                 }
