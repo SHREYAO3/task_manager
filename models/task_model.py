@@ -58,11 +58,28 @@ class TaskDatabase:
                         status NVARCHAR(20) DEFAULT 'pending',
                         reminder_datetime NVARCHAR(50),
                         completed_at DATETIME NULL,
+                        auto_reminder BIT DEFAULT 0,
                         FOREIGN KEY (user_id) REFERENCES USERS(id)
                     )
                 END
                 """)
                 self.conn.commit()
+               
+                # Check if auto_reminder column exists
+                has_auto_reminder_column = True
+                try:
+                    self.cursor.execute("SELECT auto_reminder FROM TASKS WHERE 1=0")
+                except pyodbc.Error:
+                    has_auto_reminder_column = False
+               
+                # Add auto_reminder column if it doesn't exist
+                if not has_auto_reminder_column:
+                    try:
+                        self.cursor.execute("ALTER TABLE TASKS ADD auto_reminder BIT DEFAULT 0")
+                        self.conn.commit()
+                        print("Added auto_reminder column to TASKS table")
+                    except pyodbc.Error as e:
+                        print(f"Error adding auto_reminder column: {e}")
                
                 # Check if reminder_datetime column exists
                 has_reminder_column = True
@@ -413,12 +430,12 @@ class TaskDatabase:
         return []
 
 
-    def set_reminder(self, task_id, user_id, reminder_datetime):
+    def set_reminder(self, task_id, user_id, reminder_datetime, auto_reminder=False):
         if self.connect():
             try:
                 self.cursor.execute("""
-                UPDATE TASKS SET reminder_datetime = ? WHERE id = ? AND user_id = ?
-                """, (reminder_datetime, task_id, user_id))
+                UPDATE TASKS SET reminder_datetime = ?, auto_reminder = ? WHERE id = ? AND user_id = ?
+                """, (reminder_datetime, auto_reminder, task_id, user_id))
                 self.conn.commit()
                 return True
             except pyodbc.Error as e:
@@ -434,6 +451,9 @@ class TaskDatabase:
         if self.connect():
             try:
                 current_time = datetime.now().strftime('%Y-%m-%d %H:%M')
+                print(f"Checking for pending reminders at {current_time}")
+                
+                # Get tasks with reminders due now
                 self.cursor.execute("""
                 SELECT t.*, u.email, u.username
                 FROM TASKS t
@@ -441,6 +461,7 @@ class TaskDatabase:
                 WHERE t.reminder_datetime <= ?
                 AND t.reminder_datetime IS NOT NULL
                 AND t.status != 'completed'
+                AND (t.auto_reminder = 1 OR t.auto_reminder = 0)
                 """, (current_time,))
                
                 columns = [column[0] for column in self.cursor.description]
@@ -449,8 +470,10 @@ class TaskDatabase:
                 rows = self.cursor.fetchall()
                 for row in rows:
                     task = dict(zip(columns, row))
+                    print(f"Found pending reminder for task: {task['title']} (ID: {task['id']})")
                     tasks.append(task)
-               
+                
+                print(f"Total pending reminders found: {len(tasks)}")
                 return tasks
             except pyodbc.Error as e:
                 print(f"Error getting pending reminders: {e}")
@@ -460,13 +483,18 @@ class TaskDatabase:
         return []
 
 
-    def clear_reminder(self, task_id):
+    def clear_reminder(self, task_id, user_id=None):
         """Clear the reminder after it has been sent"""
         if self.connect():
             try:
-                self.cursor.execute("""
-                UPDATE TASKS SET reminder_datetime = NULL WHERE id = ?
-                """, (task_id,))
+                if user_id:
+                    self.cursor.execute("""
+                    UPDATE TASKS SET reminder_datetime = NULL, auto_reminder = 0 WHERE id = ? AND user_id = ?
+                    """, (task_id, user_id))
+                else:
+                    self.cursor.execute("""
+                    UPDATE TASKS SET reminder_datetime = NULL, auto_reminder = 0 WHERE id = ?
+                    """, (task_id,))
                 self.conn.commit()
                 return True
             except pyodbc.Error as e:

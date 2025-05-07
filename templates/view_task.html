@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task Details - ML Task Manager</title>
+    <title>Task Details - TaskNexus</title>
     <!-- Google Fonts - Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
@@ -20,7 +20,7 @@
         <div class="sidebar-header">
             <div class="header-content">
                 <i class="fas fa-brain"></i>
-                <span>ML Task Manager</span>
+                <span>TaskNexus</span>
             </div>
             <button class="close-btn" onclick="w3_close()">
                 <i class="fas fa-times"></i>
@@ -43,17 +43,8 @@
         <a href="{{ url_for('add_task') }}" class="w3-bar-item w3-button">
             <i class="fas fa-plus"></i> Add New Task
         </a>
-        <a href="#" class="w3-bar-item w3-button">
-            <i class="fas fa-tasks"></i> All Tasks
-        </a>
-        <a href="#" class="w3-bar-item w3-button">
-            <i class="fas fa-calendar-check"></i> Completed Tasks
-        </a>
         <a href="{{ url_for('statistics') }}" class="w3-bar-item w3-button">
             <i class="fas fa-chart-bar"></i> Statistics
-        </a>
-        <a href="#" class="w3-bar-item w3-button">
-            <i class="fas fa-cog"></i> Settings
         </a>
         <div class="sidebar-footer">
             <button class="theme-toggle" id="themeToggle">
@@ -194,35 +185,27 @@
                     <div class="detail-row">
                         <div class="detail-label">Reminders</div>
                         <div class="detail-value">
-                            <i class="far fa-clock"></i>
-                            <button class="send-reminder-button" onclick="sendReminder('{{ task.id }}')">
-                                <i class="fas fa-envelope"></i>
-                                Send Now
-                            </button>
-                            <div class="reminder-datetime">
-                                <input type="datetime-local" id="reminderDatetime" class="reminder-input" value="{{ task.reminder_datetime|replace(' ', 'T') if task.reminder_datetime else '' }}">
-                                <button class="set-reminder-button" onclick="setCustomReminder('{{ task.id }}')">
-                                    <i class="fas fa-clock"></i>
-                                    Set Reminder
-                                </button>
-                                <button class="delete-reminder-button" onclick="deleteReminder('{{ task.id }}')" {% if not task.reminder_datetime %}style="display: none;"{% endif %}>
-                                    <i class="fas fa-trash"></i>
-                                    Delete Reminder
-                                </button>
+                            <div class="reminder-options">
+                                <div class="reminder-option">
+                                    <input type="checkbox" id="auto-reminder" 
+                                           onchange="toggleAutoReminder('{{ task.id }}')"
+                                           {% if task.auto_reminder %}checked{% endif %}>
+                                    <label for="auto-reminder">Auto-reminder 24h before deadline</label>
+                                </div>
+                                <div class="reminder-datetime">
+                                    <input type="datetime-local" id="reminderDatetime" class="reminder-input" value="{{ task.reminder_datetime|replace(' ', 'T') if task.reminder_datetime else '' }}">
+                                    <button class="set-reminder-button" onclick="setCustomReminder('{{ task.id }}')">
+                                        <i class="fas fa-clock"></i>
+                                        Set Reminder
+                                    </button>
+                                    <button class="delete-reminder-button" onclick="deleteReminder('{{ task.id }}')" {% if not task.reminder_datetime %}style="display: none;"{% endif %}>
+                                        <i class="fas fa-trash"></i>
+                                        Delete Reminder
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-
-
-
-
-                <!-- Add Sub-task Button -->
-                <div class="add-subtask">
-                    <button class="add-subtask-button">
-                        <i class="fas fa-plus"></i>
-                        <span>Add sub-task</span>
-                    </button>
                 </div>
             </div>
         </div>
@@ -704,6 +687,31 @@
         .delete-reminder-button i {
             font-size: 0.9em;
         }
+
+        .reminder-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .auto-reminder-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .auto-reminder-label input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .auto-reminder-label span {
+            font-size: 0.9rem;
+            color: var(--text-primary);
+        }
     </style>
 
 
@@ -980,10 +988,10 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Clear the datetime input
-                    document.getElementById('reminderDatetime').value = '';
                     // Hide the delete button
                     document.querySelector('.delete-reminder-button').style.display = 'none';
+                    // Clear the datetime input
+                    document.getElementById('reminderDatetime').value = '';
                     alert('Reminder deleted successfully!');
                 } else {
                     alert('Failed to delete reminder: ' + data.message);
@@ -992,6 +1000,41 @@
             .catch(error => {
                 console.error('Error:', error);
                 alert('An error occurred while deleting the reminder.');
+            });
+        }
+
+        function toggleAutoReminder(taskId) {
+            const autoReminderCheckbox = document.getElementById('auto-reminder');
+            const isChecked = autoReminderCheckbox.checked;
+
+            fetch(`/toggle_auto_reminder/${taskId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    auto_reminder: isChecked
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (isChecked) {
+                        alert('Auto-reminder set for 24 hours before deadline');
+                    } else {
+                        alert('Auto-reminder disabled');
+                    }
+                } else {
+                    // Revert checkbox state on error
+                    autoReminderCheckbox.checked = !isChecked;
+                    alert('Failed to update auto-reminder: ' + data.message);
+                }
+            })
+            .catch(error => {
+                // Revert checkbox state on error
+                autoReminderCheckbox.checked = !isChecked;
+                console.error('Error:', error);
+                alert('An error occurred while updating auto-reminder setting');
             });
         }
     </script>

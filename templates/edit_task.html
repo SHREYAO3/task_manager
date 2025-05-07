@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Task - ML Task Manager</title>
+    <title>Edit Task - TaskNexus</title>
     <!-- Google Fonts - Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
@@ -22,7 +22,7 @@
         <div class="sidebar-header">
             <div class="header-content">
                 <i class="fas fa-brain"></i>
-                <span>ML Task Manager</span>
+                <span>TaskNexus</span>
             </div>
             <button class="close-btn" onclick="w3_close()">
                 <i class="fas fa-times"></i>
@@ -45,17 +45,8 @@
         <a href="{{ url_for('add_task') }}" class="w3-bar-item w3-button">
             <i class="fas fa-plus"></i> Add New Task
         </a>
-        <a href="#" class="w3-bar-item w3-button">
-            <i class="fas fa-tasks"></i> All Tasks
-        </a>
-        <a href="#" class="w3-bar-item w3-button">
-            <i class="fas fa-calendar-check"></i> Completed Tasks
-        </a>
         <a href="{{ url_for('statistics') }}" class="w3-bar-item w3-button">
             <i class="fas fa-chart-bar"></i> Statistics
-        </a>
-        <a href="#" class="w3-bar-item w3-button">
-            <i class="fas fa-cog"></i> Settings
         </a>
         <div class="sidebar-footer">
             <button class="theme-toggle" id="themeToggle">
@@ -101,7 +92,7 @@
                                 <input type="text" id="title" name="title" required
                                        maxlength="50"
                                        value="{{ task.title }}"
-                                       placeholder="Enter task title (max 50 characters)"
+                                       placeholder="Enter task title (max 50 characters) e.g. Medical Test Results Follow-up"
                                        oninput="validateTitleLength(this)">
                                 <small id="titleInfo" class="form-text"></small>
                             </div>
@@ -112,7 +103,7 @@
                                     Task Description
                                 </label>
                                 <textarea id="description" name="description" rows="4"
-                                          placeholder="Enter task description">{{ task.description }}</textarea>
+                                          placeholder="Enter task description e.g. Call doctor regarding recent blood test results">{{ task.description }}</textarea>
                             </div>
                         </div>
                        
@@ -214,7 +205,7 @@
             </main>
            
             <footer>
-                <p>ML Task Manager &copy; 2025 | <i class="fas fa-brain"></i> AI-powered task prioritization</p>
+                <p>TaskNexus &copy; 2025 | <i class="fas fa-brain"></i> AI-powered task prioritization</p>
             </footer>
         </div>
     </div>

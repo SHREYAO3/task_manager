@@ -16,22 +16,35 @@ class EmailService:
     def __init__(self, sender_email, sender_password):
         self.sender_email = sender_email
         self.sender_password = sender_password
+        print(f"EmailService initialized with sender: {sender_email}")
 
 
     def send_email(self, to_email, subject, body):
         try:
+            print(f"Preparing to send email to {to_email}")
             msg = MIMEText(body)
             msg['Subject'] = subject
             msg['From'] = self.sender_email
             msg['To'] = to_email
 
-
+            print("Connecting to SMTP server...")
             server = smtplib.SMTP('smtp.gmail.com', 587)
             server.starttls()
+            
+            print("Logging in to SMTP server...")
             server.login(self.sender_email, self.sender_password)
+            
+            print("Sending email...")
             server.send_message(msg)
             server.quit()
+            print(f"Email sent successfully to {to_email}")
             return True
+        except smtplib.SMTPAuthenticationError as e:
+            print(f"SMTP Authentication Error: {e}")
+            return False
+        except smtplib.SMTPException as e:
+            print(f"SMTP Error: {e}")
+            return False
         except Exception as e:
             print(f"Email send error: {e}")
             return False
@@ -107,7 +120,7 @@ class AuthManager:
         self.otp_manager.store_otp(email, otp)
 
 
-        subject = 'OTP for ML Task Manager Registration'
+        subject = 'OTP for TaskNexus Registration'
         body = f'Your OTP is: {otp}. It will expire in {self.otp_manager.expiry_minutes} minutes.'
 
 
@@ -203,6 +216,7 @@ class TaskManagerApp:
         self.app.add_url_rule('/search_tasks_ajax', 'search_tasks_ajax', self.search_tasks_ajax)
         self.app.add_url_rule('/view_task/<int:task_id>', 'view_task', self.view_task)
         self.app.add_url_rule('/update_task_status/<int:task_id>', 'update_task_status', self.login_required(self.update_task_status), methods=['POST'])
+        self.app.add_url_rule('/toggle_auto_reminder/<int:task_id>', 'toggle_auto_reminder', self.login_required(self.toggle_auto_reminder), methods=['POST'])
        
         @self.app.route('/toggle_theme', methods=['POST'])
         def toggle_theme():
@@ -590,7 +604,7 @@ Please make sure to complete this task before the deadline.
 
 
 Best regards,
-ML Task Manager
+TaskNexus
 """
 
 
@@ -610,20 +624,22 @@ ML Task Manager
 
     def _reminder_scheduler(self):
         """Background thread that checks for and sends pending reminders"""
+        print("Reminder scheduler started")
         while True:
             try:
                 # Get all pending reminders
                 pending_reminders = self.task_db.get_pending_reminders()
+                print(f"Found {len(pending_reminders)} pending reminders")
                
                 for task in pending_reminders:
-                    # Create and send the reminder email
-                    subject = f'Reminder: Task - {task["title"]}'
-                    body = f"""
+                    try:
+                        print(f"Processing reminder for task: {task['title']} (ID: {task['id']})")
+                        # Create and send the reminder email
+                        subject = f'Reminder: Task - {task["title"]}'
+                        body = f"""
 Hello {task['username']},
 
-
 This is a reminder for your task:
-
 
 Title: {task['title']}
 Description: {task['description']}
@@ -634,17 +650,23 @@ Days Left: {task['deadline_days']}
 Priority: {task['priority']}
 Status: {task['status']}
 
-
 Please make sure to complete this task before the deadline.
 
-
 Best regards,
-ML Task Manager
+TaskNexus
 """
-                    if self.email_service.send_email(task['email'], subject, body):
-                        # Clear the reminder after successful sending
-                        self.task_db.clear_reminder(task['id'])
-                   
+                        print(f"Sending email to {task['email']}")
+                        if self.email_service.send_email(task['email'], subject, body):
+                            print(f"Successfully sent reminder email for task {task['id']}")
+                            # Clear the reminder after successful sending
+                            self.task_db.clear_reminder(task['id'])
+                            print(f"Cleared reminder for task {task['id']}")
+                        else:
+                            print(f"Failed to send reminder email for task {task['id']}")
+                    except Exception as e:
+                        print(f"Error processing reminder for task {task['id']}: {e}")
+                        continue
+               
             except Exception as e:
                 print(f"Error in reminder scheduler: {e}")
            
@@ -902,6 +924,43 @@ ML Task Manager
         except Exception as e:
             print(f"Error in statistics route: {e}")
             return render_template('statistics.html', error=str(e))
+
+
+
+
+    def toggle_auto_reminder(self, task_id):
+        try:
+            data = request.json
+            if not data or 'auto_reminder' not in data:
+                return jsonify({'success': False, 'message': 'Auto reminder state is required'}), 400
+
+            auto_reminder = data['auto_reminder']
+            task = self.task_db.get_task(task_id, session['user_id'])
+            
+            if not task:
+                return jsonify({'success': False, 'message': 'Task not found'}), 404
+
+            if auto_reminder:
+                # Calculate reminder time (24 hours before deadline)
+                deadline = datetime.strptime(task['deadline_datetime'], '%Y-%m-%d %H:%M')
+                reminder_time = deadline - timedelta(hours=24)
+                
+                # Only set reminder if it's in the future
+                if reminder_time > datetime.now():
+                    success = self.task_db.set_reminder(task_id, session['user_id'], reminder_time.strftime('%Y-%m-%d %H:%M'), auto_reminder=True)
+                else:
+                    return jsonify({'success': False, 'message': 'Cannot set reminder for past deadline'}), 400
+            else:
+                # Clear the reminder and auto_reminder flag
+                success = self.task_db.clear_reminder(task_id, session['user_id'])
+
+            if success:
+                return jsonify({'success': True, 'message': 'Auto-reminder setting updated successfully'})
+            return jsonify({'success': False, 'message': 'Failed to update auto-reminder setting'})
+
+        except Exception as e:
+            print(f"Error toggling auto-reminder: {e}")
+            return jsonify({'success': False, 'message': str(e)}), 500
 
 
 

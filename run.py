@@ -74,7 +74,7 @@ class ApplicationRunner:
         try:
             from app import app
             self.app = app
-            print("\n=== ML Task Manager ===")
+            print("\n=== TaskNexus ===")
             print("Starting the application...")
             print("Open your browser and go to: http://127.0.0.1:5000/")
             self.app.run(debug=True)
@@ -82,7 +82,7 @@ class ApplicationRunner:
             print(f"Error running the application: {e}")
 
 def main():
-    print("Setting up ML Task Manager...")
+    print("Setting up TaskNexus...")
    
     # Setup application
     setup = ApplicationSetup()

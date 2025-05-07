@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ML Task Manager - Organize Your Machine Learning Projects</title>
+    <title>TaskNexus - Organize Your Machine Learning Projects</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -12,7 +12,7 @@
     <nav class="landing-nav">
         <div class="nav-brand">
             <i class="fas fa-robot"></i>
-            <span>ML Task Manager</span>
+            <span>TaskNexus</span>
         </div>
         <div class="nav-actions">
             <button class="theme-toggle" id="themeToggle">
@@ -51,13 +51,13 @@
         <div class="hero-content">
             {% if logged_in %}
                 <h1>Welcome back, {{ username }}!</h1>
-                <p>Continue managing your ML projects and tasks efficiently.</p>
+                <p>Continue managing your tasks efficiently.</p>
                 <div class="hero-buttons">
                     <a href="{{ url_for('index') }}" class="btn btn-primary">Go to Dashboard</a>
                     <a href="{{ url_for('add_task') }}" class="btn btn-outline">Add New Task</a>
                 </div>
             {% else %}
-                <h1>Organize Your ML Projects with Ease</h1>
+                <h1>Organize Your Tasks with Ease</h1>
                 <p>A powerful task management system designed specifically for machine learning projects. Track experiments, manage datasets, and collaborate with your team.</p>
                 <div class="hero-buttons">
                     <a href="{{ url_for('login') }}" class="btn btn-primary">Get Started</a>
@@ -90,58 +90,50 @@
     <!-- About Section -->
     <section id="about" class="about-section">
         <h2>About Us</h2>
-        <p class="section-description">Meet the team behind ML Task Manager</p>
+        <p class="section-description">Meet the team behind TaskNexus</p>
         <div class="team-grid">
             <div class="team-member">
                 <div class="member-avatar">
-                    <i class="fas fa-user-circle"></i>
+                    <img src="{{ url_for('static', filename='image/Abhik.jpg') }}" alt="John Doe">
                 </div>
-                <h3>John Doe</h3>
-                <p class="member-role">Lead Developer</p>
-                <p class="member-bio">Machine learning enthusiast with 5+ years of experience in AI development.</p>
+                <h3>Abhik Mondal</h3>
                 <div class="member-social">
                     <a href="#"><i class="fab fa-github"></i></a>
                     <a href="#"><i class="fab fa-linkedin"></i></a>
-                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
                 </div>
             </div>
             <div class="team-member">
                 <div class="member-avatar">
-                    <i class="fas fa-user-circle"></i>
+                    <img src="{{ url_for('static', filename='image/Ayantika.jpg') }}" alt="Jane Smith">
                 </div>
-                <h3>Jane Smith</h3>
-                <p class="member-role">UI/UX Designer</p>
-                <p class="member-bio">Passionate about creating intuitive interfaces for complex ML workflows.</p>
+                <h3>Ayantika Saha</h3>
                 <div class="member-social">
                     <a href="#"><i class="fab fa-github"></i></a>
                     <a href="#"><i class="fab fa-linkedin"></i></a>
-                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
                 </div>
             </div>
             <div class="team-member">
                 <div class="member-avatar">
-                    <i class="fas fa-user-circle"></i>
+                    <img src="{{ url_for('static', filename='image/Anuradha.jpg') }}" alt="Mike Johnson">
                 </div>
-                <h3>Mike Johnson</h3>
-                <p class="member-role">ML Engineer</p>
-                <p class="member-bio">Specialized in deep learning and neural network optimization.</p>
+                <h3>Anuradha Saha</h3>
                 <div class="member-social">
                     <a href="#"><i class="fab fa-github"></i></a>
                     <a href="#"><i class="fab fa-linkedin"></i></a>
-                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
                 </div>
             </div>
             <div class="team-member">
                 <div class="member-avatar">
-                    <i class="fas fa-user-circle"></i>
+                    <img src="{{ url_for('static', filename='image/Rajdeep.jpg') }}" alt="Sarah Wilson">
                 </div>
-                <h3>Sarah Wilson</h3>
-                <p class="member-role">Product Manager</p>
-                <p class="member-bio">Focused on delivering the best ML project management experience.</p>
+                <h3>Rajdeep Patra</h3>
                 <div class="member-social">
                     <a href="#"><i class="fab fa-github"></i></a>
                     <a href="#"><i class="fab fa-linkedin"></i></a>
-                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
                 </div>
             </div>
         </div>
@@ -203,7 +195,7 @@
         <div class="footer-content">
             <div class="footer-brand">
                 <i class="fas fa-robot"></i>
-                <span>ML Task Manager</span>
+                <span>TaskNexus</span>
             </div>
             <div class="footer-links">
                 <a href="#about">About</a>
@@ -218,7 +210,7 @@
             </div>
         </div>
         <div class="footer-bottom">
-            <p>&copy; 2024 ML Task Manager. All rights reserved.</p>
+            <p>&copy; 2024 TaskNexus. All rights reserved.</p>
         </div>
     </footer>
 
