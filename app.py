@@ -781,32 +781,29 @@ TaskNexus
             # Calculate category statistics
             category_stats = {}
             category_completion_times = {}
+            task_types_by_category = {}  # New dictionary to store task types by category
 
             for task in tasks:
                 # Category statistics
                 category = task.get('category', 'Uncategorized')
-                task_type = task.get('type', 'Meetings')  # Default to Meetings if type is not specified
+                task_type = task.get('type', 'Other')  # Default to 'Other' if type is not specified
                 
                 if category not in category_stats:
-                    # Initialize all possible task types for this category
+                    # Initialize with basic counters
                     category_stats[category] = {
                         'total': 0,
                         'completed': 0
                     }
-                    # Add all task types from the mapping for this category
-                    if category in self.task_prioritizer.category_type_mapping:
-                        for task_type_name in self.task_prioritizer.category_type_mapping[category]:
-                            key = task_type_name.lower().replace(' ', '_')
-                            category_stats[category][key] = 0
+                    task_types_by_category[category] = {}  # Initialize task types for this category
                 
                 category_stats[category]['total'] += 1
                 if task.get('status') == 'completed':
                     category_stats[category]['completed'] += 1
                 
-                # Increment the appropriate task type counter
-                task_type_lower = task_type.lower().replace(' ', '_')
-                if task_type_lower in category_stats[category]:
-                    category_stats[category][task_type_lower] += 1
+                # Track task types for this category
+                if task_type not in task_types_by_category[category]:
+                    task_types_by_category[category][task_type] = 0
+                task_types_by_category[category][task_type] += 1
 
                 # Calculate completion times for completed tasks
                 if task.get('status') == 'completed' and task.get('created_at') and task.get('completed_at'):
@@ -917,13 +914,37 @@ TaskNexus
                                 most_active_category=most_active_category,
                                 least_active_category=least_active_category,
                                 task_trends=task_trends,
-                                category_type_mapping=self.task_prioritizer.category_type_mapping,
+                                task_types_by_category=task_types_by_category,
                                 fresh_tasks=fresh_tasks,
                                 stale_tasks=stale_tasks,
                                 aging_tasks=aging_tasks)
         except Exception as e:
             print(f"Error in statistics route: {e}")
-            return render_template('statistics.html', error=str(e))
+            return render_template('statistics.html', 
+                                error=str(e),
+                                username=session.get('username'),
+                                total_tasks=0,
+                                completed_tasks=0,
+                                pending_tasks=0,
+                                in_progress_tasks=0,
+                                review_tasks=0,
+                                high_urgency=0,
+                                medium_urgency=0,
+                                low_urgency=0,
+                                overdue_tasks=0,
+                                due_today=0,
+                                due_this_week=0,
+                                avg_effort=0,
+                                completion_rate=0,
+                                category_stats={},
+                                avg_category_times={},
+                                most_active_category=None,
+                                least_active_category=None,
+                                task_trends={'dates': [], 'created': [], 'completed': []},
+                                task_types_by_category={},
+                                fresh_tasks=0,
+                                stale_tasks=0,
+                                aging_tasks=0)
 
 
 
