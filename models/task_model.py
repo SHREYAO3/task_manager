@@ -65,53 +65,53 @@ class TaskDatabase:
                 """)
                 self.conn.commit()
                
-                # Check if auto_reminder column exists
-                has_auto_reminder_column = True
-                try:
-                    self.cursor.execute("SELECT auto_reminder FROM TASKS WHERE 1=0")
-                except pyodbc.Error:
-                    has_auto_reminder_column = False
+                # # Check if auto_reminder column exists
+                # has_auto_reminder_column = True
+                # try:
+                #     self.cursor.execute("SELECT auto_reminder FROM TASKS WHERE 1=0")
+                # except pyodbc.Error:
+                #     has_auto_reminder_column = False
                
-                # Add auto_reminder column if it doesn't exist
-                if not has_auto_reminder_column:
-                    try:
-                        self.cursor.execute("ALTER TABLE TASKS ADD auto_reminder BIT DEFAULT 0")
-                        self.conn.commit()
-                        print("Added auto_reminder column to TASKS table")
-                    except pyodbc.Error as e:
-                        print(f"Error adding auto_reminder column: {e}")
+                # # Add auto_reminder column if it doesn't exist
+                # if not has_auto_reminder_column:
+                #     try:
+                #         self.cursor.execute("ALTER TABLE TASKS ADD auto_reminder BIT DEFAULT 0")
+                #         self.conn.commit()
+                #         print("Added auto_reminder column to TASKS table")
+                #     except pyodbc.Error as e:
+                #         print(f"Error adding auto_reminder column: {e}")
                
-                # Check if reminder_datetime column exists
-                has_reminder_column = True
-                try:
-                    self.cursor.execute("SELECT reminder_datetime FROM TASKS WHERE 1=0")
-                except pyodbc.Error:
-                    has_reminder_column = False
+                # # Check if reminder_datetime column exists
+                # has_reminder_column = True
+                # try:
+                #     self.cursor.execute("SELECT reminder_datetime FROM TASKS WHERE 1=0")
+                # except pyodbc.Error:
+                #     has_reminder_column = False
                
-                # Add reminder_datetime column if it doesn't exist
-                if not has_reminder_column:
-                    try:
-                        self.cursor.execute("ALTER TABLE TASKS ADD reminder_datetime NVARCHAR(50)")
-                        self.conn.commit()
-                        print("Added reminder_datetime column to TASKS table")
-                    except pyodbc.Error as e:
-                        print(f"Error adding reminder_datetime column: {e}")
+                # # Add reminder_datetime column if it doesn't exist
+                # if not has_reminder_column:
+                #     try:
+                #         self.cursor.execute("ALTER TABLE TASKS ADD reminder_datetime NVARCHAR(50)")
+                #         self.conn.commit()
+                #         print("Added reminder_datetime column to TASKS table")
+                #     except pyodbc.Error as e:
+                #         print(f"Error adding reminder_datetime column: {e}")
                
-                # Check if status column exists
-                has_status_column = True
-                try:
-                    self.cursor.execute("SELECT status FROM TASKS WHERE 1=0")
-                except pyodbc.Error:
-                    has_status_column = False
+                # # Check if status column exists
+                # has_status_column = True
+                # try:
+                #     self.cursor.execute("SELECT status FROM TASKS WHERE 1=0")
+                # except pyodbc.Error:
+                #     has_status_column = False
                
-                # Add status column if it doesn't exist
-                if not has_status_column:
-                    try:
-                        self.cursor.execute("ALTER TABLE TASKS ADD status NVARCHAR(20) DEFAULT 'pending'")
-                        self.conn.commit()
-                        print("Added status column to TASKS table")
-                    except pyodbc.Error as e:
-                        print(f"Error adding status column: {e}")
+                # # Add status column if it doesn't exist
+                # if not has_status_column:
+                #     try:
+                #         self.cursor.execute("ALTER TABLE TASKS ADD status NVARCHAR(20) DEFAULT 'pending'")
+                #         self.conn.commit()
+                #         print("Added status column to TASKS table")
+                #     except pyodbc.Error as e:
+                #         print(f"Error adding status column: {e}")
                
             except pyodbc.Error as e:
                 print(f"Error creating table: {e}")
@@ -141,6 +141,7 @@ class TaskDatabase:
                     status
                 ))
                 self.conn.commit()
+                # Fetches the ID (primary key) of the newly inserted task.
                 self.cursor.execute("SELECT @@IDENTITY AS ID")
                 last_id = self.cursor.fetchone()[0]
                 print(f"Task inserted with ID: {last_id}")
