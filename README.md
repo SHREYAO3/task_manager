@@ -6,7 +6,7 @@ TaskNexus is a sophisticated task management application built using Flask, foll
 
 ```
 task_manager/
-├── app.py              # Main application file containing core logic
+├── app.py             # Main application file containing core logic
 ├── run.py             # Application entry point
 ├── models/            # Database models and ML components
 │   ├── task_model.py  # Task database operations
@@ -14,7 +14,7 @@ task_manager/
 │   └── ml_model.py    # Machine learning for task prioritization
 ├── static/            # Static assets (CSS, JS, images)
 ├── templates/         # HTML templates
-└── ml/               # Machine learning related files
+└── ml/                # Machine learning related files
 ```
 
 ## Features
